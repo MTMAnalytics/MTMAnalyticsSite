@@ -5,31 +5,23 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MTM Analytics</title>
   <meta name="description" content="MTM Analytics — coming soon" />
-
   <style>
     :root{
       --bg-dark:#02102a;
       --bg-mid:#042a66;
-      --glass-1: rgba(255,255,255,0.03);
-      --glass-2: rgba(255,255,255,0.02);
-      --neon: rgba(64,200,255,0.95);
+      --neon: rgba(64,200,255,0.98);
       --muted: rgba(230,240,251,0.72);
-      --card-blue: rgba(6,30,70,0.55);
+      --card-blue: rgba(10,36,80,0.55);
       --radius: 16px;
       --ease: cubic-bezier(.2,.9,.3,1);
     }
 
-    /* Reset */
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
       font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
       color:#eaf6ff;
-      background:
-        radial-gradient(900px 400px at 10% 10%, rgba(64,200,255,0.04), transparent 8%),
-        radial-gradient(700px 350px at 90% 80%, rgba(10,120,255,0.03), transparent 6%),
-        linear-gradient(180deg,var(--bg-dark),var(--bg-mid));
       display:flex;
       align-items:flex-start;
       justify-content:center;
@@ -37,56 +29,65 @@
       padding:48px 20px;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
+      background:
+        linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
       overflow-x:hidden;
     }
 
-    /* Decorative glow */
-    .glow {
+    /* High-res textured backdrop (place your texture at assets/bg-texture.jpg) */
+    .backdrop {
       position:fixed;
-      inset:-10% -10% auto auto;
-      width:70vmax;
-      height:70vmax;
-      background: radial-gradient(circle at 30% 30%, rgba(64,200,255,0.06), transparent 20%),
-                  radial-gradient(circle at 80% 80%, rgba(10,120,255,0.04), transparent 10%);
-      filter: blur(80px) saturate(120%);
-      pointer-events:none;
+      inset:0;
+      background-image:
+        url('assets/bg-texture.jpg'),
+        radial-gradient(1200px 600px at 10% 10%, rgba(64,200,255,0.03), transparent 8%),
+        linear-gradient(180deg,var(--bg-dark),var(--bg-mid));
+      background-size:cover, cover, cover;
+      background-position:center center, left top, center;
+      filter: saturate(110%) contrast(105%);
+      opacity:0.95;
       z-index:0;
+      pointer-events:none;
     }
 
-    /* Intro overlay: only logo visible, very large and centered */
+    /* subtle grain overlay to avoid banding */
+    .grain {
+      position:fixed;
+      inset:0;
+      background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+      background-size: 3px 3px;
+      mix-blend-mode: overlay;
+      opacity:0.25;
+      z-index:1;
+      pointer-events:none;
+    }
+
+    /* Intro overlay: only the big logo visible */
     .intro {
       position:fixed;
       inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
-      background: linear-gradient(180deg, rgba(2,6,18,0.75), rgba(2,6,18,0.12));
       z-index:60;
       transition: opacity 900ms var(--ease), visibility 900ms var(--ease);
-      pointer-events:auto;
+      background: linear-gradient(180deg, rgba(0,6,18,0.75), rgba(0,6,18,0.12));
     }
     .intro.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
 
     /* Intro logo - very large and centered */
     .intro .logo {
-      width:48vmin;
-      max-width:720px;
-      max-height:72vh;
+      width:56vmin;
+      max-width:820px;
+      max-height:78vh;
       height:auto;
       display:block;
       transform-origin:center;
-      filter: drop-shadow(0 30px 80px rgba(0,0,0,0.7));
-      transition: transform 900ms var(--ease), opacity 900ms var(--ease);
+      filter: drop-shadow(0 40px 120px rgba(0,0,0,0.75));
       will-change: transform, opacity;
     }
 
-    /* When animating to top, scale down and translate up */
-    .intro.to-top .logo {
-      transform: translateY(-38vh) scale(0.18);
-      opacity:0.95;
-    }
-
-    /* Page container (hidden under intro until intro finishes) */
+    /* container for final layout */
     .container{
       width:100%;
       max-width:980px;
@@ -106,12 +107,12 @@
       justify-content:center;
       width:100%;
       opacity:0;
-      transform: translateY(-6px);
+      transform: translateY(-6px) scale(0.98);
       transition: opacity 700ms var(--ease), transform 700ms var(--ease);
       pointer-events:none;
       z-index:20;
     }
-    .top-logo.visible{ opacity:1; transform: translateY(0); }
+    .top-logo.visible{ opacity:1; transform: translateY(0) scale(1); }
     .top-logo img{
       height:48px;
       width:auto;
@@ -122,18 +123,19 @@
     /* Main card - glass, centered, neon rim */
     .card {
       width:100%;
-      max-width:720px;
+      max-width:520px;
       margin-top:18px;
       background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       border-radius: var(--radius);
-      padding:28px;
+      padding:28px 22px;
       box-shadow:
-        0 14px 50px rgba(2,6,23,0.6),
-        0 0 60px rgba(64,200,255,0.06);
+        0 18px 60px rgba(2,6,23,0.6),
+        0 0 40px rgba(64,200,255,0.06);
       backdrop-filter: blur(14px) saturate(140%);
       border: 1px solid rgba(255,255,255,0.03);
       display:flex;
-      gap:20px;
+      flex-direction:column;
+      gap:18px;
       align-items:center;
       position:relative;
       z-index:5;
@@ -142,26 +144,25 @@
       transform: translateY(10px) scale(0.995);
     }
 
-    /* Neon rim */
-    .card::before{
+    /* stronger neon rim/shadow */
+    .card::after{
       content:"";
       position:absolute;
-      inset:-2px;
-      border-radius:calc(var(--radius) + 2px);
-      background: linear-gradient(90deg, transparent, rgba(64,200,255,0.08), transparent);
-      filter: blur(20px);
+      inset:-6px;
+      border-radius:calc(var(--radius) + 6px);
+      background: radial-gradient(ellipse at center, rgba(64,200,255,0.12), transparent 35%);
+      filter: blur(18px);
       z-index:-1;
       pointer-events:none;
       mix-blend-mode:screen;
     }
 
-    /* When card is shown */
     .card.visible{ opacity:1; transform: translateY(0) scale(1); }
 
     /* Preview area: centered logo inside card */
     .preview {
-      width:220px;
-      height:140px;
+      width:240px;
+      height:160px;
       border-radius:12px;
       background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       display:flex;
@@ -169,57 +170,56 @@
       justify-content:center;
       overflow:hidden;
       border: 1px solid rgba(255,255,255,0.04);
-      box-shadow: 0 8px 30px rgba(2,6,23,0.5), 0 0 18px rgba(64,200,255,0.06) inset;
+      box-shadow: 0 10px 30px rgba(2,6,23,0.5), 0 0 26px rgba(64,200,255,0.06) inset;
       margin:0 auto;
     }
     .preview img{ max-width:86%; max-height:86%; opacity:0.98; display:block; }
 
-    /* Meta area simplified: only centered text and CTA */
+    /* Meta area simplified: only centered Coming soon */
     .meta {
-      flex:1;
       display:flex;
       flex-direction:column;
       gap:12px;
       align-items:center;
       text-align:center;
+      width:100%;
     }
 
     .meta .coming {
       display:block;
       margin-top:6px;
-      padding:10px 18px;
-      background: linear-gradient(90deg, rgba(64,200,255,0.14), rgba(64,200,255,0.08));
+      padding:12px 22px;
+      background: linear-gradient(90deg, rgba(64,200,255,0.16), rgba(64,200,255,0.08));
       color:var(--neon);
       border-radius:999px;
-      font-weight:700;
+      font-weight:800;
       letter-spacing:0.02em;
-      border: 1px solid rgba(64,200,255,0.08);
-      box-shadow: 0 10px 40px rgba(64,200,255,0.06);
+      border: 1px solid rgba(64,200,255,0.12);
+      box-shadow: 0 18px 60px rgba(64,200,255,0.08);
       cursor:default;
+      font-size:1rem;
     }
 
-    /* Hide any extra text by default (we'll only show logo + button + small caption) */
+    /* small caption under button (optional, empty by default) */
     .meta .caption{
       color:var(--muted);
       font-size:0.95rem;
-      margin-top:6px;
       opacity:0.9;
     }
 
-    /* Responsive */
     @media (max-width:720px){
       body{ padding:28px 16px; }
-      .intro .logo{ width:62vmin; max-width:420px; }
+      .intro .logo{ width:72vmin; max-width:420px; }
       .top-logo img{ height:40px; }
-      .card{ flex-direction:column; padding:20px; gap:16px; }
+      .card{ padding:20px; gap:14px; max-width:92%; }
       .preview{ width:100%; height:160px; }
-      .meta{ align-items:center; text-align:center; }
     }
   </style>
 </head>
 <body>
 
-  <div class="glow" aria-hidden="true"></div>
+  <div class="backdrop" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
 
   <!-- Intro overlay: only the big logo is visible here -->
   <div id="intro" class="intro" role="dialog" aria-label="Intro animation">
@@ -232,15 +232,15 @@
       <img src="assets/logo.png" alt="MTM Analytics" id="topLogo">
     </div>
 
-    <!-- Main card: centered logo preview + coming soon button -->
+    <!-- Main card: centered logo preview + coming soon button (centered) -->
     <section class="card" id="mainCard" aria-labelledby="cardTitle" aria-describedby="cardDesc">
       <div class="preview" aria-hidden="true">
         <img src="assets/logo.png" alt="Logo placeholder">
       </div>
 
       <div class="meta">
-        <div class="caption" id="cardDesc"> </div>
         <span class="coming" role="status" aria-live="polite">Coming soon</span>
+        <div class="caption" id="cardDesc"></div>
       </div>
     </section>
   </div>
@@ -253,44 +253,48 @@
       const topLogo = document.getElementById('topLogo');
       const mainCard = document.getElementById('mainCard');
 
-      // Timings
       const SHOW_MS = 3000;      // how long the big intro logo stays visible
       const TRANSITION_MS = 900; // animation duration for moving/fading
 
-      // Ensure only logo is visible in intro (no text)
-      // After SHOW_MS, animate the intro logo to the top and reveal the card
-      function animateToTopAndReveal() {
-        // Add class that scales/translates the intro logo upward
-        intro.classList.add('to-top');
+      // Smoothly animate the intro logo to the exact position/size of the top logo
+      function animateLogoToTop() {
+        // get bounding rects
+        const introRect = introLogo.getBoundingClientRect();
+        const topRect = topLogo.getBoundingClientRect();
 
-        // After the transform finishes, hide intro overlay and reveal top logo + card
+        // compute scale and translation to move introLogo to topLogo position
+        const scale = topRect.width / introRect.width;
+        const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
+        const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
+
+        // apply transform with transition for a seamless morph
+        introLogo.style.transition = `transform ${TRANSITION_MS}ms var(--ease), opacity ${TRANSITION_MS}ms var(--ease)`;
+        introLogo.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        introLogo.style.opacity = '0.98';
+
+        // after transform completes, hide intro and reveal final UI
         setTimeout(() => {
-          // Hide intro overlay smoothly
           intro.classList.add('hidden');
-
-          // Reveal the small top logo
           topLogoWrap.classList.add('visible');
-
-          // Reveal the card with a slight delay for a professional fade-in
-          setTimeout(() => {
-            mainCard.classList.add('visible');
-          }, 160); // small stagger
+          setTimeout(()=> mainCard.classList.add('visible'), 160);
         }, TRANSITION_MS);
       }
 
-      // Start the sequence
-      let started = false;
+      // Start sequence
       function startSequence() {
-        if (started) return;
-        started = true;
-        // Wait SHOW_MS then animate
-        setTimeout(animateToTopAndReveal, SHOW_MS);
+        // ensure images are loaded so measurements are correct
+        if (!introLogo.complete || !topLogo.complete) {
+          // wait a short bit for images to load
+          setTimeout(startSequence, 120);
+          return;
+        }
+        // keep the big logo visible for SHOW_MS, then animate
+        setTimeout(animateLogoToTop, SHOW_MS);
       }
 
-      // Accessibility: allow skipping animation with Escape or click
+      // Accessibility: skip animation
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-          // Immediately hide intro and show final UI
           intro.classList.add('hidden');
           topLogoWrap.classList.add('visible');
           mainCard.classList.add('visible');
@@ -302,15 +306,14 @@
         mainCard.classList.add('visible');
       });
 
-      // Start automatically when DOM is ready
+      // Kick off when DOM ready
       if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        // small delay to ensure images load and the intro looks crisp
         setTimeout(startSequence, 120);
       } else {
         window.addEventListener('DOMContentLoaded', () => setTimeout(startSequence, 120));
       }
 
-      // If images are slow to load, ensure top logo still appears after a timeout
+      // Fallback: if something blocks the animation, ensure final UI appears
       setTimeout(() => {
         if (!topLogoWrap.classList.contains('visible') && intro.classList.contains('hidden')) {
           topLogoWrap.classList.add('visible');
