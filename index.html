@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MTM Analytics — Reports</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1724;
+    --card:#0b1220;
+    --accent:#00b894;
+    --muted:#9aa4b2;
+    --glass: rgba(255,255,255,0.03);
+    --max-width:1100px;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;color:#e6eef6;background:linear-gradient(180deg,#071021 0%, #0f1724 100%);}
+  .container{max-width:var(--max-width);margin:0 auto;padding:28px;}
+  /* Splash */
+  .splash{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:40;background:var(--bg);transition:opacity .8s ease,visibility .8s;
+  }
+  .splash.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+  .splash .logo-wrap{display:flex;flex-direction:column;align-items:center;gap:18px}
+  .brand-img{width:220px;height:220px;border-radius:12px;object-fit:cover;box-shadow:0 10px 30px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.04)}
+  .brand-title{color:#fff;font-weight:700;font-size:22px;letter-spacing:0.6px}
+  .brand-sub{color:var(--muted);font-size:14px}
+  /* Main content */
+  header{padding-top:36px;padding-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .site-title{display:flex;align-items:center;gap:12px}
+  .site-title img{width:48px;height:48px;border-radius:8px;object-fit:cover}
+  .site-title h1{margin:0;font-size:18px;color:#fff}
+  .site-title p{margin:0;color:var(--muted);font-size:13px}
+  main{padding:18px 0 80px}
+  .intro{color:var(--muted);margin-bottom:18px}
+  /* Grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03);transition:transform .18s ease,box-shadow .18s}
+  .card:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(2,6,23,0.7)}
+  .card .logo{width:100%;height:120px;border-radius:8px;object-fit:cover;background:var(--glass);display:flex;align-items:center;justify-content:center}
+  .card h3{margin:0;color:#fff;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:13px;flex:1}
+  .card .cta{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:8px}
+  .btn{background:var(--accent);color:#042024;padding:8px 12px;border-radius:8px;font-weight:600;text-decoration:none;border:none;cursor:pointer}
+  .ghost{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px;font-size:13px}
+  footer{padding:28px 0;color:var(--muted);font-size:13px;text-align:center}
+  /* Responsive tweaks */
+  @media (max-width:520px){ .brand-img{width:160px;height:160px} .card .logo{height:100px} header{padding-top:18px} }
+</style>
+</head>
+<body>
+  <!-- Simple report list you can edit -->
+  <script>
+    // Edit this array to add/remove reports
+    window.REPORTS = [
+      { id: "tour-2026", title: "Tour 2026 Overview", desc: "Season rankings, leaderboards and event summaries.", thumb: "https://yourblob.blob.core.windows.net/thumbs/tour-2026.jpg", embed: "#" },
+      { id: "club-abc", title: "Club ABC Dashboard", desc: "Player stats, match history and top performers.", thumb: "https://yourblob.blob.core.windows.net/thumbs/club-abc.jpg", embed: "#" },
+      { id: "club-xyz", title: "Club XYZ Dashboard", desc: "Team performance and player analytics.", thumb: "https://yourblob.blob.core.windows.net/thumbs/club-xyz.jpg", embed: "#" }
+    ];
+  </script>
+
+  <!-- Splash -->
+  <div id="splash" class="splash" aria-hidden="false">
+    <div class="logo-wrap" role="img" aria-label="MTM Analytics">
+      <img src="https://yourblob.blob.core.windows.net/brand/mtm-logo.jpg" alt="MTM Analytics" class="brand-img" />
+      <div class="brand-title">MTM Analytics</div>
+      <div class="brand-sub">Pool analytics, rankings and event dashboards</div>
+    </div>
+  </div>
+
+  <!-- Main site -->
+  <div class="container" id="site" aria-hidden="true" style="opacity:0;transition:opacity .6s ease;">
+    <header>
+      <div class="site-title">
+        <img src="https://yourblob.blob.core.windows.net/brand/mtm-favicon.jpg" alt="MTM logo">
+        <div>
+          <h1>MTM Analytics</h1>
+          <p>Choose a report to view</p>
+        </div>
+      </div>
+      <nav aria-label="Primary">
+        <a class="ghost" href="/pricing">Pricing</a>
+      </nav>
+    </header>
+
+    <main>
+      <p class="intro">Select a report below. Click a card to open the report page. Reports will be embedded via Power BI Publish to Web when ready.</p>
+
+      <section class="grid" id="reportGrid" aria-live="polite"></section>
+    </main>
+
+    <footer>
+      Data sourced from CueScore API. Used with permission. Visualisation by MTM Analytics.
+    </footer>
+  </div>
+
+<script>
+  // Render cards
+  function renderGrid(){
+    const grid = document.getElementById('reportGrid');
+    grid.innerHTML = '';
+    (window.REPORTS || []).forEach(r=>{
+      const card = document.createElement('article');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="logo" aria-hidden="true">
+          <img src="${r.thumb}" alt="${r.title} thumbnail" style="width:100%;height:100%;object-fit:cover;border-radius:8px" loading="lazy">
+        </div>
+        <h3>${r.title}</h3>
+        <p>${r.desc}</p>
+        <div class="cta">
+          <a class="btn" href="${r.embed}" data-id="${r.id}" role="button">View report</a>
+          <a class="ghost" href="/contact">Contact</a>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // Splash logic: show for 1.6s then fade
+  function hideSplash(){
+    const splash = document.getElementById('splash');
+    const site = document.getElementById('site');
+    splash.classList.add('hidden');
+    splash.setAttribute('aria-hidden','true');
+    site.style.opacity = 1;
+    site.setAttribute('aria-hidden','false');
+  }
+
+  // Wait for images to load a little, then hide splash
+  window.addEventListener('load',()=>{
+    renderGrid();
+    // Keep splash visible briefly for brand effect
+    setTimeout(hideSplash, 1400);
+  });
+
+  // Accessibility: allow Enter on card to follow link
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      const active = document.activeElement;
+      if(active && active.matches && active.matches('.card, .card *')){
+        const btn = active.querySelector && active.querySelector('.btn');
+        if(btn) btn.click();
+      }
+    }
+  });
+</script>
+</body>
+</html>
