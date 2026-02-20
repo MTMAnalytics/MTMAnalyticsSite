@@ -8,216 +8,273 @@
 
   <style>
     :root{
-      --bg1:#0f1724;
-      --bg2:#0b3b8a;
-      --glass: rgba(255,255,255,0.06);
-      --glass-2: rgba(255,255,255,0.08);
-      --accent: #4fc3f7;
-      --card-bg: rgba(255,255,255,0.06);
-      --text: #e6f0fb;
-      --muted: rgba(230,240,251,0.7);
-      --radius: 14px;
+      --bg-dark:#03102a;
+      --bg-mid:#042a5a;
+      --glass-1: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.02);
+      --neon: rgba(64,200,255,0.95);
+      --muted: rgba(230,240,251,0.75);
+      --card-blue: rgba(10,36,80,0.55);
+      --radius: 16px;
       --ease: cubic-bezier(.2,.9,.3,1);
     }
+
+    /* Reset */
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      background: radial-gradient(1200px 600px at 10% 10%, rgba(79,195,247,0.08), transparent 10%),
-                  linear-gradient(180deg,var(--bg1),var(--bg2));
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #eaf6ff;
+      background:
+        radial-gradient(800px 400px at 10% 10%, rgba(64,200,255,0.04), transparent 8%),
+        radial-gradient(700px 350px at 90% 80%, rgba(10,120,255,0.03), transparent 6%),
+        linear-gradient(180deg, var(--bg-dark), var(--bg-mid));
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:center;
       min-height:100vh;
-      overflow:hidden;
+      padding:48px 20px;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
     }
 
-    .bg-shape{
+    /* Subtle animated background glow */
+    .glow {
       position:fixed;
-      inset: -20% -20% auto auto;
-      width:60vmax;
-      height:60vmax;
-      background: linear-gradient(135deg, rgba(79,195,247,0.08), rgba(10,25,60,0.12));
-      filter: blur(60px);
-      transform: rotate(15deg);
+      inset: -10% -10% auto auto;
+      width:70vmax;
+      height:70vmax;
+      background: radial-gradient(circle at 30% 30%, rgba(64,200,255,0.06), transparent 20%),
+                  radial-gradient(circle at 80% 80%, rgba(10,120,255,0.04), transparent 10%);
+      filter: blur(80px) saturate(120%);
       pointer-events:none;
-      animation: float 18s linear infinite;
-      opacity:0.9;
-    }
-    .bg-shape.alt{
-      right:auto; left:-10%;
-      top:auto; bottom:-10%;
-      transform: rotate(-10deg);
-      animation-duration: 26s;
-      opacity:0.7;
-    }
-    @keyframes float{
-      0%{transform: translateY(0) rotate(0deg)}
-      50%{transform: translateY(-30px) rotate(6deg)}
-      100%{transform: translateY(0) rotate(0deg)}
+      z-index:0;
+      transform: translateZ(0);
     }
 
+    /* Intro splash (centered logo) */
     .intro {
       position:fixed;
       inset:0;
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:center;
-      background: linear-gradient(180deg, rgba(5,10,20,0.6), rgba(5,10,20,0.2));
+      padding-top:6vh;
+      background: linear-gradient(180deg, rgba(2,6,18,0.55), rgba(2,6,18,0.12));
       z-index:40;
-      transition: opacity 700ms var(--ease), visibility 700ms var(--ease);
+      transition: opacity 900ms var(--ease), visibility 900ms var(--ease);
     }
     .intro.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
-    .intro img{ width:28vmin; max-width:220px; animation: pop 900ms var(--ease) forwards; }
-    @keyframes pop{
+    .intro img{
+      width:18vmin;
+      max-width:160px;
+      height:auto;
+      display:block;
+      transform-origin:center;
+      animation: introPop 900ms var(--ease) forwards;
+      filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
+    }
+    @keyframes introPop{
       0%{transform: scale(.6); opacity:0}
-      60%{transform: scale(1.06); opacity:1}
+      60%{transform: scale(1.08); opacity:1}
       100%{transform: scale(1); opacity:1}
     }
 
-    .page {
+    /* Page container */
+    .container{
       width:100%;
-      max-width:1100px;
-      padding:48px;
+      max-width:980px;
+      z-index:10;
       display:flex;
       flex-direction:column;
+      align-items:center;
       gap:28px;
-      z-index:10;
     }
 
-    header {
+    /* Top centered logo (small) */
+    .top-logo {
+      margin-top:8vh;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:16px;
-      padding-top:6px;
+      width:100%;
+      pointer-events:none;
     }
-    .logo-top{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      position:relative;
-      top:0;
-      transition: transform 500ms var(--ease);
+    .top-logo img{
+      height:48px;
+      width:auto;
+      display:block;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+      transition: transform 600ms var(--ease), opacity 600ms var(--ease);
     }
-    .logo-top img{ height:44px; width:auto; display:block; }
 
-    .card-wrap{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin-top:28px;
-    }
-    .card{
+    /* Main card */
+    .card {
       width:100%;
       max-width:720px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      margin-top:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       border-radius: var(--radius);
       padding:28px;
-      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
-      backdrop-filter: blur(10px) saturate(120%);
-      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow:
+        0 10px 40px rgba(2,6,23,0.6),
+        0 0 40px rgba(64,200,255,0.06);
+      backdrop-filter: blur(12px) saturate(140%);
+      border: 1px solid rgba(255,255,255,0.03);
       display:flex;
       gap:20px;
       align-items:center;
+      position:relative;
+      z-index:5;
+      transition: transform 600ms var(--ease), box-shadow 400ms var(--ease);
     }
-    .card .preview{
-      width:160px;
-      height:100px;
-      border-radius:10px;
+
+    /* Neon rim to make it pop */
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius:calc(var(--radius) + 2px);
+      background: linear-gradient(90deg, transparent, rgba(64,200,255,0.06), transparent);
+      filter: blur(18px);
+      z-index:-1;
+      pointer-events:none;
+      mix-blend-mode:screen;
+    }
+
+    .preview {
+      width:180px;
+      height:120px;
+      border-radius:12px;
       background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       display:flex;
       align-items:center;
       justify-content:center;
       overflow:hidden;
-      border: 1px dashed rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 6px 20px rgba(2,6,23,0.5), 0 0 18px rgba(64,200,255,0.06) inset;
     }
-    .card .preview img{ max-width:90%; max-height:90%; opacity:0.95; }
+    .preview img{ max-width:88%; max-height:88%; opacity:0.98; }
 
-    .card .meta{
+    .meta {
       flex:1;
       display:flex;
       flex-direction:column;
-      gap:8px;
+      gap:12px;
+      align-items:flex-start;
     }
-    .card h2{ margin:0; font-size:1.25rem; letter-spacing: -0.01em; }
-    .card p{ margin:0; color:var(--muted); font-size:0.95rem; }
+    .meta h2{
+      margin:0;
+      font-size:1.15rem;
+      letter-spacing:-0.02em;
+      color: #eaf6ff;
+    }
+    .meta p{
+      margin:0;
+      color:var(--muted);
+      font-size:0.95rem;
+      line-height:1.35;
+    }
 
-    .coming-soon{
-      display:inline-block;
-      margin-top:10px;
-      padding:8px 12px;
-      background: linear-gradient(90deg, rgba(79,195,247,0.12), rgba(79,195,247,0.06));
-      color:var(--accent);
+    .cta {
+      margin-top:6px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .btn {
+      appearance:none;
+      border:0;
+      background: linear-gradient(90deg, rgba(64,200,255,0.14), rgba(64,200,255,0.08));
+      color:var(--neon);
+      padding:10px 16px;
       border-radius:999px;
-      font-weight:600;
-      font-size:0.9rem;
-      border: 1px solid rgba(79,195,247,0.08);
-      width:fit-content;
+      font-weight:700;
+      letter-spacing:0.02em;
+      cursor:pointer;
+      box-shadow: 0 6px 30px rgba(64,200,255,0.08);
+      transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+    }
+    .btn:active{ transform: translateY(1px) scale(.998) }
+    .btn.secondary{
+      background: transparent;
+      color:var(--muted);
+      border: 1px solid rgba(255,255,255,0.03);
+      box-shadow:none;
     }
 
+    /* Small screens */
     @media (max-width:720px){
-      .card{ flex-direction:column; align-items:flex-start; padding:18px; gap:12px; }
-      .card .preview{ width:100%; height:160px; }
-      .logo-top img{ height:36px; }
-      .intro img{ width:40vmin; max-width:160px; }
+      body{ padding:28px 16px; }
+      .intro img{ width:34vmin; max-width:140px; }
+      .top-logo img{ height:40px; }
+      .card{ flex-direction:column; align-items:center; padding:20px; gap:16px; }
+      .preview{ width:100%; height:160px; }
+      .meta{ align-items:center; text-align:center; }
     }
   </style>
 </head>
 <body>
 
-  <div class="bg-shape" aria-hidden="true"></div>
-  <div class="bg-shape alt" aria-hidden="true"></div>
+  <div class="glow" aria-hidden="true"></div>
 
+  <!-- Intro splash: centered logo for ~3s then fades -->
   <div id="intro" class="intro" role="dialog" aria-label="Intro animation">
     <img src="assets/logo.png" alt="MTM Analytics logo" id="introLogo">
   </div>
 
-  <main class="page" role="main" aria-labelledby="siteTitle">
-    <header>
-      <div class="logo-top" id="topLogoWrap">
-        <img src="assets/logo.png" alt="MTM Analytics" id="topLogo">
+  <div class="container" role="main" aria-labelledby="siteTitle">
+    <!-- Top centered small logo (stays visible after intro) -->
+    <div class="top-logo" aria-hidden="false">
+      <img src="assets/logo.png" alt="MTM Analytics" id="topLogo">
+    </div>
+
+    <!-- Main card with logo placeholder and coming soon CTA -->
+    <section class="card" aria-labelledby="cardTitle" aria-describedby="cardDesc">
+      <div class="preview" aria-hidden="true">
+        <!-- temporary logo placement -->
+        <img src="assets/logo.png" alt="Logo placeholder">
       </div>
-    </header>
 
-    <section class="card-wrap" aria-labelledby="cardTitle">
-      <article class="card" role="article" aria-labelledby="cardTitle" aria-describedby="cardDesc">
-        <div class="preview" aria-hidden="true">
-          <img src="assets/logo.png" alt="Logo placeholder">
-        </div>
+      <div class="meta">
+        <h2 id="cardTitle">Report Dashboard</h2>
+        <p id="cardDesc">Interactive reports will be embedded here. For now, this is a placeholder card.</p>
 
-        <div class="meta">
-          <h2 id="cardTitle">Report Dashboard</h2>
-          <p id="cardDesc">Interactive reports will appear here. For now, the report embed is coming soon. When ready, this card will link to the full report.</p>
-          <span class="coming-soon">Coming soon</span>
+        <div class="cta" role="group" aria-label="Actions">
+          <button class="btn" aria-disabled="true">Coming soon</button>
+          <button class="btn secondary" onclick="alert('Placeholder — link will be added later')">Placeholder</button>
         </div>
-      </article>
+      </div>
     </section>
-  </main>
+  </div>
 
   <script>
     (function(){
       const intro = document.getElementById('intro');
-      const topLogoWrap = document.getElementById('topLogoWrap');
+      const topLogo = document.getElementById('topLogo');
 
-      const showMs = 1600;
-      const fadeMs = 700;
+      // Show intro for ~3000ms then fade out smoothly
+      const SHOW_MS = 3000;
+      const FADE_MS = 900;
 
+      // After SHOW_MS, fade intro and slightly animate top logo
       setTimeout(() => {
         intro.classList.add('hidden');
-        topLogoWrap.style.transform = 'translateY(-6px)';
-        setTimeout(()=> topLogoWrap.style.transform = 'translateY(0)', 600);
-      }, showMs);
+        // subtle lift and settle for top logo
+        topLogo.style.transform = 'translateY(-8px)';
+        topLogo.style.opacity = '0.98';
+        setTimeout(()=> topLogo.style.transform = 'translateY(0)', 600);
+      }, SHOW_MS);
 
+      // Accessibility: allow skipping animation with Escape or click
       window.addEventListener('keydown', (e) => {
         if(e.key === 'Escape'){
           intro.classList.add('hidden');
         }
       });
+      intro.addEventListener('click', () => intro.classList.add('hidden'));
     })();
   </script>
 </body>
