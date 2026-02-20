@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MTM Analytics</title>
-  <meta name="description" content="MTM Analytics — reports coming soon" />
+  <meta name="description" content="MTM Analytics — coming soon" />
 
   <style>
     :root{
-      --bg-dark:#03102a;
-      --bg-mid:#042a5a;
-      --glass-1: rgba(255,255,255,0.04);
+      --bg-dark:#02102a;
+      --bg-mid:#042a66;
+      --glass-1: rgba(255,255,255,0.03);
       --glass-2: rgba(255,255,255,0.02);
       --neon: rgba(64,200,255,0.95);
-      --muted: rgba(230,240,251,0.75);
-      --card-blue: rgba(10,36,80,0.55);
+      --muted: rgba(230,240,251,0.72);
+      --card-blue: rgba(6,30,70,0.55);
       --radius: 16px;
       --ease: cubic-bezier(.2,.9,.3,1);
     }
@@ -24,12 +24,12 @@
     html,body{height:100%}
     body{
       margin:0;
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      color: #eaf6ff;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      color:#eaf6ff;
       background:
-        radial-gradient(800px 400px at 10% 10%, rgba(64,200,255,0.04), transparent 8%),
+        radial-gradient(900px 400px at 10% 10%, rgba(64,200,255,0.04), transparent 8%),
         radial-gradient(700px 350px at 90% 80%, rgba(10,120,255,0.03), transparent 6%),
-        linear-gradient(180deg, var(--bg-dark), var(--bg-mid));
+        linear-gradient(180deg,var(--bg-dark),var(--bg-mid));
       display:flex;
       align-items:flex-start;
       justify-content:center;
@@ -40,10 +40,10 @@
       overflow-x:hidden;
     }
 
-    /* Subtle animated background glow */
+    /* Decorative glow */
     .glow {
       position:fixed;
-      inset: -10% -10% auto auto;
+      inset:-10% -10% auto auto;
       width:70vmax;
       height:70vmax;
       background: radial-gradient(circle at 30% 30%, rgba(64,200,255,0.06), transparent 20%),
@@ -51,38 +51,42 @@
       filter: blur(80px) saturate(120%);
       pointer-events:none;
       z-index:0;
-      transform: translateZ(0);
     }
 
-    /* Intro splash (centered logo) */
+    /* Intro overlay: only logo visible, very large and centered */
     .intro {
       position:fixed;
       inset:0;
       display:flex;
-      align-items:flex-start;
+      align-items:center;
       justify-content:center;
-      padding-top:6vh;
-      background: linear-gradient(180deg, rgba(2,6,18,0.55), rgba(2,6,18,0.12));
-      z-index:40;
+      background: linear-gradient(180deg, rgba(2,6,18,0.75), rgba(2,6,18,0.12));
+      z-index:60;
       transition: opacity 900ms var(--ease), visibility 900ms var(--ease);
+      pointer-events:auto;
     }
     .intro.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
-    .intro img{
-      width:18vmin;
-      max-width:160px;
+
+    /* Intro logo - very large and centered */
+    .intro .logo {
+      width:48vmin;
+      max-width:720px;
+      max-height:72vh;
       height:auto;
       display:block;
       transform-origin:center;
-      animation: introPop 900ms var(--ease) forwards;
-      filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
-    }
-    @keyframes introPop{
-      0%{transform: scale(.6); opacity:0}
-      60%{transform: scale(1.08); opacity:1}
-      100%{transform: scale(1); opacity:1}
+      filter: drop-shadow(0 30px 80px rgba(0,0,0,0.7));
+      transition: transform 900ms var(--ease), opacity 900ms var(--ease);
+      will-change: transform, opacity;
     }
 
-    /* Page container */
+    /* When animating to top, scale down and translate up */
+    .intro.to-top .logo {
+      transform: translateY(-38vh) scale(0.18);
+      opacity:0.95;
+    }
+
+    /* Page container (hidden under intro until intro finishes) */
     .container{
       width:100%;
       max-width:980px;
@@ -91,26 +95,31 @@
       flex-direction:column;
       align-items:center;
       gap:28px;
+      pointer-events:auto;
     }
 
-    /* Top centered logo (small) */
+    /* Top centered small logo (final position) */
     .top-logo {
-      margin-top:8vh;
+      margin-top:6vh;
       display:flex;
       align-items:center;
       justify-content:center;
       width:100%;
+      opacity:0;
+      transform: translateY(-6px);
+      transition: opacity 700ms var(--ease), transform 700ms var(--ease);
       pointer-events:none;
+      z-index:20;
     }
+    .top-logo.visible{ opacity:1; transform: translateY(0); }
     .top-logo img{
       height:48px;
       width:auto;
       display:block;
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
-      transition: transform 600ms var(--ease), opacity 600ms var(--ease);
+      filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
     }
 
-    /* Main card */
+    /* Main card - glass, centered, neon rim */
     .card {
       width:100%;
       max-width:720px;
@@ -119,34 +128,40 @@
       border-radius: var(--radius);
       padding:28px;
       box-shadow:
-        0 10px 40px rgba(2,6,23,0.6),
-        0 0 40px rgba(64,200,255,0.06);
-      backdrop-filter: blur(12px) saturate(140%);
+        0 14px 50px rgba(2,6,23,0.6),
+        0 0 60px rgba(64,200,255,0.06);
+      backdrop-filter: blur(14px) saturate(140%);
       border: 1px solid rgba(255,255,255,0.03);
       display:flex;
       gap:20px;
       align-items:center;
       position:relative;
       z-index:5;
-      transition: transform 600ms var(--ease), box-shadow 400ms var(--ease);
+      transition: transform 700ms var(--ease), opacity 700ms var(--ease);
+      opacity:0;
+      transform: translateY(10px) scale(0.995);
     }
 
-    /* Neon rim to make it pop */
+    /* Neon rim */
     .card::before{
       content:"";
       position:absolute;
       inset:-2px;
       border-radius:calc(var(--radius) + 2px);
-      background: linear-gradient(90deg, transparent, rgba(64,200,255,0.06), transparent);
-      filter: blur(18px);
+      background: linear-gradient(90deg, transparent, rgba(64,200,255,0.08), transparent);
+      filter: blur(20px);
       z-index:-1;
       pointer-events:none;
       mix-blend-mode:screen;
     }
 
+    /* When card is shown */
+    .card.visible{ opacity:1; transform: translateY(0) scale(1); }
+
+    /* Preview area: centered logo inside card */
     .preview {
-      width:180px;
-      height:120px;
+      width:220px;
+      height:140px;
       border-radius:12px;
       background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       display:flex;
@@ -154,63 +169,49 @@
       justify-content:center;
       overflow:hidden;
       border: 1px solid rgba(255,255,255,0.04);
-      box-shadow: 0 6px 20px rgba(2,6,23,0.5), 0 0 18px rgba(64,200,255,0.06) inset;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.5), 0 0 18px rgba(64,200,255,0.06) inset;
+      margin:0 auto;
     }
-    .preview img{ max-width:88%; max-height:88%; opacity:0.98; }
+    .preview img{ max-width:86%; max-height:86%; opacity:0.98; display:block; }
 
+    /* Meta area simplified: only centered text and CTA */
     .meta {
       flex:1;
       display:flex;
       flex-direction:column;
       gap:12px;
-      align-items:flex-start;
-    }
-    .meta h2{
-      margin:0;
-      font-size:1.15rem;
-      letter-spacing:-0.02em;
-      color: #eaf6ff;
-    }
-    .meta p{
-      margin:0;
-      color:var(--muted);
-      font-size:0.95rem;
-      line-height:1.35;
+      align-items:center;
+      text-align:center;
     }
 
-    .cta {
+    .meta .coming {
+      display:block;
       margin-top:6px;
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-    .btn {
-      appearance:none;
-      border:0;
+      padding:10px 18px;
       background: linear-gradient(90deg, rgba(64,200,255,0.14), rgba(64,200,255,0.08));
       color:var(--neon);
-      padding:10px 16px;
       border-radius:999px;
       font-weight:700;
       letter-spacing:0.02em;
-      cursor:pointer;
-      box-shadow: 0 6px 30px rgba(64,200,255,0.08);
-      transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
-    }
-    .btn:active{ transform: translateY(1px) scale(.998) }
-    .btn.secondary{
-      background: transparent;
-      color:var(--muted);
-      border: 1px solid rgba(255,255,255,0.03);
-      box-shadow:none;
+      border: 1px solid rgba(64,200,255,0.08);
+      box-shadow: 0 10px 40px rgba(64,200,255,0.06);
+      cursor:default;
     }
 
-    /* Small screens */
+    /* Hide any extra text by default (we'll only show logo + button + small caption) */
+    .meta .caption{
+      color:var(--muted);
+      font-size:0.95rem;
+      margin-top:6px;
+      opacity:0.9;
+    }
+
+    /* Responsive */
     @media (max-width:720px){
       body{ padding:28px 16px; }
-      .intro img{ width:34vmin; max-width:140px; }
+      .intro .logo{ width:62vmin; max-width:420px; }
       .top-logo img{ height:40px; }
-      .card{ flex-direction:column; align-items:center; padding:20px; gap:16px; }
+      .card{ flex-direction:column; padding:20px; gap:16px; }
       .preview{ width:100%; height:160px; }
       .meta{ align-items:center; text-align:center; }
     }
@@ -220,32 +221,26 @@
 
   <div class="glow" aria-hidden="true"></div>
 
-  <!-- Intro splash: centered logo for ~3s then fades -->
+  <!-- Intro overlay: only the big logo is visible here -->
   <div id="intro" class="intro" role="dialog" aria-label="Intro animation">
-    <img src="assets/logo.png" alt="MTM Analytics logo" id="introLogo">
+    <img src="assets/logo.png" alt="MTM Analytics logo" class="logo" id="introLogo">
   </div>
 
   <div class="container" role="main" aria-labelledby="siteTitle">
-    <!-- Top centered small logo (stays visible after intro) -->
-    <div class="top-logo" aria-hidden="false">
+    <!-- Top centered small logo (final position after intro animation) -->
+    <div class="top-logo" id="topLogoWrap" aria-hidden="false">
       <img src="assets/logo.png" alt="MTM Analytics" id="topLogo">
     </div>
 
-    <!-- Main card with logo placeholder and coming soon CTA -->
-    <section class="card" aria-labelledby="cardTitle" aria-describedby="cardDesc">
+    <!-- Main card: centered logo preview + coming soon button -->
+    <section class="card" id="mainCard" aria-labelledby="cardTitle" aria-describedby="cardDesc">
       <div class="preview" aria-hidden="true">
-        <!-- temporary logo placement -->
         <img src="assets/logo.png" alt="Logo placeholder">
       </div>
 
       <div class="meta">
-        <h2 id="cardTitle">Report Dashboard</h2>
-        <p id="cardDesc">Interactive reports will be embedded here. For now, this is a placeholder card.</p>
-
-        <div class="cta" role="group" aria-label="Actions">
-          <button class="btn" aria-disabled="true">Coming soon</button>
-          <button class="btn secondary" onclick="alert('Placeholder — link will be added later')">Placeholder</button>
-        </div>
+        <div class="caption" id="cardDesc"> </div>
+        <span class="coming" role="status" aria-live="polite">Coming soon</span>
       </div>
     </section>
   </div>
@@ -253,28 +248,75 @@
   <script>
     (function(){
       const intro = document.getElementById('intro');
+      const introLogo = document.getElementById('introLogo');
+      const topLogoWrap = document.getElementById('topLogoWrap');
       const topLogo = document.getElementById('topLogo');
+      const mainCard = document.getElementById('mainCard');
 
-      // Show intro for ~3000ms then fade out smoothly
-      const SHOW_MS = 3000;
-      const FADE_MS = 900;
+      // Timings
+      const SHOW_MS = 3000;      // how long the big intro logo stays visible
+      const TRANSITION_MS = 900; // animation duration for moving/fading
 
-      // After SHOW_MS, fade intro and slightly animate top logo
-      setTimeout(() => {
-        intro.classList.add('hidden');
-        // subtle lift and settle for top logo
-        topLogo.style.transform = 'translateY(-8px)';
-        topLogo.style.opacity = '0.98';
-        setTimeout(()=> topLogo.style.transform = 'translateY(0)', 600);
-      }, SHOW_MS);
+      // Ensure only logo is visible in intro (no text)
+      // After SHOW_MS, animate the intro logo to the top and reveal the card
+      function animateToTopAndReveal() {
+        // Add class that scales/translates the intro logo upward
+        intro.classList.add('to-top');
+
+        // After the transform finishes, hide intro overlay and reveal top logo + card
+        setTimeout(() => {
+          // Hide intro overlay smoothly
+          intro.classList.add('hidden');
+
+          // Reveal the small top logo
+          topLogoWrap.classList.add('visible');
+
+          // Reveal the card with a slight delay for a professional fade-in
+          setTimeout(() => {
+            mainCard.classList.add('visible');
+          }, 160); // small stagger
+        }, TRANSITION_MS);
+      }
+
+      // Start the sequence
+      let started = false;
+      function startSequence() {
+        if (started) return;
+        started = true;
+        // Wait SHOW_MS then animate
+        setTimeout(animateToTopAndReveal, SHOW_MS);
+      }
 
       // Accessibility: allow skipping animation with Escape or click
       window.addEventListener('keydown', (e) => {
-        if(e.key === 'Escape'){
+        if (e.key === 'Escape') {
+          // Immediately hide intro and show final UI
           intro.classList.add('hidden');
+          topLogoWrap.classList.add('visible');
+          mainCard.classList.add('visible');
         }
       });
-      intro.addEventListener('click', () => intro.classList.add('hidden'));
+      intro.addEventListener('click', () => {
+        intro.classList.add('hidden');
+        topLogoWrap.classList.add('visible');
+        mainCard.classList.add('visible');
+      });
+
+      // Start automatically when DOM is ready
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        // small delay to ensure images load and the intro looks crisp
+        setTimeout(startSequence, 120);
+      } else {
+        window.addEventListener('DOMContentLoaded', () => setTimeout(startSequence, 120));
+      }
+
+      // If images are slow to load, ensure top logo still appears after a timeout
+      setTimeout(() => {
+        if (!topLogoWrap.classList.contains('visible') && intro.classList.contains('hidden')) {
+          topLogoWrap.classList.add('visible');
+          mainCard.classList.add('visible');
+        }
+      }, SHOW_MS + TRANSITION_MS + 3000);
     })();
   </script>
 </body>
