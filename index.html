@@ -175,7 +175,8 @@
       width:100%;
     }
 
-    .meta .coming {
+    /* CLICKABLE BUTTON */
+    .coming-link {
       display:block;
       margin-top:6px;
       padding:12px 22px;
@@ -186,8 +187,17 @@
       letter-spacing:0.02em;
       border: 1px solid rgba(64,200,255,0.12);
       box-shadow: 0 18px 60px rgba(64,200,255,0.08);
-      cursor:default;
+      text-decoration:none;
+      cursor:pointer;
       font-size:1rem;
+      transition: transform 160ms var(--ease), box-shadow 160ms var(--ease), opacity 160ms var(--ease);
+    }
+
+    .coming-link:hover,
+    .coming-link:focus {
+      transform: translateY(-3px);
+      box-shadow: 0 26px 80px rgba(64,200,255,0.12);
+      opacity: 0.98;
     }
 
     .meta .caption{
@@ -222,11 +232,20 @@
 
     <section class="card" id="mainCard" aria-labelledby="cardTitle" aria-describedby="cardDesc">
       <div class="preview" aria-hidden="true">
-        <img src="assets/logo" alt="Logo placeholder">
+        <img src="assets/IPA-Blue.png" alt="Logo placeholder">
       </div>
 
       <div class="meta">
-        <span class="coming" role="status" aria-live="polite">Coming soon</span>
+        <!-- CLICKABLE BUTTON -->
+        <a class="coming-link"
+           id="cardAction"
+           href="#"
+           role="button"
+           aria-label="Open IPA report"
+           data-embed="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58">
+          IPA
+        </a>
+
         <div class="caption" id="cardDesc"></div>
       </div>
     </section>
@@ -280,14 +299,41 @@
 
   </div>
 
+  <!-- MODAL -->
+  <div id="reportModal" style="
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.75);
+    z-index:9999;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  ">
+    <div style="background:#000; width:90%; max-width:1200px; height:80vh; border-radius:12px; overflow:hidden; position:relative;">
+      <button id="closeModal" style="
+        position:absolute;
+        top:10px;
+        right:10px;
+        background:#333;
+        color:#fff;
+        border:0;
+        padding:6px 12px;
+        border-radius:6px;
+        cursor:pointer;
+        z-index:10;
+      ">Close</button>
+
+      <iframe id="reportFrame" src="" style="width:100%; height:100%; border:0;"></iframe>
+    </div>
+  </div>
+
   <!-- CONSENT + GOOGLE ANALYTICS LOADER -->
   <script>
-    // Show banner if no choice stored
     if (!localStorage.getItem('mtm_cookie_consent')) {
       document.getElementById('cookieBanner').style.display = 'block';
     }
 
-    // Accept
     document.getElementById('cookieAccept').addEventListener('click', () => {
       localStorage.setItem('mtm_cookie_consent', 'accepted');
       document.getElementById('cookieBanner').style.display = 'none';
@@ -296,20 +342,17 @@
       }
     });
 
-    // Reject
     document.getElementById('cookieReject').addEventListener('click', () => {
       localStorage.setItem('mtm_cookie_consent', 'rejected');
       document.getElementById('cookieBanner').style.display = 'none';
     });
 
-    // Load GA only if previously accepted
     if (localStorage.getItem('mtm_cookie_consent') === 'accepted') {
       if (typeof window.loadGoogleAnalytics === 'function') {
         window.loadGoogleAnalytics();
       }
     }
 
-    // Consent-aware Google Analytics loader (uses your Measurement ID)
     (function() {
       const MEASUREMENT_ID = 'G-1X27VGBP0F';
 
@@ -408,5 +451,22 @@
     })();
   </script>
 
-</body>
-</html>
+  <!-- MODAL SCRIPT -->
+  <script>
+    const cardAction = document.getElementById('cardAction');
+    const modal = document.getElementById('reportModal');
+    const iframe = document.getElementById('reportFrame');
+    const closeModal = document.getElementById('closeModal');
+
+    cardAction.addEventListener('click', (e) => {
+      e.preventDefault();
+      iframe.src = cardAction.dataset.embed;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    });
+
+    closeModal.addEventListener('click', () => {
+      iframe.src = '';
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    });
