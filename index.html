@@ -291,7 +291,9 @@
     document.getElementById('cookieAccept').addEventListener('click', () => {
       localStorage.setItem('mtm_cookie_consent', 'accepted');
       document.getElementById('cookieBanner').style.display = 'none';
-      loadGoogleAnalytics();
+      if (typeof window.loadGoogleAnalytics === 'function') {
+        window.loadGoogleAnalytics();
+      }
     });
 
     // Reject
@@ -302,22 +304,40 @@
 
     // Load GA only if previously accepted
     if (localStorage.getItem('mtm_cookie_consent') === 'accepted') {
-      loadGoogleAnalytics();
+      if (typeof window.loadGoogleAnalytics === 'function') {
+        window.loadGoogleAnalytics();
+      }
     }
 
-    function loadGoogleAnalytics() {
-      const gaTag = document.createElement('script');
-      gaTag.setAttribute('async', '');
-      gaTag.src = "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX";
-      document.head.appendChild(gaTag);
+    // Consent-aware Google Analytics loader (uses your Measurement ID)
+    (function() {
+      const MEASUREMENT_ID = 'G-1X27VGBP0F';
 
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
-      window.gtag = gtag;
+      window.loadGoogleAnalytics = function() {
+        if (window._mtm_ga_loaded) return;
+        window._mtm_ga_loaded = true;
 
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXX');
-    }
+        const gaTag = document.createElement('script');
+        gaTag.async = true;
+        gaTag.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
+        document.head.appendChild(gaTag);
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+        window.gtag = gtag;
+
+        gtag('js', new Date());
+        gtag('config', MEASUREMENT_ID, {
+          'anonymize_ip': true,
+          'send_page_view': true,
+          'allow_ad_personalization_signals': false
+        });
+
+        window.mtmTrackEvent = function(name, params) {
+          if (window.gtag) gtag('event', name, params || {});
+        };
+      };
+    })();
   </script>
 
   <!-- INTRO ANIMATION SCRIPT -->
