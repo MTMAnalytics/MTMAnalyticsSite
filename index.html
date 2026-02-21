@@ -3,323 +3,210 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MTM Analytics</title>
-  <meta name="description" content="MTM Analytics — coming soon" />
+  <title>MTM Analytics — Coming Soon</title>
+  <meta name="description" content="MTM Analytics — actionable insights and analytics for businesses. Join the waitlist to be first to know when we launch." />
+  <meta property="og:title" content="MTM Analytics — Coming Soon" />
+  <meta property="og:description" content="Sign up to be first to know when we launch." />
+  <meta property="og:image" content="/assets/og-image.png" />
+  <meta name="theme-color" content="#071033" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root{
-      --bg-dark:#02102a;
-      --bg-mid:#042a66;
-      --neon: rgba(64,200,255,0.98);
-      --muted: rgba(230,240,251,0.72);
-      --card-blue: rgba(10,36,80,0.55);
-      --radius: 16px;
-      --ease: cubic-bezier(.2,.9,.3,1);
+      --bg:#071033;
+      --card:#071a3a;
+      --accent:#0ea5ff;
+      --muted:#9fb3d6;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      color-scheme: dark;
     }
-
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-      color:#eaf6ff;
-      display:flex;
-      align-items:flex-start;
-      justify-content:center;
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#04102a 0%, #071033 60%);color:#e6f0ff}
+    .page{
       min-height:100vh;
-      padding:48px 20px;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      background:
-        linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
-      overflow-x:hidden;
-    }
-
-    /* High-res textured backdrop (place your texture at assets/bg-texture.jpg) */
-    .backdrop {
-      position:fixed;
-      inset:0;
-      background-image:
-        url('assets/bg-texture.jpg'),
-        radial-gradient(1200px 600px at 10% 10%, rgba(64,200,255,0.03), transparent 8%),
-        linear-gradient(180deg,var(--bg-dark),var(--bg-mid));
-      background-size:cover, cover, cover;
-      background-position:center center, left top, center;
-      filter: saturate(110%) contrast(105%);
-      opacity:0.95;
-      z-index:0;
-      pointer-events:none;
-    }
-
-    /* subtle grain overlay to avoid banding */
-    .grain {
-      position:fixed;
-      inset:0;
-      background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
-      background-size: 3px 3px;
-      mix-blend-mode: overlay;
-      opacity:0.25;
-      z-index:1;
-      pointer-events:none;
-    }
-
-    /* Intro overlay: only the big logo visible */
-    .intro {
-      position:fixed;
-      inset:0;
       display:flex;
       align-items:center;
       justify-content:center;
-      z-index:60;
-      transition: opacity 900ms var(--ease), visibility 900ms var(--ease);
-      background: linear-gradient(180deg, rgba(0,6,18,0.75), rgba(0,6,18,0.12));
+      padding:48px 20px;
+      box-sizing:border-box;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(14,165,255,0.04) 0 2px, transparent 2px),
+        radial-gradient(circle at 80% 70%, rgba(14,165,255,0.03) 0 2px, transparent 2px);
+      background-repeat: no-repeat;
     }
-    .intro.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
-
-    /* Intro logo - very large and centered */
-    .intro .logo {
-      width:56vmin;
-      max-width:820px;
-      max-height:78vh;
-      height:auto;
-      display:block;
-      transform-origin:center;
-      filter: drop-shadow(0 40px 120px rgba(0,0,0,0.75));
-      will-change: transform, opacity;
-    }
-
-    /* container for final layout */
     .container{
       width:100%;
       max-width:980px;
-      z-index:10;
-      display:flex;
-      flex-direction:column;
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      gap:32px;
       align-items:center;
-      gap:28px;
-      pointer-events:auto;
     }
-
-    /* Top centered small logo (final position) */
-    .top-logo {
-      margin-top:6vh;
+    @media (max-width:880px){
+      .container{grid-template-columns:1fr; padding:0 8px}
+    }
+    .brand{
+      padding:28px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      box-shadow: 0 6px 30px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+    }
+    .logo{
       display:flex;
       align-items:center;
-      justify-content:center;
-      width:100%;
-      opacity:0;
-      transform: translateY(-6px) scale(0.98);
-      transition: opacity 700ms var(--ease), transform 700ms var(--ease);
-      pointer-events:none;
-      z-index:20;
-    }
-    .top-logo.visible{ opacity:1; transform: translateY(0) scale(1); }
-    .top-logo img{
-      height:48px;
-      width:auto;
-      display:block;
-      filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
-    }
-
-    /* Main card - glass, centered, neon rim */
-    .card {
-      width:100%;
-      max-width:520px;
-      margin-top:18px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius: var(--radius);
-      padding:28px 22px;
-      box-shadow:
-        0 18px 60px rgba(2,6,23,0.6),
-        0 0 40px rgba(64,200,255,0.06);
-      backdrop-filter: blur(14px) saturate(140%);
-      border: 1px solid rgba(255,255,255,0.03);
-      display:flex;
-      flex-direction:column;
       gap:18px;
+    }
+    .mark{
+      width:72px;height:72px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#06203a,#0b3a6a);
+      box-shadow: 0 6px 18px rgba(14,165,255,0.06), inset 0 -6px 18px rgba(0,0,0,0.25);
+      border:1px solid rgba(255,255,255,0.04);
+    }
+    .mark svg{width:44px;height:44px;display:block}
+    h1{font-size:28px;margin:6px 0 0 0;letter-spacing:0.2px}
+    p.lead{color:var(--muted);margin:14px 0 0 0;line-height:1.5}
+    .meta{
+      margin-top:22px;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:12px;
+    }
+    @media (max-width:880px){ .meta{align-items:center;text-align:center} }
+    .cta{
+      display:inline-flex;
       align-items:center;
-      position:relative;
-      z-index:5;
-      transition: transform 700ms var(--ease), opacity 700ms var(--ease);
-      opacity:0;
-      transform: translateY(10px) scale(0.995);
+      gap:10px;
+      background:var(--accent);
+      color:#012;
+      padding:10px 16px;
+      border-radius:10px;
+      font-weight:700;
+      text-decoration:none;
+      border:none;
+      cursor:pointer;
+      box-shadow: 0 6px 18px rgba(14,165,255,0.12);
     }
-
-    /* stronger neon rim/shadow */
-    .card::after{
-      content:"";
-      position:absolute;
-      inset:-6px;
-      border-radius:calc(var(--radius) + 6px);
-      background: radial-gradient(ellipse at center, rgba(64,200,255,0.12), transparent 35%);
-      filter: blur(18px);
-      z-index:-1;
-      pointer-events:none;
-      mix-blend-mode:screen;
-    }
-
-    .card.visible{ opacity:1; transform: translateY(0) scale(1); }
-
-    /* Preview area: centered logo inside card */
-    .preview {
-      width:240px;
-      height:160px;
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       border-radius:12px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      padding:22px;
+      border:1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+    }
+    .preview{
       display:flex;
       align-items:center;
       justify-content:center;
-      overflow:hidden;
-      border: 1px solid rgba(255,255,255,0.04);
-      box-shadow: 0 10px 30px rgba(2,6,23,0.5), 0 0 26px rgba(64,200,255,0.06) inset;
-      margin:0 auto;
-    }
-    .preview img{ max-width:86%; max-height:86%; opacity:0.98; display:block; }
-
-    /* Meta area simplified: only centered Coming soon */
-    .meta {
-      display:flex;
+      gap:16px;
       flex-direction:column;
-      gap:12px;
-      align-items:center;
-      text-align:center;
-      width:100%;
     }
-
-    .meta .coming {
-      display:block;
-      margin-top:6px;
-      padding:12px 22px;
-      background: linear-gradient(90deg, rgba(64,200,255,0.16), rgba(64,200,255,0.08));
-      color:var(--neon);
-      border-radius:999px;
-      font-weight:800;
-      letter-spacing:0.02em;
-      border: 1px solid rgba(64,200,255,0.12);
-      box-shadow: 0 18px 60px rgba(64,200,255,0.08);
-      cursor:default;
-      font-size:1rem;
+    .coming{
+      font-size:18px;
+      color:#dff6ff;
+      background:linear-gradient(90deg, rgba(14,165,255,0.08), rgba(14,165,255,0.03));
+      padding:8px 14px;border-radius:10px;border:1px solid rgba(14,165,255,0.06);
     }
-
-    /* small caption under button (optional, empty by default) */
-    .meta .caption{
-      color:var(--muted);
-      font-size:0.95rem;
-      opacity:0.9;
+    form { display:flex; gap:8px; width:100%; max-width:420px; }
+    input[type="email"]{
+      flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
+      background:rgba(255,255,255,0.02);color:inherit;font-size:15px;
     }
-
-    @media (max-width:720px){
-      body{ padding:28px 16px; }
-      .intro .logo{ width:72vmin; max-width:420px; }
-      .top-logo img{ height:40px; }
-      .card{ padding:20px; gap:14px; max-width:92%; }
-      .preview{ width:100%; height:160px; }
+    button[type="submit"]{ padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:#012;font-weight:700;cursor:pointer }
+    .muted{color:var(--muted);font-size:13px;margin-top:8px}
+    .footer{margin-top:18px;color:var(--muted);font-size:13px}
+    /* small decorative hex grid */
+    .hex {
+      position:absolute; inset:0; pointer-events:none; opacity:0.06; mix-blend-mode:screen;
+      background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.02) 0 1px, transparent 1px);
     }
+    /* focus states */
+    a:focus, button:focus, input:focus { outline:3px solid rgba(14,165,255,0.12); outline-offset:3px; }
   </style>
 </head>
 <body>
+  <div class="page" role="main">
+    <div class="container" aria-live="polite">
+      <div class="brand card" aria-labelledby="brand-heading">
+        <div class="logo">
+          <div class="mark" aria-hidden="true">
+            <!-- Simple geometric mark -->
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="6" y="6" width="52" height="52" rx="10" fill="url(#g)"/>
+              <path d="M18 44 L30 20 L46 44" stroke="#e6f0ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+              <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#06203a"/><stop offset="1" stop-color="#0b3a6a"/></linearGradient></defs>
+            </svg>
+          </div>
+          <div>
+            <h1 id="brand-heading">MTM ANALYTICS</h1>
+            <p class="lead">Actionable analytics for smarter decisions. Launching soon.</p>
+          </div>
+        </div>
 
-  <div class="backdrop" aria-hidden="true"></div>
-  <div class="grain" aria-hidden="true"></div>
+        <div class="meta" role="region" aria-label="Launch status">
+          <div class="coming" aria-hidden="false">Coming soon</div>
 
-  <!-- Intro overlay: only the big logo is visible here -->
-  <div id="intro" class="intro" role="dialog" aria-label="Intro animation">
-    <img src="assets/logo.png" alt="MTM Analytics logo" class="logo" id="introLogo">
-  </div>
+          <!-- Netlify form for waitlist -->
+          <form name="waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field" aria-label="Join the waitlist">
+            <input type="hidden" name="form-name" value="waitlist" />
+            <input type="email" name="email" placeholder="Your email" aria-label="Email address" required />
+            <button type="submit" class="cta">Join waitlist</button>
+          </form>
 
-  <div class="container" role="main" aria-labelledby="siteTitle">
-    <!-- Top centered small logo (final position after intro animation) -->
-    <div class="top-logo" id="topLogoWrap" aria-hidden="false">
-      <img src="assets/logo.png" alt="MTM Analytics" id="topLogo">
+          <div class="muted">We’ll email you when we launch. No spam. Unsubscribe anytime.</div>
+          <div class="footer">© <span id="year"></span> MTM Analytics</div>
+        </div>
+      </div>
+
+      <aside class="card preview" aria-hidden="true">
+        <!-- Visual preview or hero image placeholder -->
+        <div style="width:100%;max-width:360px;height:220px;border-radius:10px;background:
+                    linear-gradient(180deg,#06203a,#0b2b55);
+                    display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.85);font-weight:700;">
+          mtmanalytics.co.uk
+        </div>
+        <div style="color:var(--muted);font-size:13px;text-align:center;max-width:360px">
+          Built on Netlify · Secure with HTTPS · Fast global CDN
+        </div>
+      </aside>
     </div>
-
-    <!-- Main card: centered logo preview + coming soon button (centered) -->
-    <section class="card" id="mainCard" aria-labelledby="cardTitle" aria-describedby="cardDesc">
-      <div class="preview" aria-hidden="true">
-        <img src="assets/logo.png" alt="Logo placeholder">
-      </div>
-
-      <div class="meta">
-        <span class="coming" role="status" aria-live="polite">Coming soon</span>
-        <div class="caption" id="cardDesc"></div>
-      </div>
-    </section>
   </div>
 
   <script>
+    // Small UX helpers
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Netlify form success handling (progressive enhancement)
     (function(){
-      const intro = document.getElementById('intro');
-      const introLogo = document.getElementById('introLogo');
-      const topLogoWrap = document.getElementById('topLogoWrap');
-      const topLogo = document.getElementById('topLogo');
-      const mainCard = document.getElementById('mainCard');
-
-      const SHOW_MS = 3000;      // how long the big intro logo stays visible
-      const TRANSITION_MS = 900; // animation duration for moving/fading
-
-      // Smoothly animate the intro logo to the exact position/size of the top logo
-      function animateLogoToTop() {
-        // get bounding rects
-        const introRect = introLogo.getBoundingClientRect();
-        const topRect = topLogo.getBoundingClientRect();
-
-        // compute scale and translation to move introLogo to topLogo position
-        const scale = topRect.width / introRect.width;
-        const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
-        const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
-
-        // apply transform with transition for a seamless morph
-        introLogo.style.transition = `transform ${TRANSITION_MS}ms var(--ease), opacity ${TRANSITION_MS}ms var(--ease)`;
-        introLogo.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-        introLogo.style.opacity = '0.98';
-
-        // after transform completes, hide intro and reveal final UI
-        setTimeout(() => {
-          intro.classList.add('hidden');
-          topLogoWrap.classList.add('visible');
-          setTimeout(()=> mainCard.classList.add('visible'), 160);
-        }, TRANSITION_MS);
-      }
-
-      // Start sequence
-      function startSequence() {
-        // ensure images are loaded so measurements are correct
-        if (!introLogo.complete || !topLogo.complete) {
-          // wait a short bit for images to load
-          setTimeout(startSequence, 120);
-          return;
-        }
-        // keep the big logo visible for SHOW_MS, then animate
-        setTimeout(animateLogoToTop, SHOW_MS);
-      }
-
-      // Accessibility: skip animation
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          intro.classList.add('hidden');
-          topLogoWrap.classList.add('visible');
-          mainCard.classList.add('visible');
-        }
+      const form = document.querySelector('form[name="waitlist"]');
+      if(!form) return;
+      form.addEventListener('submit', function(e){
+        // Let Netlify handle the POST; show a quick inline message
+        setTimeout(()=> {
+          try {
+            form.innerHTML = '<div style="padding:18px;border-radius:10px;background:rgba(14,165,255,0.06);color:#dff6ff">Thanks — you are on the list. We will email you when we launch.</div>';
+          } catch(e){}
+        }, 300);
       });
-      intro.addEventListener('click', () => {
-        intro.classList.add('hidden');
-        topLogoWrap.classList.add('visible');
-        mainCard.classList.add('visible');
-      });
+    })();
+  </script>
 
-      // Kick off when DOM ready
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(startSequence, 120);
-      } else {
-        window.addEventListener('DOMContentLoaded', () => setTimeout(startSequence, 120));
-      }
-
-      // Fallback: if something blocks the animation, ensure final UI appears
-      setTimeout(() => {
-        if (!topLogoWrap.classList.contains('visible') && intro.classList.contains('hidden')) {
-          topLogoWrap.classList.add('visible');
-          mainCard.classList.add('visible');
-        }
-      }, SHOW_MS + TRANSITION_MS + 3000);
+  <!-- Analytics placeholder: replace with your measurement ID or remove if not used -->
+  <script>
+    /* Google Analytics 4 minimal snippet - replace YOUR_GA_MEASUREMENT_ID */
+    (function(){
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'YOUR_GA_MEASUREMENT_ID', { 'send_page_view': true });
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=YOUR_GA_MEASUREMENT_ID';
+      document.head.appendChild(s);
     })();
   </script>
 </body>
