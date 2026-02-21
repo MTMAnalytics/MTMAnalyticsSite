@@ -3,210 +3,278 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MTM Analytics — Coming Soon</title>
-  <meta name="description" content="MTM Analytics — actionable insights and analytics for businesses. Join the waitlist to be first to know when we launch." />
-  <meta property="og:title" content="MTM Analytics — Coming Soon" />
-  <meta property="og:description" content="Sign up to be first to know when we launch." />
-  <meta property="og:image" content="/assets/og-image.png" />
-  <meta name="theme-color" content="#071033" />
-  <link rel="icon" href="/favicon.ico" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <title>MTM Analytics</title>
+  <meta name="description" content="MTM Analytics — reports coming soon" />
+
   <style>
     :root{
-      --bg:#071033;
-      --card:#071a3a;
-      --accent:#0ea5ff;
-      --muted:#9fb3d6;
-      --glass: rgba(255,255,255,0.03);
-      --radius:14px;
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
-      color-scheme: dark;
+      --bg-dark:#03102a;
+      --bg-mid:#042a5a;
+      --glass-1: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.02);
+      --neon: rgba(64,200,255,0.95);
+      --muted: rgba(230,240,251,0.75);
+      --card-blue: rgba(10,36,80,0.55);
+      --radius: 16px;
+      --ease: cubic-bezier(.2,.9,.3,1);
     }
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#04102a 0%, #071033 60%);color:#e6f0ff}
-    .page{
-      min-height:100vh;
+
+    /* Reset */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #eaf6ff;
+      background:
+        radial-gradient(800px 400px at 10% 10%, rgba(64,200,255,0.04), transparent 8%),
+        radial-gradient(700px 350px at 90% 80%, rgba(10,120,255,0.03), transparent 6%),
+        linear-gradient(180deg, var(--bg-dark), var(--bg-mid));
       display:flex;
-      align-items:center;
+      align-items:flex-start;
       justify-content:center;
+      min-height:100vh;
       padding:48px 20px;
-      box-sizing:border-box;
-      background-image:
-        radial-gradient(circle at 10% 20%, rgba(14,165,255,0.04) 0 2px, transparent 2px),
-        radial-gradient(circle at 80% 70%, rgba(14,165,255,0.03) 0 2px, transparent 2px);
-      background-repeat: no-repeat;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
     }
+
+    /* Subtle animated background glow */
+    .glow {
+      position:fixed;
+      inset: -10% -10% auto auto;
+      width:70vmax;
+      height:70vmax;
+      background: radial-gradient(circle at 30% 30%, rgba(64,200,255,0.06), transparent 20%),
+                  radial-gradient(circle at 80% 80%, rgba(10,120,255,0.04), transparent 10%);
+      filter: blur(80px) saturate(120%);
+      pointer-events:none;
+      z-index:0;
+      transform: translateZ(0);
+    }
+
+    /* Intro splash (centered logo) */
+    .intro {
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding-top:6vh;
+      background: linear-gradient(180deg, rgba(2,6,18,0.55), rgba(2,6,18,0.12));
+      z-index:40;
+      transition: opacity 900ms var(--ease), visibility 900ms var(--ease);
+    }
+    .intro.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
+    .intro img{
+      width:18vmin;
+      max-width:160px;
+      height:auto;
+      display:block;
+      transform-origin:center;
+      animation: introPop 900ms var(--ease) forwards;
+      filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
+    }
+    @keyframes introPop{
+      0%{transform: scale(.6); opacity:0}
+      60%{transform: scale(1.08); opacity:1}
+      100%{transform: scale(1); opacity:1}
+    }
+
+    /* Page container */
     .container{
       width:100%;
       max-width:980px;
-      display:grid;
-      grid-template-columns: 1fr 420px;
-      gap:32px;
-      align-items:center;
-    }
-    @media (max-width:880px){
-      .container{grid-template-columns:1fr; padding:0 8px}
-    }
-    .brand{
-      padding:28px;
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:var(--radius);
-      box-shadow: 0 6px 30px rgba(2,6,23,0.6);
-      border:1px solid rgba(255,255,255,0.03);
-    }
-    .logo{
-      display:flex;
-      align-items:center;
-      gap:18px;
-    }
-    .mark{
-      width:72px;height:72px;border-radius:12px;
-      display:flex;align-items:center;justify-content:center;
-      background:linear-gradient(135deg,#06203a,#0b3a6a);
-      box-shadow: 0 6px 18px rgba(14,165,255,0.06), inset 0 -6px 18px rgba(0,0,0,0.25);
-      border:1px solid rgba(255,255,255,0.04);
-    }
-    .mark svg{width:44px;height:44px;display:block}
-    h1{font-size:28px;margin:6px 0 0 0;letter-spacing:0.2px}
-    p.lead{color:var(--muted);margin:14px 0 0 0;line-height:1.5}
-    .meta{
-      margin-top:22px;
+      z-index:10;
       display:flex;
       flex-direction:column;
-      align-items:flex-start;
-      gap:12px;
-    }
-    @media (max-width:880px){ .meta{align-items:center;text-align:center} }
-    .cta{
-      display:inline-flex;
       align-items:center;
-      gap:10px;
-      background:var(--accent);
-      color:#012;
-      padding:10px 16px;
-      border-radius:10px;
-      font-weight:700;
-      text-decoration:none;
-      border:none;
-      cursor:pointer;
-      box-shadow: 0 6px 18px rgba(14,165,255,0.12);
+      gap:28px;
     }
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border-radius:12px;
-      padding:22px;
-      border:1px solid rgba(255,255,255,0.03);
-      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
-    }
-    .preview{
+
+    /* Top centered logo (small) */
+    .top-logo {
+      margin-top:8vh;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:16px;
+      width:100%;
+      pointer-events:none;
+    }
+    .top-logo img{
+      height:48px;
+      width:auto;
+      display:block;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+      transition: transform 600ms var(--ease), opacity 600ms var(--ease);
+    }
+
+    /* Main card */
+    .card {
+      width:100%;
+      max-width:720px;
+      margin-top:18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius: var(--radius);
+      padding:28px;
+      box-shadow:
+        0 10px 40px rgba(2,6,23,0.6),
+        0 0 40px rgba(64,200,255,0.06);
+      backdrop-filter: blur(12px) saturate(140%);
+      border: 1px solid rgba(255,255,255,0.03);
+      display:flex;
+      gap:20px;
+      align-items:center;
+      position:relative;
+      z-index:5;
+      transition: transform 600ms var(--ease), box-shadow 400ms var(--ease);
+    }
+
+    /* Neon rim to make it pop */
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      border-radius:calc(var(--radius) + 2px);
+      background: linear-gradient(90deg, transparent, rgba(64,200,255,0.06), transparent);
+      filter: blur(18px);
+      z-index:-1;
+      pointer-events:none;
+      mix-blend-mode:screen;
+    }
+
+    .preview {
+      width:180px;
+      height:120px;
+      border-radius:12px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.04);
+      box-shadow: 0 6px 20px rgba(2,6,23,0.5), 0 0 18px rgba(64,200,255,0.06) inset;
+    }
+    .preview img{ max-width:88%; max-height:88%; opacity:0.98; }
+
+    .meta {
+      flex:1;
+      display:flex;
       flex-direction:column;
+      gap:12px;
+      align-items:flex-start;
     }
-    .coming{
-      font-size:18px;
-      color:#dff6ff;
-      background:linear-gradient(90deg, rgba(14,165,255,0.08), rgba(14,165,255,0.03));
-      padding:8px 14px;border-radius:10px;border:1px solid rgba(14,165,255,0.06);
+    .meta h2{
+      margin:0;
+      font-size:1.15rem;
+      letter-spacing:-0.02em;
+      color: #eaf6ff;
     }
-    form { display:flex; gap:8px; width:100%; max-width:420px; }
-    input[type="email"]{
-      flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);
-      background:rgba(255,255,255,0.02);color:inherit;font-size:15px;
+    .meta p{
+      margin:0;
+      color:var(--muted);
+      font-size:0.95rem;
+      line-height:1.35;
     }
-    button[type="submit"]{ padding:10px 14px;border-radius:10px;border:none;background:var(--accent);color:#012;font-weight:700;cursor:pointer }
-    .muted{color:var(--muted);font-size:13px;margin-top:8px}
-    .footer{margin-top:18px;color:var(--muted);font-size:13px}
-    /* small decorative hex grid */
-    .hex {
-      position:absolute; inset:0; pointer-events:none; opacity:0.06; mix-blend-mode:screen;
-      background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.02) 0 1px, transparent 1px);
+
+    .cta {
+      margin-top:6px;
+      display:flex;
+      gap:12px;
+      align-items:center;
     }
-    /* focus states */
-    a:focus, button:focus, input:focus { outline:3px solid rgba(14,165,255,0.12); outline-offset:3px; }
+    .btn {
+      appearance:none;
+      border:0;
+      background: linear-gradient(90deg, rgba(64,200,255,0.14), rgba(64,200,255,0.08));
+      color:var(--neon);
+      padding:10px 16px;
+      border-radius:999px;
+      font-weight:700;
+      letter-spacing:0.02em;
+      cursor:pointer;
+      box-shadow: 0 6px 30px rgba(64,200,255,0.08);
+      transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+    }
+    .btn:active{ transform: translateY(1px) scale(.998) }
+    .btn.secondary{
+      background: transparent;
+      color:var(--muted);
+      border: 1px solid rgba(255,255,255,0.03);
+      box-shadow:none;
+    }
+
+    /* Small screens */
+    @media (max-width:720px){
+      body{ padding:28px 16px; }
+      .intro img{ width:34vmin; max-width:140px; }
+      .top-logo img{ height:40px; }
+      .card{ flex-direction:column; align-items:center; padding:20px; gap:16px; }
+      .preview{ width:100%; height:160px; }
+      .meta{ align-items:center; text-align:center; }
+    }
   </style>
 </head>
 <body>
-  <div class="page" role="main">
-    <div class="container" aria-live="polite">
-      <div class="brand card" aria-labelledby="brand-heading">
-        <div class="logo">
-          <div class="mark" aria-hidden="true">
-            <!-- Simple geometric mark -->
-            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <rect x="6" y="6" width="52" height="52" rx="10" fill="url(#g)"/>
-              <path d="M18 44 L30 20 L46 44" stroke="#e6f0ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-              <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#06203a"/><stop offset="1" stop-color="#0b3a6a"/></linearGradient></defs>
-            </svg>
-          </div>
-          <div>
-            <h1 id="brand-heading">MTM ANALYTICS</h1>
-            <p class="lead">Actionable analytics for smarter decisions. Launching soon.</p>
-          </div>
-        </div>
 
-        <div class="meta" role="region" aria-label="Launch status">
-          <div class="coming" aria-hidden="false">Coming soon</div>
+  <div class="glow" aria-hidden="true"></div>
 
-          <!-- Netlify form for waitlist -->
-          <form name="waitlist" method="POST" data-netlify="true" netlify-honeypot="bot-field" aria-label="Join the waitlist">
-            <input type="hidden" name="form-name" value="waitlist" />
-            <input type="email" name="email" placeholder="Your email" aria-label="Email address" required />
-            <button type="submit" class="cta">Join waitlist</button>
-          </form>
+  <!-- Intro splash: centered logo for ~3s then fades -->
+  <div id="intro" class="intro" role="dialog" aria-label="Intro animation">
+    <img src="assets/logo.png" alt="MTM Analytics logo" id="introLogo">
+  </div>
 
-          <div class="muted">We’ll email you when we launch. No spam. Unsubscribe anytime.</div>
-          <div class="footer">© <span id="year"></span> MTM Analytics</div>
-        </div>
+  <div class="container" role="main" aria-labelledby="siteTitle">
+    <!-- Top centered small logo (stays visible after intro) -->
+    <div class="top-logo" aria-hidden="false">
+      <img src="assets/logo.png" alt="MTM Analytics" id="topLogo">
+    </div>
+
+    <!-- Main card with logo placeholder and coming soon CTA -->
+    <section class="card" aria-labelledby="cardTitle" aria-describedby="cardDesc">
+      <div class="preview" aria-hidden="true">
+        <!-- temporary logo placement -->
+        <img src="assets/logo.png" alt="Logo placeholder">
       </div>
 
-      <aside class="card preview" aria-hidden="true">
-        <!-- Visual preview or hero image placeholder -->
-        <div style="width:100%;max-width:360px;height:220px;border-radius:10px;background:
-                    linear-gradient(180deg,#06203a,#0b2b55);
-                    display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.85);font-weight:700;">
-          mtmanalytics.co.uk
+      <div class="meta">
+        <h2 id="cardTitle">Report Dashboard</h2>
+        <p id="cardDesc">Interactive reports will be embedded here. For now, this is a placeholder card.</p>
+
+        <div class="cta" role="group" aria-label="Actions">
+          <button class="btn" aria-disabled="true">Coming soon</button>
+          <button class="btn secondary" onclick="alert('Placeholder — link will be added later')">Placeholder</button>
         </div>
-        <div style="color:var(--muted);font-size:13px;text-align:center;max-width:360px">
-          Built on Netlify · Secure with HTTPS · Fast global CDN
-        </div>
-      </aside>
-    </div>
+      </div>
+    </section>
   </div>
 
   <script>
-    // Small UX helpers
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Netlify form success handling (progressive enhancement)
     (function(){
-      const form = document.querySelector('form[name="waitlist"]');
-      if(!form) return;
-      form.addEventListener('submit', function(e){
-        // Let Netlify handle the POST; show a quick inline message
-        setTimeout(()=> {
-          try {
-            form.innerHTML = '<div style="padding:18px;border-radius:10px;background:rgba(14,165,255,0.06);color:#dff6ff">Thanks — you are on the list. We will email you when we launch.</div>';
-          } catch(e){}
-        }, 300);
+      const intro = document.getElementById('intro');
+      const topLogo = document.getElementById('topLogo');
+
+      // Show intro for ~3000ms then fade out smoothly
+      const SHOW_MS = 3000;
+      const FADE_MS = 900;
+
+      // After SHOW_MS, fade intro and slightly animate top logo
+      setTimeout(() => {
+        intro.classList.add('hidden');
+        // subtle lift and settle for top logo
+        topLogo.style.transform = 'translateY(-8px)';
+        topLogo.style.opacity = '0.98';
+        setTimeout(()=> topLogo.style.transform = 'translateY(0)', 600);
+      }, SHOW_MS);
+
+      // Accessibility: allow skipping animation with Escape or click
+      window.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape'){
+          intro.classList.add('hidden');
+        }
       });
-    })();
-  </script>
-
-  <!-- Analytics placeholder: replace with your measurement ID or remove if not used -->
-  <script>
-    /* Google Analytics 4 minimal snippet - replace YOUR_GA_MEASUREMENT_ID */
-    (function(){
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'YOUR_GA_MEASUREMENT_ID', { 'send_page_view': true });
-      var s = document.createElement('script');
-      s.async = true;
-      s.src = 'https://www.googletagmanager.com/gtag/js?id=YOUR_GA_MEASUREMENT_ID';
-      document.head.appendChild(s);
+      intro.addEventListener('click', () => intro.classList.add('hidden'));
     })();
   </script>
 </body>
