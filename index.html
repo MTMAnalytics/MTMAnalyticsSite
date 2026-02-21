@@ -34,7 +34,6 @@
       overflow-x:hidden;
     }
 
-    /* High-res textured backdrop (place your texture at assets/bg-texture.jpg) */
     .backdrop {
       position:fixed;
       inset:0;
@@ -50,7 +49,6 @@
       pointer-events:none;
     }
 
-    /* subtle grain overlay to avoid banding */
     .grain {
       position:fixed;
       inset:0;
@@ -62,7 +60,6 @@
       pointer-events:none;
     }
 
-    /* Intro overlay: only the big logo visible */
     .intro {
       position:fixed;
       inset:0;
@@ -75,7 +72,6 @@
     }
     .intro.hidden{ opacity:0; visibility:hidden; pointer-events:none; }
 
-    /* Intro logo - very large and centered */
     .intro .logo {
       width:56vmin;
       max-width:820px;
@@ -87,7 +83,6 @@
       will-change: transform, opacity;
     }
 
-    /* container for final layout */
     .container{
       width:100%;
       max-width:980px;
@@ -99,7 +94,6 @@
       pointer-events:auto;
     }
 
-    /* Top centered small logo (final position) */
     .top-logo {
       margin-top:6vh;
       display:flex;
@@ -120,7 +114,6 @@
       filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
     }
 
-    /* Main card - glass, centered, neon rim */
     .card {
       width:100%;
       max-width:520px;
@@ -144,7 +137,6 @@
       transform: translateY(10px) scale(0.995);
     }
 
-    /* stronger neon rim/shadow */
     .card::after{
       content:"";
       position:absolute;
@@ -159,7 +151,6 @@
 
     .card.visible{ opacity:1; transform: translateY(0) scale(1); }
 
-    /* Preview area: centered logo inside card */
     .preview {
       width:240px;
       height:160px;
@@ -175,7 +166,6 @@
     }
     .preview img{ max-width:86%; max-height:86%; opacity:0.98; display:block; }
 
-    /* Meta area simplified: only centered Coming soon */
     .meta {
       display:flex;
       flex-direction:column;
@@ -200,7 +190,6 @@
       font-size:1rem;
     }
 
-    /* small caption under button (optional, empty by default) */
     .meta .caption{
       color:var(--muted);
       font-size:0.95rem;
@@ -221,18 +210,16 @@
   <div class="backdrop" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
 
-  <!-- Intro overlay: only the big logo is visible here -->
   <div id="intro" class="intro" role="dialog" aria-label="Intro animation">
     <img src="assets/logo.png" alt="MTM Analytics logo" class="logo" id="introLogo">
   </div>
 
   <div class="container" role="main" aria-labelledby="siteTitle">
-    <!-- Top centered small logo (final position after intro animation) -->
+
     <div class="top-logo" id="topLogoWrap" aria-hidden="false">
       <img src="assets/logo.png" alt="MTM Analytics" id="topLogo">
     </div>
 
-    <!-- Main card: centered logo preview + coming soon button (centered) -->
     <section class="card" id="mainCard" aria-labelledby="cardTitle" aria-describedby="cardDesc">
       <div class="preview" aria-hidden="true">
         <img src="assets/logo.png" alt="Logo placeholder">
@@ -243,15 +230,97 @@
         <div class="caption" id="cardDesc"></div>
       </div>
     </section>
-<footer style="margin-top:40px; text-align:center; color:rgba(230,240,251,0.55); font-size:0.85rem;">
-  © 2026 MTM Analytics. All rights reserved.<br>
-  <a href="/legal.html" style="color:rgba(230,240,251,0.55); text-decoration:none;">Legal & Image Attribution</a> |
-  <a href="/privacy.html" style="color:rgba(230,240,251,0.55); text-decoration:none;">Privacy Policy</a>
-</footer>
 
+    <!-- COOKIE BANNER -->
+    <div id="cookieBanner" style="
+      display:none;
+      position:fixed;
+      bottom:20px;
+      left:50%;
+      transform:translateX(-50%);
+      background:rgba(0,0,0,0.85);
+      color:#eaf6ff;
+      padding:20px;
+      border-radius:8px;
+      max-width:90%;
+      width:400px;
+      font-size:0.9rem;
+      z-index:9999;
+      text-align:center;
+    ">
+      <p style="margin-bottom:15px;">
+        We use cookies to understand how visitors use MTM Analytics.
+        You can accept or reject analytics cookies.
+      </p>
+      <button id="cookieAccept" style="
+        background:#0ea5ff;
+        border:none;
+        padding:8px 16px;
+        border-radius:4px;
+        color:#fff;
+        cursor:pointer;
+        margin-right:10px;
+      ">Accept</button>
+
+      <button id="cookieReject" style="
+        background:#444;
+        border:none;
+        padding:8px 16px;
+        border-radius:4px;
+        color:#fff;
+        cursor:pointer;
+      ">Reject</button>
+    </div>
+
+    <footer style="margin-top:40px; text-align:center; color:rgba(230,240,251,0.55); font-size:0.85rem;">
+      © 2026 MTM Analytics. All rights reserved.<br>
+      <a href="/legal.html" style="color:rgba(230,240,251,0.55); text-decoration:none;">Legal & Image Attribution</a> |
+      <a href="/privacy.html" style="color:rgba(230,240,251,0.55); text-decoration:none;">Privacy Policy</a>
+    </footer>
 
   </div>
 
+  <!-- CONSENT + GOOGLE ANALYTICS LOADER -->
+  <script>
+    // Show banner if no choice stored
+    if (!localStorage.getItem('mtm_cookie_consent')) {
+      document.getElementById('cookieBanner').style.display = 'block';
+    }
+
+    // Accept
+    document.getElementById('cookieAccept').addEventListener('click', () => {
+      localStorage.setItem('mtm_cookie_consent', 'accepted');
+      document.getElementById('cookieBanner').style.display = 'none';
+      loadGoogleAnalytics();
+    });
+
+    // Reject
+    document.getElementById('cookieReject').addEventListener('click', () => {
+      localStorage.setItem('mtm_cookie_consent', 'rejected');
+      document.getElementById('cookieBanner').style.display = 'none';
+    });
+
+    // Load GA only if previously accepted
+    if (localStorage.getItem('mtm_cookie_consent') === 'accepted') {
+      loadGoogleAnalytics();
+    }
+
+    function loadGoogleAnalytics() {
+      const gaTag = document.createElement('script');
+      gaTag.setAttribute('async', '');
+      gaTag.src = "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX";
+      document.head.appendChild(gaTag);
+
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      window.gtag = gtag;
+
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXX');
+    }
+  </script>
+
+  <!-- INTRO ANIMATION SCRIPT -->
   <script>
     (function(){
       const intro = document.getElementById('intro');
@@ -260,26 +329,21 @@
       const topLogo = document.getElementById('topLogo');
       const mainCard = document.getElementById('mainCard');
 
-      const SHOW_MS = 3000;      // how long the big intro logo stays visible
-      const TRANSITION_MS = 900; // animation duration for moving/fading
+      const SHOW_MS = 3000;
+      const TRANSITION_MS = 900;
 
-      // Smoothly animate the intro logo to the exact position/size of the top logo
       function animateLogoToTop() {
-        // get bounding rects
         const introRect = introLogo.getBoundingClientRect();
         const topRect = topLogo.getBoundingClientRect();
 
-        // compute scale and translation to move introLogo to topLogo position
         const scale = topRect.width / introRect.width;
         const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
         const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
 
-        // apply transform with transition for a seamless morph
         introLogo.style.transition = `transform ${TRANSITION_MS}ms var(--ease), opacity ${TRANSITION_MS}ms var(--ease)`;
         introLogo.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
         introLogo.style.opacity = '0.98';
 
-        // after transform completes, hide intro and reveal final UI
         setTimeout(() => {
           intro.classList.add('hidden');
           topLogoWrap.classList.add('visible');
@@ -287,19 +351,14 @@
         }, TRANSITION_MS);
       }
 
-      // Start sequence
       function startSequence() {
-        // ensure images are loaded so measurements are correct
         if (!introLogo.complete || !topLogo.complete) {
-          // wait a short bit for images to load
           setTimeout(startSequence, 120);
           return;
         }
-        // keep the big logo visible for SHOW_MS, then animate
         setTimeout(animateLogoToTop, SHOW_MS);
       }
 
-      // Accessibility: skip animation
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           intro.classList.add('hidden');
@@ -307,20 +366,19 @@
           mainCard.classList.add('visible');
         }
       });
+
       intro.addEventListener('click', () => {
         intro.classList.add('hidden');
         topLogoWrap.classList.add('visible');
         mainCard.classList.add('visible');
       });
 
-      // Kick off when DOM ready
       if (document.readyState === 'complete' || document.readyState === 'interactive') {
         setTimeout(startSequence, 120);
       } else {
         window.addEventListener('DOMContentLoaded', () => setTimeout(startSequence, 120));
       }
 
-      // Fallback: if something blocks the animation, ensure final UI appears
       setTimeout(() => {
         if (!topLogoWrap.classList.contains('visible') && intro.classList.contains('hidden')) {
           topLogoWrap.classList.add('visible');
@@ -329,5 +387,6 @@
       }, SHOW_MS + TRANSITION_MS + 3000);
     })();
   </script>
+
 </body>
 </html>
