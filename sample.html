@@ -2,136 +2,303 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>Sample Report — MTM Analytics</title>
 
   <style>
     :root{
       --bg-dark:#02102a;
-      --bg-mid:#042a66;
       --neon: rgba(64,200,255,0.98);
+      --mask-height: 90px;
       --ease: cubic-bezier(.2,.9,.3,1);
+      --overlay-tint: rgba(2,12,36,0.98);
     }
 
-    *{box-sizing:border-box;}
+    /* Reset */
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;width:100%;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#eaf6ff;background-color:var(--bg-dark);}
 
-    html,body{
-      margin:0;
-      padding:0;
-      height:100%;
-      width:100%;
-      overflow:hidden;
+    /* Site background (matches your website) */
+    body{
       background:
         url('assets/bg-texture.jpg'),
         radial-gradient(1200px 600px at 10% 10%, rgba(64,200,255,0.03), transparent 8%),
         linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
       background-size:cover;
       background-position:center;
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-      color:#eaf6ff;
     }
 
-    .grain {
-      position:fixed;
-      inset:0;
-      background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
-      background-size: 3px 3px;
-      mix-blend-mode: overlay;
-      opacity:0.25;
-      pointer-events:none;
-      z-index:1;
+    /* Grain overlay */
+    .grain{
+      position:fixed;inset:0;
+      background-image:radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+      background-size:3px 3px;mix-blend-mode:overlay;opacity:0.25;pointer-events:none;z-index:1;
     }
 
-    /* BACK BUTTON */
+    /* Back button */
     .back-btn{
+      position:fixed;bottom:20px;left:20px;padding:10px 20px;
+      background:linear-gradient(90deg, rgba(64,200,255,0.16), rgba(64,200,255,0.08));
+      color:var(--neon);border-radius:999px;font-weight:700;text-decoration:none;border:1px solid rgba(64,200,255,0.18);
+      backdrop-filter:blur(10px) saturate(140%);box-shadow:0 8px 30px rgba(0,0,0,0.4);transition:transform 160ms var(--ease),box-shadow 160ms var(--ease);z-index:60;
+    }
+    .back-btn:hover{transform:translateY(-3px);box-shadow:0 18px 60px rgba(64,200,255,0.18);}
+
+    /* Rotate message for portrait mobile */
+    .rotate-message{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:40px;
+      font-size:1.2rem;font-weight:700;color:var(--neon);backdrop-filter:blur(8px);z-index:70;
+    }
+
+    /* Scrollable container: fills viewport and allows user to scroll down to reveal watermark */
+    .scroll-container{
       position:fixed;
-      bottom:20px;
-      left:20px;
-      padding:10px 20px;
-      background: linear-gradient(90deg, rgba(64,200,255,0.16), rgba(64,200,255,0.08));
-      color:var(--neon);
-      border-radius:999px;
-      font-weight:700;
-      text-decoration:none;
-      border:1px solid rgba(64,200,255,0.18);
-      backdrop-filter: blur(10px) saturate(140%);
-      box-shadow:0 8px 30px rgba(0,0,0,0.4);
-      transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
-      z-index:20;
-    }
-
-    .back-btn:hover{
-      transform:translateY(-3px);
-      box-shadow:0 18px 60px rgba(64,200,255,0.18);
-    }
-
-    /* FULLSCREEN REPORT */
-    .report-wrapper{
-      position:absolute;
       inset:0;
+      height:100vh;
       width:100%;
-      height:100%;
-      overflow:hidden;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      background:transparent;
       z-index:5;
     }
 
-    iframe{
-      position:absolute;
-      inset:0;
+    /* iframe is taller than the viewport so watermark sits below the fold.
+       No negative margins — top of report remains visible. */
+    .scroll-container iframe{
+      display:block;
       width:100%;
-      height:100%;
+      height:calc(100vh + 160px); /* extra vertical room for the hidden area */
       border:0;
+      visibility:visible; /* overlay controls visual blocking while loading */
+      background:transparent;
     }
 
-    /* MASK bottom footer */
+    /* Bottom mask to blend the seam and hide any peek */
     .mask-bottom{
-      position:absolute;
-      bottom:0;
+      position:fixed;
       left:0;
-      width:100%;
-      height:90px;
+      right:0;
+      bottom:0;
+      height:110px; /* slightly larger to be safe; adjust to taste */
       background:linear-gradient(to bottom, rgba(2,12,36,0) 0%, rgba(2,12,36,1) 100%);
       pointer-events:none;
       z-index:10;
     }
 
-    /* MASK top-right */
+    /* Top-right mask to hide blue tint */
     .mask-top-right{
-      position:absolute;
+      position:fixed;
       top:0;
       right:0;
       width:160px;
       height:120px;
-      background:transparent;
       pointer-events:none;
       z-index:10;
     }
+
+    /* Overlay that fully hides iframe while loading */
+    .mtm-overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:18px;
+      z-index:90; /* above everything */
+      transition:opacity 260ms var(--ease), visibility 260ms var(--ease);
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+      background:
+        linear-gradient(180deg, var(--overlay-tint), var(--overlay-tint)),
+        url('assets/bg-texture.jpg'),
+        radial-gradient(1200px 600px at 10% 10%, rgba(64,200,255,0.03), transparent 8%),
+        linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
+      background-blend-mode: normal, overlay, normal, normal;
+      background-size:cover;
+      background-position:center;
+    }
+    .mtm-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+
+    /* Logo */
+    .mtm-logo{width:220px;max-width:60%;height:auto;filter:drop-shadow(0 10px 30px rgba(0,0,0,0.6));}
+
+    /* Spinner */
+    .mtm-spinner{width:56px;height:56px;border-radius:50%;position:relative;display:inline-block;}
+    .mtm-spinner::before,.mtm-spinner::after{content:"";position:absolute;inset:0;border-radius:50%;border:4px solid rgba(255,255,255,0.06);}
+    .mtm-spinner::after{border-top-color:var(--neon);border-right-color:transparent;border-bottom-color:transparent;border-left-color:transparent;animation:spin 1.05s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);} }
+
+    .mtm-loading-text{font-weight:700;color:var(--neon);font-size:0.95rem;letter-spacing:0.02em;text-align:center;}
+
+    /* Small screens: reduce offsets so visuals aren't overly cropped */
+    @media (max-width:767px) and (orientation:landscape){
+      .scroll-container iframe{height:calc(100vh + 100px);}
+      .mask-bottom{height:90px;}
+      .mtm-logo{width:180px;}
+      .mtm-spinner{width:48px;height:48px;}
+    }
+
+    @media (max-width:767px) and (orientation:portrait){
+      /* hide scroll container in portrait and show rotate message */
+      .scroll-container{display:none;}
+    }
   </style>
 
-  <!-- MOBILE REDIRECT -->
+  <!-- Mobile redirect to mobile page if present (keeps existing mobile flow) -->
   <script>
-    if (window.innerWidth < 768) {
-      window.location.href = "sample-mobile.html";
-    }
+    (function(){
+      try {
+        if (window.innerWidth < 768 && location.pathname.indexOf('-mobile') === -1) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('HEAD', 'sample-mobile.html', false);
+          xhr.send();
+          if (xhr.status >= 200 && xhr.status < 400) {
+            location.href = 'sample-mobile.html';
+          }
+        }
+      } catch(e){}
+    })();
   </script>
-
 </head>
 
 <body>
 
   <div class="grain"></div>
 
-  <!-- BACK BUTTON -->
-  <a href="https://mtmanalytics.co.uk" class="back-btn">← Back to MTM Analytics</a>
+  <a class="back-btn" href="https://mtmanalytics.co.uk">← Back to MTM Analytics</a>
 
-  <!-- FULLSCREEN REPORT -->
-  <div class="report-wrapper">
-   <iframe title="Sample" width="800" height="486" src="https://app.powerbi.com/view?r=eyJrIjoiZDNjMmE2NGMtYTNlNy00NGFiLTgxZWItNzA3YWY5ZjJhZjM1IiwidCI6ImY5ZTg2ZWIyLTFhODQtNGNlZC05YjI0LTIzMzVhNmI0M2Y1OCJ9" frameborder="0" allowFullScreen="true"></iframe>
-
-    <div class="mask-bottom"></div>
-    <div class="mask-top-right"></div>
+  <div class="rotate-message" id="mtm-rotate" style="display:none;">
+    Please rotate your device to landscape to view this report.
   </div>
+
+  <!-- Overlay that fully hides iframe while loading -->
+  <div id="mtm-overlay" class="mtm-overlay" role="status" aria-label="Loading report">
+    <img class="mtm-logo" src="assets/mtm-logo.svg" alt="MTM Analytics logo" />
+    <div class="mtm-spinner" aria-hidden="true"></div>
+    <div class="mtm-loading-text">Loading report…</div>
+  </div>
+
+  <!-- Scrollable container: iframe is taller than viewport so watermark sits below the fold -->
+  <div class="scroll-container" id="mtm-scroll">
+    <!-- Replace the src below with your Publish-to-Web link -->
+    <iframe id="mtm-iframe"
+      title="Sample Report"
+      src="https://app.powerbi.com/view?r=eyJrIjoiZDNjMmE2NGMtYTNlNy00NGFiLTgxZWItNzA3YWY5ZjJhZjM1IiwidCI6ImY5ZTg2ZWIyLTFhODQtNGNlZC05YjI0LTIzMzVhNmI0M2Y1OCJ9"
+      allowfullscreen="true"
+      loading="eager"
+      referrerpolicy="no-referrer">
+    </iframe>
+  </div>
+
+  <div class="mask-bottom" aria-hidden="true"></div>
+  <div class="mask-top-right" aria-hidden="true"></div>
+
+  <script>
+  (function(){
+    const IFRAME_ID = 'mtm-iframe';
+    const OVERLAY_ID = 'mtm-overlay';
+    const SCROLL_ID = 'mtm-scroll';
+    const ROTATE_ID = 'mtm-rotate';
+    const MOBILE_BREAK = 768;
+
+    const MIN_OVERLAY_MS = 700;   // minimum visible time to avoid flicker
+    const FALLBACK_MS = 12000;    // fallback to remove overlay if load never fires
+
+    let overlayShownAt = null;
+    let fallbackTimer = null;
+
+    window.mtmEmbed = { setEmbedUrl };
+
+    function init(){
+      handleOrientation();
+      window.addEventListener('resize', debounce(handleOrientation, 120));
+      window.addEventListener('orientationchange', debounce(handleOrientation, 120));
+
+      const iframe = document.getElementById(IFRAME_ID);
+      const overlay = document.getElementById(OVERLAY_ID);
+      const scrollEl = document.getElementById(SCROLL_ID);
+
+      // ensure scroll container starts at top so report top is visible
+      if (scrollEl) {
+        try { scrollEl.scrollTop = 0; } catch(e){}
+      }
+
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.remove('hidden');
+        overlayShownAt = Date.now();
+      }
+
+      if (iframe) {
+        // attach load handler to remove overlay once report is ready
+        iframe.addEventListener('load', () => {
+          const elapsed = Date.now() - (overlayShownAt || 0);
+          const remaining = Math.max(0, MIN_OVERLAY_MS - elapsed);
+          setTimeout(() => {
+            hideOverlay();
+          }, remaining + 120);
+        });
+
+        // fallback in case load doesn't fire
+        fallbackTimer = setTimeout(() => {
+          hideOverlay();
+        }, FALLBACK_MS);
+      }
+    }
+
+    function hideOverlay(){
+      const overlay = document.getElementById(OVERLAY_ID);
+      if (!overlay) return;
+      overlay.classList.add('hidden');
+      setTimeout(() => { overlay.style.display = 'none'; }, 320);
+      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+    }
+
+    function setEmbedUrl(url){
+      const iframe = document.getElementById(IFRAME_ID);
+      const overlay = document.getElementById(OVERLAY_ID);
+      if (!iframe) return;
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.remove('hidden');
+        overlayShownAt = Date.now();
+      }
+      iframe.src = url;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      fallbackTimer = setTimeout(() => { hideOverlay(); }, FALLBACK_MS);
+    }
+
+    function handleOrientation(){
+      const isMobile = window.innerWidth < MOBILE_BREAK;
+      const isLandscape = window.innerWidth > window.innerHeight;
+      const rotateEl = document.getElementById(ROTATE_ID);
+      const scrollEl = document.getElementById(SCROLL_ID);
+
+      if (isMobile) {
+        if (rotateEl && scrollEl) {
+          rotateEl.style.display = isLandscape ? 'none' : 'flex';
+          scrollEl.style.display = isLandscape ? 'block' : 'none';
+        }
+      } else {
+        if (rotateEl) rotateEl.style.display = 'none';
+        if (scrollEl) scrollEl.style.display = 'block';
+      }
+    }
+
+    function debounce(fn, wait){
+      let t;
+      return function(){ clearTimeout(t); t = setTimeout(fn, wait); };
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(init, 10);
+    } else {
+      document.addEventListener('DOMContentLoaded', init);
+    }
+  })();
+  </script>
 
 </body>
 </html>
-
