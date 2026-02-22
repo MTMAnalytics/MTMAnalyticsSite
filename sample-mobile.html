@@ -8,151 +8,279 @@
   <style>
     :root{
       --bg-dark:#02102a;
-      --bg-mid:#042a66;
       --neon: rgba(64,200,255,0.98);
+      --mask-height: 90px;
+      --ease: cubic-bezier(.2,.9,.3,1);
+      --overlay-tint: rgba(2,12,36,0.98);
     }
 
+    /* Reset */
     *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;width:100%;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;color:#eaf6ff;background-color:var(--bg-dark);}
 
-    html,body{
-      height:100%;
-      width:100%;
-      overflow:hidden;
+    /* Site background (matches desktop) */
+    body{
       background:
         url('assets/bg-texture.jpg'),
         radial-gradient(1200px 600px at 10% 10%, rgba(64,200,255,0.03), transparent 8%),
         linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
       background-size:cover;
       background-position:center;
-      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-      color:#eaf6ff;
     }
 
-    .grain {
-      position:fixed;
-      inset:0;
-      background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
-      background-size: 3px 3px;
-      mix-blend-mode: overlay;
-      opacity:0.25;
-      pointer-events:none;
-      z-index:1;
+    /* Grain overlay */
+    .grain{
+      position:fixed;inset:0;
+      background-image:radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+      background-size:3px 3px;mix-blend-mode:overlay;opacity:0.25;pointer-events:none;z-index:1;
     }
 
-    /* PORTRAIT ROTATION MESSAGE */
+    /* Back button (hidden in portrait) */
+    .back-btn{
+      position:fixed;bottom:16px;left:12px;padding:10px 16px;
+      background:linear-gradient(90deg, rgba(64,200,255,0.16), rgba(64,200,255,0.08));
+      color:var(--neon);border-radius:999px;font-weight:700;text-decoration:none;border:1px solid rgba(64,200,255,0.18);
+      backdrop-filter:blur(8px) saturate(140%);box-shadow:0 8px 30px rgba(0,0,0,0.35);transition:transform 160ms var(--ease),box-shadow 160ms var(--ease);z-index:60;display:none;
+    }
+    .back-btn.show{display:block;}
+    .back-btn:hover{transform:translateY(-3px);box-shadow:0 18px 60px rgba(64,200,255,0.18);}
+
+    /* Rotate message (portrait) */
     .rotate-message{
+      position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:28px;
+      font-size:1.1rem;font-weight:700;color:var(--neon);backdrop-filter:blur(8px);z-index:70;text-align:center;
+    }
+
+    /* Mobile report container (landscape visible) */
+    .mobile-container{
       position:fixed;
       inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:40px;
-      font-size:1.4rem;
-      font-weight:600;
-      color:var(--neon);
-      backdrop-filter: blur(8px);
-      z-index:50;
-    }
-
-    /* LANDSCAPE REPORT */
-    .report-wrapper{
-      position:absolute;
-      inset:0;
       width:100%;
       height:100%;
-      overflow:hidden;
-      display:none; /* hidden in portrait */
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
       z-index:5;
+      display:none; /* shown in landscape */
+      background:transparent;
     }
 
-    iframe{
+    /* iframe taller than viewport so watermark sits below the fold on mobile */
+    .mobile-container iframe{
+      display:block;
       width:100%;
-      height:100%;
+      height:calc(100vh + 120px); /* extra vertical room for hidden area */
       border:0;
+      background:transparent;
     }
 
+    /* Bottom mask to blend seam */
     .mask-bottom{
-      position:absolute;
-      bottom:0;
+      position:fixed;
       left:0;
-      width:100%;
+      right:0;
+      bottom:0;
       height:90px;
       background:linear-gradient(to bottom, rgba(2,12,36,0) 0%, rgba(2,12,36,1) 100%);
       pointer-events:none;
       z-index:10;
     }
 
+    /* Top-right mask */
     .mask-top-right{
-      position:absolute;
+      position:fixed;
       top:0;
       right:0;
-      width:160px;
-      height:120px;
-      background:transparent;
+      width:120px;
+      height:96px;
       pointer-events:none;
       z-index:10;
     }
 
-    .back-btn{
+    /* Overlay that fully hides iframe while loading */
+    .mtm-overlay{
       position:fixed;
-      bottom:16px;
-      left:16px;
-      padding:12px 20px;
-      background: linear-gradient(90deg, rgba(64,200,255,0.22), rgba(64,200,255,0.12));
-      color:var(--neon);
-      border-radius:999px;
-      font-weight:700;
-      text-decoration:none;
-      border:1px solid rgba(64,200,255,0.22);
-      backdrop-filter: blur(12px) saturate(160%);
-      box-shadow:0 8px 30px rgba(0,0,0,0.45);
-      z-index:20;
-      font-size:1rem;
-      display:none; /* hidden in portrait */
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:14px;
+      z-index:90;
+      transition:opacity 260ms var(--ease), visibility 260ms var(--ease);
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+      background:
+        linear-gradient(180deg, var(--overlay-tint), var(--overlay-tint)),
+        url('assets/bg-texture.jpg'),
+        radial-gradient(1200px 600px at 10% 10%, rgba(64,200,255,0.03), transparent 8%),
+        linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
+      background-blend-mode: normal, overlay, normal, normal;
+      background-size:cover;
+      background-position:center;
+    }
+    .mtm-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+
+    .mtm-logo{width:180px;max-width:60%;height:auto;filter:drop-shadow(0 8px 20px rgba(0,0,0,0.6));}
+    .mtm-spinner{width:44px;height:44px;border-radius:50%;position:relative;display:inline-block;}
+    .mtm-spinner::before,.mtm-spinner::after{content:"";position:absolute;inset:0;border-radius:50%;border:3px solid rgba(255,255,255,0.06);}
+    .mtm-spinner::after{border-top-color:var(--neon);border-right-color:transparent;border-bottom-color:transparent;border-left-color:transparent;animation:spin 1.05s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);} }
+    .mtm-loading-text{font-weight:700;color:var(--neon);font-size:0.95rem;letter-spacing:0.02em;text-align:center;}
+
+    /* Landscape adjustments */
+    @media (orientation:landscape) {
+      .mobile-container{display:block;}
+      .rotate-message{display:none;}
+      .back-btn.show{display:block;}
+    }
+
+    /* Portrait adjustments */
+    @media (orientation:portrait) {
+      .mobile-container{display:none;}
+      .rotate-message{display:flex;}
+      .back-btn{display:none;}
     }
   </style>
 
   <script>
-    function updateOrientation(){
-      const isLandscape = window.innerWidth > window.innerHeight;
-
-      document.querySelector('.rotate-message').style.display = isLandscape ? 'none' : 'flex';
-      document.querySelector('.report-wrapper').style.display = isLandscape ? 'block' : 'none';
-      document.querySelector('.back-btn').style.display = isLandscape ? 'block' : 'none';
-    }
-
-    window.addEventListener('resize', updateOrientation);
-    window.addEventListener('orientationchange', updateOrientation);
-    window.addEventListener('load', updateOrientation);
+    // If user lands on mobile page but is on a wide device, don't redirect.
+    // No redirect here — this file is the mobile landing page.
   </script>
-
 </head>
 
 <body>
 
   <div class="grain"></div>
 
-  <!-- PORTRAIT MESSAGE -->
-  <div class="rotate-message">
+  <a class="back-btn" id="mtm-back" href="https://mtmanalytics.co.uk">← Back</a>
+
+  <div class="rotate-message" id="mtm-rotate" aria-hidden="true">
     Please rotate your device to landscape to view this report.
   </div>
 
-  <!-- BACK BUTTON -->
-  <a href="https://mtmanalytics.co.uk" class="back-btn">← Back</a>
-
-  <!-- LANDSCAPE REPORT -->
-  <div class="report-wrapper">
-    <iframe
-      title="Sample Report"
-     src="https://app.powerbi.com/view?r=eyJrIjoiZDNjMmE2NGMtYTNlNy00NGFiLTgxZWItNzA3YWY5ZjJhZjM1IiwidCI6ImY5ZTg2ZWIyLTFhODQtNGNlZC05YjI0LTIzMzVhNmI0M2Y1OCJ9"
-      allowfullscreen="true">
-    </iframe>
-
-    <div class="mask-bottom"></div>
-    <div class="mask-top-right"></div>
+  <!-- Overlay that fully hides iframe while loading -->
+  <div id="mtm-overlay" class="mtm-overlay" role="status" aria-label="Loading report">
+    <img class="mtm-logo" src="assets/mtm-logo.svg" alt="MTM Analytics logo" />
+    <div class="mtm-spinner" aria-hidden="true"></div>
+    <div class="mtm-loading-text">Loading report…</div>
   </div>
+
+  <!-- Mobile container: iframe is taller than viewport so watermark sits below the fold -->
+  <div class="mobile-container" id="mtm-mobile">
+    <iframe id="mtm-iframe"
+      title="Sample Report"
+      src="https://app.powerbi.com/view?r=eyJrIjoiZDNjMmE2NGMtYTNlNy00NGFiLTgxZWItNzA3YWY5ZjJhZjM1IiwidCI6ImY5ZTg2ZWIyLTFhODQtNGNlZC05YjI0LTIzMzVhNmI0M2Y1OCJ9"
+      allowfullscreen="true"
+      loading="eager"
+      referrerpolicy="no-referrer">
+    </iframe>
+  </div>
+
+  <div class="mask-bottom" aria-hidden="true"></div>
+  <div class="mask-top-right" aria-hidden="true"></div>
+
+  <script>
+  (function(){
+    const IFRAME_ID = 'mtm-iframe';
+    const OVERLAY_ID = 'mtm-overlay';
+    const MOBILE_ID = 'mtm-mobile';
+    const ROTATE_ID = 'mtm-rotate';
+    const BACK_ID = 'mtm-back';
+    const MIN_OVERLAY_MS = 600;
+    const FALLBACK_MS = 12000;
+    let overlayShownAt = null;
+    let fallbackTimer = null;
+
+    window.mtmEmbed = { setEmbedUrl };
+
+    function init(){
+      handleOrientation();
+      window.addEventListener('resize', debounce(handleOrientation, 120));
+      window.addEventListener('orientationchange', debounce(handleOrientation, 120));
+
+      const iframe = document.getElementById(IFRAME_ID);
+      const overlay = document.getElementById(OVERLAY_ID);
+      const mobile = document.getElementById(MOBILE_ID);
+
+      // Ensure mobile container starts at top
+      if (mobile) try { mobile.scrollTop = 0; } catch(e){}
+
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.remove('hidden');
+        overlayShownAt = Date.now();
+      }
+
+      if (iframe) {
+        // Hide iframe visually until overlay removed? we rely on overlay to block view.
+        // Attach load handler to remove overlay once report is ready
+        iframe.addEventListener('load', () => {
+          const elapsed = Date.now() - (overlayShownAt || 0);
+          const remaining = Math.max(0, MIN_OVERLAY_MS - elapsed);
+          setTimeout(() => {
+            hideOverlay();
+          }, remaining + 120);
+        });
+
+        // Fallback
+        fallbackTimer = setTimeout(() => {
+          hideOverlay();
+        }, FALLBACK_MS);
+      }
+    }
+
+    function hideOverlay(){
+      const overlay = document.getElementById(OVERLAY_ID);
+      if (!overlay) return;
+      overlay.classList.add('hidden');
+      setTimeout(() => { overlay.style.display = 'none'; }, 320);
+      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+    }
+
+    function setEmbedUrl(url){
+      const iframe = document.getElementById(IFRAME_ID);
+      const overlay = document.getElementById(OVERLAY_ID);
+      if (!iframe) return;
+      if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.classList.remove('hidden');
+        overlayShownAt = Date.now();
+      }
+      iframe.src = url;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      fallbackTimer = setTimeout(() => { hideOverlay(); }, FALLBACK_MS);
+    }
+
+    function handleOrientation(){
+      const isLandscape = window.innerWidth > window.innerHeight;
+      const rotateEl = document.getElementById(ROTATE_ID);
+      const mobileEl = document.getElementById(MOBILE_ID);
+      const backBtn = document.getElementById(BACK_ID);
+
+      if (isLandscape) {
+        if (rotateEl) rotateEl.style.display = 'none';
+        if (mobileEl) mobileEl.style.display = 'block';
+        if (backBtn) backBtn.classList.add('show');
+      } else {
+        if (rotateEl) rotateEl.style.display = 'flex';
+        if (mobileEl) mobileEl.style.display = 'none';
+        if (backBtn) backBtn.classList.remove('show');
+      }
+    }
+
+    function debounce(fn, wait){
+      let t;
+      return function(){ clearTimeout(t); t = setTimeout(fn, wait); };
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(init, 10);
+    } else {
+      document.addEventListener('DOMContentLoaded', init);
+    }
+  })();
+  </script>
 
 </body>
 </html>
-
