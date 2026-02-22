@@ -39,29 +39,30 @@
       z-index:1;
     }
 
-    .back-btn{
+    /* ROTATE MESSAGE (PORTRAIT) */
+    .rotate-message{
       position:fixed;
-      bottom:16px;
-      left:16px;
-      padding:12px 20px;
-      background: linear-gradient(90deg, rgba(64,200,255,0.22), rgba(64,200,255,0.12));
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:40px;
+      font-size:1.4rem;
+      font-weight:600;
       color:var(--neon);
-      border-radius:999px;
-      font-weight:700;
-      text-decoration:none;
-      border:1px solid rgba(64,200,255,0.22);
-      backdrop-filter: blur(12px) saturate(160%);
-      box-shadow:0 8px 30px rgba(0,0,0,0.45);
-      z-index:20;
-      font-size:1rem;
+      backdrop-filter: blur(8px);
+      z-index:50;
     }
 
+    /* LANDSCAPE REPORT */
     .report-wrapper{
       position:absolute;
       inset:0;
       width:100%;
       height:100%;
       overflow:hidden;
+      display:none; /* hidden in portrait */
       z-index:5;
     }
 
@@ -92,15 +93,55 @@
       pointer-events:none;
       z-index:10;
     }
+
+    .back-btn{
+      position:fixed;
+      bottom:16px;
+      left:16px;
+      padding:12px 20px;
+      background: linear-gradient(90deg, rgba(64,200,255,0.22), rgba(64,200,255,0.12));
+      color:var(--neon);
+      border-radius:999px;
+      font-weight:700;
+      text-decoration:none;
+      border:1px solid rgba(64,200,255,0.22);
+      backdrop-filter: blur(12px) saturate(160%);
+      box-shadow:0 8px 30px rgba(0,0,0,0.45);
+      z-index:20;
+      font-size:1rem;
+      display:none; /* hidden in portrait */
+    }
   </style>
+
+  <script>
+    function updateOrientation(){
+      const isLandscape = window.innerWidth > window.innerHeight;
+
+      document.querySelector('.rotate-message').style.display = isLandscape ? 'none' : 'flex';
+      document.querySelector('.report-wrapper').style.display = isLandscape ? 'block' : 'none';
+      document.querySelector('.back-btn').style.display = isLandscape ? 'block' : 'none';
+    }
+
+    window.addEventListener('resize', updateOrientation);
+    window.addEventListener('orientationchange', updateOrientation);
+    window.addEventListener('load', updateOrientation);
+  </script>
+
 </head>
 
 <body>
 
   <div class="grain"></div>
 
+  <!-- PORTRAIT MESSAGE -->
+  <div class="rotate-message">
+    Please rotate your device to landscape to view this report.
+  </div>
+
+  <!-- BACK BUTTON -->
   <a href="https://mtmanalytics.co.uk" class="back-btn">← Back</a>
 
+  <!-- LANDSCAPE REPORT -->
   <div class="report-wrapper">
     <iframe
       title="Sample Report"
