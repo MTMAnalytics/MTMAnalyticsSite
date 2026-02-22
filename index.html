@@ -1,501 +1,260 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MTM Analytics — Single Line Neon Logo Morph</title>
-<style>
-:root{
-  --bg-very-dark:#00010a;
-  --bg-deep:#00122a;
-  --neon:#00d9ff;
-  --card-surface: rgba(6,14,30,0.72);
-  --card-border: rgba(20,40,80,0.12);
-  --card-radius:14px;
-  --ease:cubic-bezier(.2,.9,.3,1);
-}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;-webkit-font-smoothing:antialiased}
-body{
-  display:flex;align-items:center;justify-content:center;min-height:100vh;padding:28px;
-  background:linear-gradient(180deg,var(--bg-very-dark) 0%,var(--bg-deep) 100%);color:#eaf6ff;overflow:hidden;
-}
-#stage-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
-canvas#stage{width:100%;height:100%;display:block}
-.container{position:relative;z-index:10;width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center;gap:28px;padding:28px}
-.intro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:40;pointer-events:none}
-.intro img{width:34vmin;max-width:560px;max-height:56vh;filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85))}
-.top-logo{margin-top:6vh;display:flex;align-items:center;justify-content:center;width:100%;opacity:0;transform:translateY(-6px) scale(0.98);transition:opacity 700ms var(--ease), transform 700ms var(--ease);z-index:12}
-.top-logo.visible{opacity:1;transform:translateY(0) scale(1)}
-.top-logo img{height:48px;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
-.layout-row{display:flex;gap:36px;align-items:center;justify-content:center;width:100%;max-width:1200px;z-index:10}
-.left-slot,.center-slot,.right-slot{display:flex;align-items:center;justify-content:center}
-.center-slot{flex:0 1 520px;flex-direction:column;gap:28px}
-.card{position:relative;width:100%;max-width:520px;border-radius:var(--card-radius);padding:22px;background-color:var(--card-surface);border:1px solid var(--card-border);backdrop-filter: blur(10px) saturate(120%);box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);display:flex;flex-direction:column;gap:16px;align-items:center;opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease)}
-.card.visible{opacity:1;transform:translateY(0) scale(1.006)}
-.preview{width:240px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(135deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))}
-.preview img{max-width:90%;max-height:64px;height:auto;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6))}
-.coming-link{display:inline-block;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg, rgba(0,212,255,0.12), rgba(10,180,220,0.06));color:var(--neon);font-weight:800;border:1px solid rgba(0,180,220,0.12);text-decoration:none;transition:transform 160ms var(--ease),box-shadow 160ms var(--ease)}
-footer.site-footer{margin-top:40px;text-align:center;color:rgba(200,220,235,0.55);font-size:0.85rem;position:fixed;left:0;right:0;bottom:12px;opacity:0;transform:translateY(8px);transition:opacity 320ms var(--ease),transform 320ms var(--ease);pointer-events:none;z-index:12}
-footer.site-footer.visible{opacity:1;transform:translateY(0);pointer-events:auto}
-@media (max-width:1100px){.layout-row{flex-direction:column;gap:20px}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MTM Analytics — Dashboard (Classic Background)</title>
+
+  <style>
+    :root{
+      --bg-very-dark:#00010a;
+      --bg-deep:#00122a;
+      --neon:#00d9ff;
+      --card-surface: rgba(6,14,30,0.72);
+      --card-border: rgba(20,40,80,0.12);
+      --card-radius:14px;
+      --ease:cubic-bezier(.2,.9,.3,1);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;-webkit-font-smoothing:antialiased}
+    body{
+      display:flex;align-items:center;justify-content:center;
+      min-height:100vh;padding:28px;
+      background:linear-gradient(180deg,var(--bg-very-dark) 0%,var(--bg-deep) 100%);
+      color:#eaf6ff;overflow:hidden;
+    }
+
+    /* Stage */
+    #stage-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
+    canvas#stage{width:100%;height:100%;display:block}
+
+    .hex-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.03;background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='104' viewBox='0 0 120 104'><defs><pattern id='p' width='120' height='104' patternUnits='userSpaceOnUse'><g fill='none' stroke='%2300d9ff' stroke-opacity='0.06' stroke-width='1'><path d='M30 0 L90 0 L120 52 L90 104 L30 104 L0 52 Z'/></g></pattern></defs><rect width='100%' height='100%' fill='url(%23p)'/></svg>");mix-blend-mode:overlay}
+
+    .grain{position:fixed;inset:0;z-index:2;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);background-size:3px 3px;mix-blend-mode:overlay;opacity:0.04}
+
+    .container{position:relative;z-index:10;width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;gap:28px;padding:28px}
+
+    .intro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:30;pointer-events:none}
+    .intro .logo-wrap{display:flex;align-items:center;justify-content:center;padding:6px;border-radius:10px;background:transparent}
+    .intro img{width:36vmin;max-width:560px;max-height:56vh;display:block;filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85));}
+
+    .top-logo{display:flex;align-items:center;justify-content:center;width:100%;opacity:0;transform:translateY(-6px) scale(0.98);transition:opacity 420ms var(--ease),transform 420ms var(--ease);z-index:12}
+    .top-logo.visible{opacity:1;transform:translateY(0) scale(1)}
+    .top-logo img{height:44px;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
+
+    .card-row{display:flex;gap:36px;justify-content:center;align-items:center;flex-wrap:wrap;width:100%}
+    .card{
+      position:relative;width:100%;max-width:520px;border-radius:var(--card-radius);padding:22px;
+      background-color:var(--card-surface);
+      border:1px solid var(--card-border);
+      backdrop-filter: blur(10px) saturate(120%);
+      box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);
+      display:flex;flex-direction:column;gap:16px;align-items:center;
+      opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease);
+    }
+    .card.visible{opacity:1;transform:translateY(0) scale(1.006)}
+    .card::after{
+      content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% + 40px);height:calc(100% + 40px);border-radius:inherit;z-index:-1;
+      box-shadow:0 30px 80px rgba(0,217,255,0.06);pointer-events:none;
+    }
+
+    .preview{width:240px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(135deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))}
+    .preview img{max-width:90%;max-height:90%;height:auto;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6))}
+
+    .coming-link{display:inline-block;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg, rgba(0,212,255,0.12), rgba(10,180,220,0.06));color:var(--neon);font-weight:800;border:1px solid rgba(0,180,220,0.12);text-decoration:none;transition:transform 160ms var(--ease),box-shadow 160ms var(--ease)}
+    .coming-link:hover{transform:translateY(-4px);box-shadow:0 36px 100px rgba(0,180,220,0.12)}
+
+    footer.site-footer{margin-top:40px;text-align:center;color:rgba(200,220,235,0.55);font-size:0.85rem;position:fixed;left:0;right:0;bottom:12px;opacity:0;transform:translateY(8px);transition:opacity 320ms var(--ease),transform 320ms var(--ease);pointer-events:none;z-index:12}
+    footer.site-footer.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+
+    @media (max-width:720px){.card-row{flex-direction:column;gap:18px}.intro img{width:72vmin}}
+  </style>
 </head>
 <body>
 
-<div id="stage-wrap"><canvas id="stage"></canvas></div>
+  <div id="stage-wrap"><canvas id="stage"></canvas></div>
+  <div class="hex-overlay" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
 
-<div class="intro" id="intro"><img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo"></div>
-
-<div class="container" role="main" aria-live="polite">
-  <div class="top-logo" id="topLogoWrap"><img id="topLogo" src="assets/logo.png" alt="MTM Analytics"></div>
-
-  <div class="layout-row">
-    <div class="left-slot" id="leftSlot" style="width:380px;height:380px;"></div>
-
-    <div class="center-slot">
-      <section class="card" id="sampleCard"><div class="preview"><img src="assets/logo.png" alt="sample"></div><a class="coming-link" href="sample.html">Sample Report</a></section>
-      <section class="card" id="mainCard" style="max-width:520px;"><div class="preview"><img src="assets/IPA-Blue.png" alt="IPA"></div><a class="coming-link" href="#">IPA</a></section>
+  <div class="intro" id="intro">
+    <div class="logo-wrap">
+      <img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo">
     </div>
-
-    <div class="right-slot" id="rightSlot" style="width:380px;height:380px;"></div>
   </div>
 
-  <footer id="site-footer" class="site-footer">© 2026 MTM Analytics. All rights reserved.</footer>
-</div>
+  <div class="container" role="main" aria-live="polite">
+    <div class="top-logo" id="topLogoWrap"><img id="topLogo" src="assets/logo.png" alt="MTM Analytics"></div>
 
-<script>
-/*
-Single-line neon outline approach
-- Trace logo contours from the uploaded logo image using a boundary-tracing algorithm.
-- Build an ordered polyline (one or more contours concatenated) and sample points along it.
-- Nodes follow the polyline in order; we draw a single continuous line (connect sequential nodes).
-- Background nodes remain sparse and animate lightly.
-- Holds are 5 seconds for logo and 8-ball.
-*/
+    <div class="card-row" role="navigation" aria-label="Reports">
+      <section class="card" id="sampleCard">
+        <div class="preview"><img src="assets/logo.png" alt="MTM Analytics sample"></div>
+        <a class="coming-link" href="sample.html">Sample Report</a>
+      </section>
 
-const logoPath = 'assets/logo.png'; // change if needed
-const MAX_DPR = 1.25;
-const LOGO_NODES = 700;   // nodes used to draw the single-line outline (increase for more detail)
-const BG_NODES = 80;
-const BASE_SPEED = window.innerWidth < 768 ? 0.08 : 0.28;
-const HOLD_MS = { logo: 5000, eight: 5000 }; // 5 seconds holds
-const LINE_WIDTH = 1.2; // thinner line for clarity
-const NODE_RADIUS = 1.1;
+      <section class="card" id="mainCard">
+        <div class="preview"><img src="assets/IPA-Blue.png" alt="IPA Dashboard"></div>
+        <a class="coming-link" href="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58&navContentPaneEnabled=false&filterPaneEnabled=false">IPA</a>
+      </section>
+    </div>
 
-const canvas = document.getElementById('stage');
-const ctx = canvas.getContext('2d', { alpha: true });
-function setSize(){
-  const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
-  canvas._dpr = dpr;
-  canvas.width = Math.floor(window.innerWidth * dpr);
-  canvas.height = Math.floor(window.innerHeight * dpr);
-  canvas.style.width = window.innerWidth + 'px';
-  canvas.style.height = window.innerHeight + 'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-}
-setSize();
-window.addEventListener('resize', ()=>{ clearTimeout(window._rt); window._rt = setTimeout(()=>{ setSize(); initAll(); }, 140); });
+    <footer id="site-footer" class="site-footer">© 2026 MTM Analytics. All rights reserved.<br><a href="/legal.html" style="color:inherit;text-decoration:none;">Legal & Image Attribution</a> | <a href="/privacy.html" style="color:inherit;text-decoration:none;">Privacy Policy</a></footer>
+  </div>
 
-let logoNodes = [];
-let bgNodes = [];
-function rand(a,b){ return Math.random()*(b-a)+a; }
+  <script>
+  (function(){
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d', { alpha: true });
+    let DPR = Math.max(1, window.devicePixelRatio || 1);
 
-function initAll(){
-  logoNodes = [];
-  bgNodes = [];
-  for (let i=0;i<LOGO_NODES;i++){
-    logoNodes.push({
-      x: Math.random()*innerWidth,
-      y: Math.random()*innerHeight,
-      vx: (Math.random()-0.5)*BASE_SPEED,
-      vy: (Math.random()-0.5)*BASE_SPEED,
-      tx: null, ty: null
-    });
-  }
-  for (let i=0;i<BG_NODES;i++){
-    bgNodes.push({
-      x: Math.random()*innerWidth,
-      y: Math.random()*innerHeight,
-      vx: (Math.random()-0.5)*BASE_SPEED*0.6,
-      vy: (Math.random()-0.5)*BASE_SPEED*0.6
-    });
-  }
-}
+    function resize() {
+      DPR = Math.max(1, window.devicePixelRatio || 1);
+      canvas.width = Math.floor(window.innerWidth * DPR);
+      canvas.height = Math.floor(window.innerHeight * DPR);
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+    }
+    resize();
+    window.addEventListener('resize', () => { clearTimeout(window._resizeT); window._resizeT = setTimeout(resize, 120); });
 
-const logoImg = new Image();
-logoImg.src = logoPath;
-const off = document.createElement('canvas');
-const offCtx = off.getContext('2d');
+    // Config
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent) || innerWidth < 768;
+    const COUNT = isMobile ? 140 : 420; // particle count
+    const BASE_SPEED = isMobile ? 0.12 : 0.42;
+    const DOT_MIN = 0.9, DOT_MAX = 3.0;
+    const LINE_DIST = isMobile ? 70 : 110;
 
-/* Boundary tracing (Moore-Neighbor) to extract contours from logo alpha mask */
-function extractContours(img, maxW){
-  const w0 = img.width, h0 = img.height;
-  // scale to maxW preserving aspect
-  const scale = Math.min(1, maxW / w0);
-  const w = Math.max(120, Math.floor(w0 * scale));
-  const h = Math.max(60, Math.floor(h0 * scale));
-  off.width = w; off.height = h;
-  offCtx.clearRect(0,0,w,h);
-  offCtx.drawImage(img, 0, 0, w, h);
-  const data = offCtx.getImageData(0,0,w,h);
-  const alpha = data.data;
-  const mask = new Uint8Array(w*h);
-  for (let i=0;i<w*h;i++) mask[i] = alpha[i*4 + 3] > 60 ? 1 : 0;
+    // Particles
+    let particles = [];
+    function rand(min,max){ return Math.random()*(max-min)+min; }
 
-  const visited = new Uint8Array(w*h);
-  const contours = [];
+    function initParticles(){
+      particles = [];
+      for (let i=0;i<COUNT;i++){
+        particles.push({
+          x: Math.random()*innerWidth,
+          y: Math.random()*innerHeight,
+          vx: (Math.random()-0.5)*BASE_SPEED,
+          vy: (Math.random()-0.5)*BASE_SPEED,
+          r: rand(DOT_MIN, DOT_MAX),
+          alpha: rand(0.22,0.6),
+          hue: Math.random()
+        });
+      }
+    }
 
-  const neighbors = [[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1],[0,1],[1,1]];
+    function fieldAngle(x,y,t){
+      const a = Math.sin((x * 0.0012 + t * 0.0009) * 1.2) + Math.cos((y * 0.0016 - t * 0.0007) * 1.1);
+      const b = Math.sin((x * 0.0009 - y * 0.0011 + t * 0.0013) * 0.9);
+      return (a + b) * Math.PI * 1.6;
+    }
 
-  function idx(x,y){ return y*w + x; }
-  function inBounds(x,y){ return x>=0 && x<w && y>=0 && y<h; }
+    // draw loop
+    let last = performance.now();
+    function draw(now){
+      const t = now || performance.now();
+      const dt = Math.min(40, t - last);
+      last = t;
 
-  for (let y=0;y<h;y++){
-    for (let x=0;x<w;x++){
-      const i = idx(x,y);
-      if (mask[i] && !visited[i]){
-        // find boundary start: a pixel with at least one neighbor empty
-        let startX = x, startY = y;
-        let foundStart = false;
-        for (let yy=y; yy<h && !foundStart; yy++){
-          for (let xx=x; xx<w; xx++){
-            const ii = idx(xx,yy);
-            if (mask[ii]){
-              // check if boundary
-              let isBoundary = false;
-              for (const n of neighbors){
-                const nx = xx + n[0], ny = yy + n[1];
-                if (!inBounds(nx,ny) || mask[idx(nx,ny)]===0){ isBoundary = true; break; }
-              }
-              if (isBoundary){ startX = xx; startY = yy; foundStart = true; break; }
-            }
+      ctx.fillStyle = '#00010a';
+      ctx.fillRect(0,0,innerWidth,innerHeight);
+
+      for (let p of particles){
+        const ang = fieldAngle(p.x, p.y, t * 0.0009);
+        p.vx += Math.cos(ang) * BASE_SPEED * 0.08;
+        p.vy += Math.sin(ang) * BASE_SPEED * 0.08;
+        p.vx *= 0.96; p.vy *= 0.96;
+
+        p.x += p.vx * (dt/16);
+        p.y += p.vy * (dt/16);
+
+        if (p.x < -10) p.x = innerWidth + 10;
+        if (p.x > innerWidth + 10) p.x = -10;
+        if (p.y < -10) p.y = innerHeight + 10;
+        if (p.y > innerHeight + 10) p.y = -10;
+
+        const baseR = 0, baseG = 210, baseB = 255;
+        const r = baseR + Math.floor(12 * p.hue);
+        const g = baseG + Math.floor(36 * p.hue);
+        const b = baseB + Math.floor(12 * p.hue);
+
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
+        ctx.shadowColor = `rgba(${r},${g},${b},${Math.min(0.95, p.alpha * 1.6)})`;
+        ctx.shadowBlur = 10;
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // connecting lines (subtle)
+      for (let i=0;i<particles.length;i++){
+        for (let j=i+1;j<particles.length;j++){
+          const a = particles[i], b = particles[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+          if (dist < LINE_DIST){
+            const alpha = (1 - dist/LINE_DIST) * 0.06;
+            ctx.strokeStyle = `rgba(10,160,230,${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
           }
         }
-        if (!foundStart) { visited[i]=1; continue; }
-
-        // Moore-Neighbor tracing
-        const contour = [];
-        let cx = startX, cy = startY;
-        let prevDir = 0; // start search direction
-        let loopGuard = 0;
-        do {
-          contour.push({x:cx, y:cy});
-          visited[idx(cx,cy)] = 1;
-          // search neighbors starting from prevDir-1 (clockwise)
-          let found = false;
-          for (let k=0;k<8;k++){
-            const dir = (prevDir + 7 + k) % 8; // rotate
-            const nx = cx + neighbors[dir][0], ny = cy + neighbors[dir][1];
-            if (inBounds(nx,ny) && mask[idx(nx,ny)]){
-              // move to next boundary pixel
-              cx = nx; cy = ny;
-              prevDir = dir;
-              found = true;
-              break;
-            }
-          }
-          if (!found) break;
-          loopGuard++;
-          if (loopGuard > w*h*4) break;
-        } while (!(cx === startX && cy === startY));
-        if (contour.length > 8) contours.push({points:contour, w, h});
       }
-    }
-  }
-  return contours;
-}
 
-/* Sample an ordered polyline from contours: concatenate contours with small gaps */
-function buildPolylineFromContours(contours, targetBox, maxPoints){
-  // scale contour coordinates to targetBox center
-  const polylines = [];
-  for (const c of contours){
-    const pts = c.points.map(p => {
-      // map from off canvas to target box
-      const scaleX = (targetBox.maxW) / c.w;
-      const scaleY = (targetBox.maxW * (c.h/c.w)) / c.h;
-      const sx = (p.x - c.w/2) * scaleX + targetBox.cx;
-      const sy = (p.y - c.h/2) * scaleY + targetBox.cy;
-      return {x: sx, y: sy};
-    });
-    polylines.push(pts);
-  }
-  // flatten polylines into one long polyline by concatenating with small bridging segments
-  const merged = [];
-  for (let i=0;i<polylines.length;i++){
-    const pts = polylines[i];
-    if (merged.length){
-      // add a short bridge from last to first of this contour
-      const last = merged[merged.length-1];
-      const first = pts[0];
-      const midCount = 6;
-      for (let k=1;k<=midCount;k++){
-        const t = k/midCount;
-        merged.push({x: last.x*(1-t) + first.x*t, y: last.y*(1-t) + first.y*t});
-      }
-    }
-    for (const p of pts) merged.push(p);
-  }
-  // sample merged polyline to maxPoints evenly
-  if (merged.length === 0) return [];
-  // compute cumulative lengths
-  const segLens = [];
-  let total = 0;
-  for (let i=0;i<merged.length-1;i++){
-    const dx = merged[i+1].x - merged[i].x, dy = merged[i+1].y - merged[i].y;
-    const l = Math.hypot(dx,dy);
-    segLens.push(l); total += l;
-  }
-  if (total === 0) return merged.slice(0, maxPoints);
-  const out = [];
-  for (let k=0;k<maxPoints;k++){
-    const t = k / (maxPoints-1);
-    let target = t * total;
-    let acc = 0;
-    let idx = 0;
-    while (idx < segLens.length && acc + segLens[idx] < target){ acc += segLens[idx]; idx++; }
-    if (idx >= segLens.length) { out.push(merged[merged.length-1]); continue; }
-    const segT = (target - acc) / Math.max(1e-6, segLens[idx]);
-    const a = merged[idx], b = merged[idx+1];
-    out.push({x: a.x*(1-segT) + b.x*segT, y: a.y*(1-segT) + b.y*segT});
-  }
-  return out;
-}
-
-/* 8-ball polyline (single loop with inner '8' detail) */
-function build8BallPolyline(center, radius, points){
-  const outer = [];
-  const count = Math.max(40, Math.floor(points*0.6));
-  for (let i=0;i<count;i++){
-    const t = i/count * Math.PI*2;
-    outer.push({x: center.cx + Math.cos(t)*radius, y: center.cy + Math.sin(t)*radius});
-  }
-  // small '8' inner loops
-  const inner = [];
-  const smallCount = Math.max(12, Math.floor(points*0.4));
-  const rSmall = radius * 0.36;
-  const top = {x:center.cx, y:center.cy - rSmall*0.6};
-  const bot = {x:center.cx, y:center.cy + rSmall*0.6};
-  for (let i=0;i<smallCount;i++){
-    const t = i/smallCount * Math.PI*2;
-    inner.push({x: top.x + Math.cos(t)*rSmall*0.6, y: top.y + Math.sin(t)*rSmall*0.6});
-    inner.push({x: bot.x + Math.cos(t)*rSmall*0.6, y: bot.y + Math.sin(t)*rSmall*0.6});
-  }
-  // merge outer then inner with small bridge
-  const merged = outer.concat(inner);
-  // sample to requested points
-  const sampled = [];
-  const total = merged.length;
-  for (let i=0;i<points;i++){
-    const idx = Math.floor(i/points * total);
-    sampled.push(merged[idx % total]);
-  }
-  return sampled;
-}
-
-/* assign ordered polyline points to logoNodes in sequence */
-function assignPolylineToNodes(polyline){
-  if (!polyline || polyline.length === 0) return;
-  for (let i=0;i<logoNodes.length;i++){
-    const p = logoNodes[i];
-    const pt = polyline[i % polyline.length];
-    p.tx = pt.x + (Math.random()-0.5)*0.2;
-    p.ty = pt.y + (Math.random()-0.5)*0.2;
-  }
-}
-
-/* draw: background nodes lightly, then draw single continuous line connecting nodes in their current order */
-let last = performance.now();
-function draw(now){
-  const t = now || performance.now();
-  const dt = Math.min(40, t - last);
-  last = t;
-
-  ctx.fillStyle = '#00010a';
-  ctx.fillRect(0,0,innerWidth,innerHeight);
-
-  // update background nodes
-  for (const n of bgNodes){
-    n.x += n.vx * (dt/16);
-    n.y += n.vy * (dt/16);
-    if (n.x < -10) n.x = innerWidth + 10;
-    if (n.x > innerWidth + 10) n.x = -10;
-    if (n.y < -10) n.y = innerHeight + 10;
-    if (n.y > innerHeight + 10) n.y = -10;
-  }
-  // draw subtle background lines
-  ctx.lineWidth = 0.8;
-  for (let i=0;i<bgNodes.length;i++){
-    const a = bgNodes[i];
-    for (let j=i+1;j<bgNodes.length;j++){
-      const b = bgNodes[j];
-      const d = Math.hypot(a.x-b.x, a.y-b.y);
-      if (d < LINE_THRESHOLD*0.5){
-        const alpha = (1 - d/(LINE_THRESHOLD*0.5)) * 0.05;
-        ctx.strokeStyle = `rgba(10,160,230,${alpha})`;
-        ctx.beginPath();
-        ctx.moveTo(a.x,a.y);
-        ctx.lineTo(b.x,b.y);
-        ctx.stroke();
-      }
-    }
-  }
-
-  // update logo nodes (move toward tx/ty)
-  for (const n of logoNodes){
-    if (n.tx !== null && n.ty !== null){
-      const dx = n.tx - n.x, dy = n.ty - n.y;
-      n.vx += dx * 0.12;
-      n.vy += dy * 0.12;
-      n.vx *= 0.86; n.vy *= 0.86;
-    } else {
-      const ang = Math.sin((n.x*0.0012 + t*0.0009) * 1.2);
-      n.vx += Math.cos(ang) * BASE_SPEED * 0.04;
-      n.vy += Math.sin(ang) * BASE_SPEED * 0.04;
-      n.vx *= 0.96; n.vy *= 0.96;
-    }
-    n.x += n.vx * (dt/16);
-    n.y += n.vy * (dt/16);
-    if (n.x < -10) n.x = innerWidth + 10;
-    if (n.x > innerWidth + 10) n.x = -10;
-    if (n.y < -10) n.y = innerHeight + 10;
-    if (n.y > innerHeight + 10) n.y = -10;
-  }
-
-  // draw single continuous polyline by connecting nodes in index order
-  ctx.lineWidth = LINE_WIDTH;
-  ctx.strokeStyle = `rgba(0,210,255,0.95)`;
-  ctx.shadowColor = `rgba(0,210,255,0.95)`;
-  ctx.shadowBlur = 8;
-  ctx.beginPath();
-  if (logoNodes.length){
-    ctx.moveTo(logoNodes[0].x, logoNodes[0].y);
-    for (let i=1;i<logoNodes.length;i++){
-      ctx.lineTo(logoNodes[i].x, logoNodes[i].y);
-    }
-  }
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // draw small node dots for readability
-  for (const n of logoNodes){
-    ctx.beginPath();
-    ctx.fillStyle = 'rgba(0,210,255,0.95)';
-    ctx.arc(n.x, n.y, NODE_RADIUS, 0, Math.PI*2);
-    ctx.fill();
-  }
-
-  // vignette
-  const vg = ctx.createRadialGradient(innerWidth/2, innerHeight/2, Math.min(innerWidth,innerHeight)*0.2, innerWidth/2, innerHeight/2, Math.max(innerWidth,innerHeight));
-  vg.addColorStop(0, 'rgba(0,0,0,0)');
-  vg.addColorStop(1, 'rgba(0,0,0,0.28)');
-  ctx.fillStyle = vg;
-  ctx.fillRect(0,0,innerWidth,innerHeight);
-}
-
-let raf;
-function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
-
-/* tween helper for nodes to reach targets smoothly */
-function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
-function tweenNodesToTargets(nodes, duration){
-  return new Promise(resolve => {
-    const start = performance.now();
-    const from = nodes.map(n => ({x:n.x,y:n.y}));
-    function step(now){
-      const t = Math.min(1, (now - start) / duration);
-      const e = easeOutCubic(t);
-      for (let i=0;i<nodes.length;i++){
-        const n = nodes[i];
-        if (n.tx === null || n.ty === null) continue;
-        n.x = from[i].x + (n.tx - from[i].x) * e + (Math.random()-0.5)*0.2*(1-e);
-        n.y = from[i].y + (n.ty - from[i].y) * e + (Math.random()-0.5)*0.2*(1-e);
-        n.vx *= 0.86; n.vy *= 0.86;
-      }
-      if (t < 1) requestAnimationFrame(step); else resolve();
-    }
-    requestAnimationFrame(step);
-  });
-}
-
-/* Sequence: sparse -> trace logo outline -> hold 5s -> 8-ball -> hold 5s -> disperse */
-async function runSequence(){
-  while (true){
-    // sparse background (logoNodes already scattered)
-    clearLogoTargets();
-    await wait(900);
-
-    // trace logo contours and build polyline for left slot
-    const leftRect = document.getElementById('leftSlot').getBoundingClientRect();
-    const leftBox = { cx: leftRect.left + leftRect.width/2, cy: leftRect.top + leftRect.height/2, maxW: Math.min(leftRect.width, leftRect.height) * 1.4 };
-    const contours = extractContours(logoImg, Math.max(220, leftBox.maxW));
-    const poly = buildPolylineFromContours(contours, leftBox, LOGO_NODES);
-    if (poly.length >= 20){
-      assignPolylineToNodes(poly);
-      await tweenNodesToTargets(logoNodes, 900);
-      await wait(HOLD_MS.logo);
+      // subtle vignette
+      const vg = ctx.createRadialGradient(innerWidth/2, innerHeight/2, Math.min(innerWidth,innerHeight)*0.2, innerWidth/2, innerHeight/2, Math.max(innerWidth,innerHeight));
+      vg.addColorStop(0, 'rgba(0,0,0,0)');
+      vg.addColorStop(1, 'rgba(0,0,0,0.28)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0,0,innerWidth,innerHeight);
     }
 
-    // 8-ball on right
-    const rightRect = document.getElementById('rightSlot').getBoundingClientRect();
-    const rightBox = { cx: rightRect.left + rightRect.width/2, cy: rightRect.top + rightRect.height/2, maxW: Math.min(rightRect.width, rightRect.height) * 1.2 };
-    const radius = Math.min(rightBox.maxW, Math.min(innerWidth, innerHeight) * 0.14);
-    const eightPolyline = build8BallPolyline(rightBox, radius, LOGO_NODES);
-    assignPolylineToNodes(eightPolyline);
-    await tweenNodesToTargets(logoNodes, 900);
-    await wait(HOLD_MS.eight);
+    let raf;
+    function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
 
-    // disperse back to sparse
-    clearLogoTargets();
-    await tweenNodesToTargets(logoNodes, 900);
-    await wait(700);
-  }
-}
+    // Start
+    initParticles();
+    loop();
 
-function clearLogoTargets(){ for (const n of logoNodes){ n.tx = null; n.ty = null; } }
-function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+    // Intro reveal behavior (centered logo -> top)
+    logoImg = document.getElementById('introLogo');
+    logoImg.onload = () => { revealUI(); };
+    // fallback reveal after a short delay so UI doesn't get stuck
+    setTimeout(revealUI, 1200);
 
-/* Start */
-initAll();
-loop();
-let started = false;
-function tryStart(){
-  if (started) return;
-  started = true;
-  runSequence();
-  revealUI();
-}
-logoImg.onload = tryStart;
-setTimeout(tryStart, 900);
+    async function revealUI(){
+      const introEl = document.getElementById('intro');
+      if (!introEl || introEl.dataset.revealed) return;
+      introEl.dataset.revealed = '1';
+      const introLogoEl = document.getElementById('introLogo');
+      const topRect = document.getElementById('topLogo').getBoundingClientRect();
+      const introRect = introLogoEl.getBoundingClientRect();
+      await new Promise(r => setTimeout(r, 700));
+      const scale = Math.max(0.28, topRect.width / introRect.width);
+      const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
+      const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
+      introLogoEl.style.transition = `transform 520ms var(--ease), opacity 520ms var(--ease)`;
+      introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      introLogoEl.style.opacity = '0.98';
+      await new Promise(r => setTimeout(r, 620));
+      introEl.style.transition = 'opacity 260ms var(--ease), visibility 260ms var(--ease)';
+      introEl.style.opacity = '0';
+      introEl.style.visibility = 'hidden';
+      document.getElementById('topLogoWrap').classList.add('visible');
+      document.getElementById('sampleCard').classList.add('visible');
+      document.getElementById('mainCard').classList.add('visible');
+      document.getElementById('site-footer').classList.add('visible');
+    }
 
-/* Intro reveal: centered logo -> top */
-async function revealUI(){
-  const introEl = document.getElementById('intro');
-  if (introEl.dataset.revealed) return;
-  introEl.dataset.revealed = '1';
-  const introLogoEl = document.getElementById('introLogo');
-  const topRect = document.getElementById('topLogo').getBoundingClientRect();
-  const introRect = introLogoEl.getBoundingClientRect();
-  await wait(700);
-  const scale = Math.max(0.28, topRect.width / introRect.width);
-  const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
-  const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
-  introLogoEl.style.transition = `transform 520ms var(--ease), opacity 520ms var(--ease)`;
-  introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-  introLogoEl.style.opacity = '0.98';
-  await wait(560);
-  introEl.style.transition = 'opacity 220ms var(--ease), visibility 220ms var(--ease)';
-  introEl.style.opacity = '0';
-  introEl.style.visibility = 'hidden';
-  document.getElementById('topLogoWrap').classList.add('visible');
-  document.getElementById('sampleCard').classList.add('visible');
-  document.getElementById('mainCard').classList.add('visible');
-  document.getElementById('site-footer').classList.add('visible');
-}
-
-/* Debug helpers (available in console) */
-window._neon = { initAll, extractContours, buildPolylineFromContours, build8BallPolyline, logoNodes, bgNodes };
-</script>
+    // Expose for debugging
+    window._classic = { initParticles, particles };
+  })();
+  </script>
 </body>
 </html>
