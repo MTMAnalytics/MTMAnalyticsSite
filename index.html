@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MTM Analytics</title>
   <meta name="description" content="MTM Analytics — coming soon" />
+
   <style>
     :root{
       --bg-dark:#02102a;
@@ -27,10 +28,7 @@
       justify-content:center;
       min-height:100vh;
       padding:48px 20px;
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      background:
-        linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
+      background:linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
       overflow-x:hidden;
     }
 
@@ -41,9 +39,7 @@
         url('assets/bg-texture.jpg'),
         radial-gradient(1200px 600px at 10% 10%, rgba(64,200,255,0.03), transparent 8%),
         linear-gradient(180deg,var(--bg-dark),var(--bg-mid));
-      background-size:cover, cover, cover;
-      background-position:center center, left top, center;
-      filter: saturate(110%) contrast(105%);
+      background-size:cover;
       opacity:0.95;
       z-index:0;
       pointer-events:none;
@@ -76,22 +72,19 @@
       width:56vmin;
       max-width:820px;
       max-height:78vh;
-      height:auto;
       display:block;
       transform-origin:center;
       filter: drop-shadow(0 40px 120px rgba(0,0,0,0.75));
-      will-change: transform, opacity;
     }
 
     .container{
       width:100%;
-      max-width:980px;
+      max-width:1200px;
       z-index:10;
       display:flex;
       flex-direction:column;
       align-items:center;
       gap:28px;
-      pointer-events:auto;
     }
 
     .top-logo {
@@ -103,21 +96,27 @@
       opacity:0;
       transform: translateY(-6px) scale(0.98);
       transition: opacity 700ms var(--ease), transform 700ms var(--ease);
-      pointer-events:none;
       z-index:20;
     }
     .top-logo.visible{ opacity:1; transform: translateY(0) scale(1); }
+
     .top-logo img{
       height:48px;
-      width:auto;
-      display:block;
       filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
+    }
+
+    .card-row {
+      display:flex;
+      gap:40px;
+      justify-content:center;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      width:100%;
     }
 
     .card {
       width:100%;
       max-width:520px;
-      margin-top:18px;
       background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
       border-radius: var(--radius);
       padding:28px 22px;
@@ -130,23 +129,9 @@
       flex-direction:column;
       gap:18px;
       align-items:center;
-      position:relative;
-      z-index:5;
-      transition: transform 700ms var(--ease), opacity 700ms var(--ease);
       opacity:0;
       transform: translateY(10px) scale(0.995);
-    }
-
-    .card::after{
-      content:"";
-      position:absolute;
-      inset:-6px;
-      border-radius:calc(var(--radius) + 6px);
-      background: radial-gradient(ellipse at center, rgba(64,200,255,0.12), transparent 35%);
-      filter: blur(18px);
-      z-index:-1;
-      pointer-events:none;
-      mix-blend-mode:screen;
+      transition: transform 700ms var(--ease), opacity 700ms var(--ease);
     }
 
     .card.visible{ opacity:1; transform: translateY(0) scale(1); }
@@ -162,23 +147,10 @@
       overflow:hidden;
       border: 1px solid rgba(255,255,255,0.04);
       box-shadow: 0 10px 30px rgba(2,6,23,0.5), 0 0 26px rgba(64,200,255,0.06) inset;
-      margin:0 auto;
-    }
-    .preview img{ max-width:86%; max-height:86%; opacity:0.98; display:block; }
-
-    .meta {
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      align-items:center;
-      text-align:center;
-      width:100%;
     }
 
-    /* CLICKABLE BUTTON */
     .coming-link {
       display:block;
-      margin-top:6px;
       padding:12px 22px;
       background: linear-gradient(90deg, rgba(64,200,255,0.16), rgba(64,200,255,0.08));
       color:var(--neon);
@@ -186,209 +158,79 @@
       font-weight:800;
       letter-spacing:0.02em;
       border: 1px solid rgba(64,200,255,0.12);
-      box-shadow: 0 18px 60px rgba(64,200,255,0.08);
       text-decoration:none;
       cursor:pointer;
       font-size:1rem;
       transition: transform 160ms var(--ease), box-shadow 160ms var(--ease), opacity 160ms var(--ease);
     }
 
-    .coming-link:hover,
-    .coming-link:focus {
+    .coming-link:hover {
       transform: translateY(-3px);
       box-shadow: 0 26px 80px rgba(64,200,255,0.12);
-      opacity: 0.98;
-    }
-
-    .meta .caption{
-      color:var(--muted);
-      font-size:0.95rem;
-      opacity:0.9;
     }
 
     @media (max-width:720px){
-      body{ padding:28px 16px; }
-      .intro .logo{ width:72vmin; max-width:420px; }
-      .top-logo img{ height:40px; }
-      .card{ padding:20px; gap:14px; max-width:92%; }
-      .preview{ width:100%; height:160px; }
+      .card-row { flex-direction:column; gap:20px; }
     }
   </style>
 </head>
+
 <body>
 
-  <div class="backdrop" aria-hidden="true"></div>
-  <div class="grain" aria-hidden="true"></div>
+  <div class="backdrop"></div>
+  <div class="grain"></div>
 
-  <div id="intro" class="intro" role="dialog" aria-label="Intro animation">
+  <div id="intro" class="intro">
     <img src="assets/logo.png" alt="MTM Analytics logo" class="logo" id="introLogo">
   </div>
 
-  <div class="container" role="main" aria-labelledby="siteTitle">
+  <div class="container">
 
-    <div class="top-logo" id="topLogoWrap" aria-hidden="false">
+    <div class="top-logo" id="topLogoWrap">
       <img src="assets/logo.png" alt="MTM Analytics" id="topLogo">
     </div>
 
-    <section class="card" id="mainCard" aria-labelledby="cardTitle" aria-describedby="cardDesc">
-      <div class="preview" aria-hidden="true">
-        <img src="assets/IPA-Blue.png" alt="Logo placeholder">
-      </div>
+    <div class="card-row">
 
-      <div class="meta">
- <a class="coming coming-link"
-   id="cardAction"
-   href="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58&navContentPaneEnabled=false&filterPaneEnabled=false"
-   role="button"
-   aria-label="Open IPA report">
-  IPA
-</a>
+      <!-- SAMPLE REPORT CARD (LEFT) -->
+      <section class="card" id="sampleCard">
+        <div class="preview">
+          <img src="assets/IPA-Blue.png" alt="Logo placeholder">
+        </div>
 
+        <a class="coming-link" href="sample.html">Sample Report</a>
+      </section>
 
-        <div class="caption" id="cardDesc"></div>
-      </div>
-    </section>
+      <!-- IPA CARD (RIGHT) -->
+      <section class="card" id="mainCard">
+        <div class="preview">
+          <img src="assets/logo.png" alt="Logo placeholder">
+        </div>
 
-    <!-- COOKIE BANNER -->
-    <div id="cookieBanner" style="
-      display:none;
-      position:fixed;
-      bottom:20px;
-      left:50%;
-      transform:translateX(-50%);
-      background:rgba(0,0,0,0.85);
-      color:#eaf6ff;
-      padding:20px;
-      border-radius:8px;
-      max-width:90%;
-      width:400px;
-      font-size:0.9rem;
-      z-index:9999;
-      text-align:center;
-    ">
-      <p style="margin-bottom:15px;">
-        We use cookies to understand how visitors use MTM Analytics.
-        You can accept or reject analytics cookies.
-      </p>
-      <button id="cookieAccept" style="
-        background:#0ea5ff;
-        border:none;
-        padding:8px 16px;
-        border-radius:4px;
-        color:#fff;
-        cursor:pointer;
-        margin-right:10px;
-      ">Accept</button>
+        <a class="coming-link"
+           href="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58&navContentPaneEnabled=false&filterPaneEnabled=false">
+          IPA
+        </a>
+      </section>
 
-      <button id="cookieReject" style="
-        background:#444;
-        border:none;
-        padding:8px 16px;
-        border-radius:4px;
-        color:#fff;
-        cursor:pointer;
-      ">Reject</button>
     </div>
 
-    <footer style="margin-top:40px; text-align:center; color:rgba(230,240,251,0.55); font-size:0.85rem;">
-      © 2026 MTM Analytics. All rights reserved.<br>
-      <a href="/legal.html" style="color:rgba(230,240,251,0.55); text-decoration:none;">Legal & Image Attribution</a> |
-      <a href="/privacy.html" style="color:rgba(230,240,251,0.55); text-decoration:none;">Privacy Policy</a>
-    </footer>
+  <footer style="margin-top:40px; text-align:center; color:rgba(230,240,251,0.55); font-size:0.85rem;">
+  © 2026 MTM Analytics. All rights reserved.<br>
+  <a href="/legal.html" style="color:rgba(230,240,251,0.55); text-decoration:none;">Legal & Image Attribution</a> |
+  <a href="/privacy.html" style="color:rgba(230,240,251,0.55); text-decoration:none;">Privacy Policy</a>
+</footer>
+
 
   </div>
 
-  <!-- MODAL -->
-  <div id="reportModal" style="
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.75);
-    z-index:9999;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-  ">
-    <div style="background:#000; width:90%; max-width:1200px; height:80vh; border-radius:12px; overflow:hidden; position:relative;">
-      <button id="closeModal" style="
-        position:absolute;
-        top:10px;
-        right:10px;
-        background:#333;
-        color:#fff;
-        border:0;
-        padding:6px 12px;
-        border-radius:6px;
-        cursor:pointer;
-        z-index:10;
-      ">Close</button>
-
-      <iframe id="reportFrame" src="" style="width:100%; height:100%; border:0;"></iframe>
-    </div>
-  </div>
-
-  <!-- CONSENT + GOOGLE ANALYTICS LOADER -->
-  <script>
-    if (!localStorage.getItem('mtm_cookie_consent')) {
-      document.getElementById('cookieBanner').style.display = 'block';
-    }
-
-    document.getElementById('cookieAccept').addEventListener('click', () => {
-      localStorage.setItem('mtm_cookie_consent', 'accepted');
-      document.getElementById('cookieBanner').style.display = 'none';
-      if (typeof window.loadGoogleAnalytics === 'function') {
-        window.loadGoogleAnalytics();
-      }
-    });
-
-    document.getElementById('cookieReject').addEventListener('click', () => {
-      localStorage.setItem('mtm_cookie_consent', 'rejected');
-      document.getElementById('cookieBanner').style.display = 'none';
-    });
-
-    if (localStorage.getItem('mtm_cookie_consent') === 'accepted') {
-      if (typeof window.loadGoogleAnalytics === 'function') {
-        window.loadGoogleAnalytics();
-      }
-    }
-
-    (function() {
-      const MEASUREMENT_ID = 'G-1X27VGBP0F';
-
-      window.loadGoogleAnalytics = function() {
-        if (window._mtm_ga_loaded) return;
-        window._mtm_ga_loaded = true;
-
-        const gaTag = document.createElement('script');
-        gaTag.async = true;
-        gaTag.src = `https://www.googletagmanager.com/gtag/js?id=${MEASUREMENT_ID}`;
-        document.head.appendChild(gaTag);
-
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){ dataLayer.push(arguments); }
-        window.gtag = gtag;
-
-        gtag('js', new Date());
-        gtag('config', MEASUREMENT_ID, {
-          'anonymize_ip': true,
-          'send_page_view': true,
-          'allow_ad_personalization_signals': false
-        });
-
-        window.mtmTrackEvent = function(name, params) {
-          if (window.gtag) gtag('event', name, params || {});
-        };
-      };
-    })();
-  </script>
-
-  <!-- INTRO ANIMATION SCRIPT -->
   <script>
     (function(){
       const intro = document.getElementById('intro');
       const introLogo = document.getElementById('introLogo');
       const topLogoWrap = document.getElementById('topLogoWrap');
       const topLogo = document.getElementById('topLogo');
+      const sampleCard = document.getElementById('sampleCard');
       const mainCard = document.getElementById('mainCard');
 
       const SHOW_MS = 3000;
@@ -409,7 +251,10 @@
         setTimeout(() => {
           intro.classList.add('hidden');
           topLogoWrap.classList.add('visible');
-          setTimeout(()=> mainCard.classList.add('visible'), 160);
+          setTimeout(()=> {
+            sampleCard.classList.add('visible');
+            mainCard.classList.add('visible');
+          }, 160);
         }, TRANSITION_MS);
       }
 
@@ -421,50 +266,13 @@
         setTimeout(animateLogoToTop, SHOW_MS);
       }
 
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          intro.classList.add('hidden');
-          topLogoWrap.classList.add('visible');
-          mainCard.classList.add('visible');
-        }
-      });
-
-      intro.addEventListener('click', () => {
-        intro.classList.add('hidden');
-        topLogoWrap.classList.add('visible');
-        mainCard.classList.add('visible');
-      });
-
       if (document.readyState === 'complete' || document.readyState === 'interactive') {
         setTimeout(startSequence, 120);
       } else {
         window.addEventListener('DOMContentLoaded', () => setTimeout(startSequence, 120));
       }
-
-      setTimeout(() => {
-        if (!topLogoWrap.classList.contains('visible') && intro.classList.contains('hidden')) {
-          topLogoWrap.classList.add('visible');
-          mainCard.classList.add('visible');
-        }
-      }, SHOW_MS + TRANSITION_MS + 3000);
     })();
   </script>
 
-  <!-- MODAL SCRIPT -->
-  <script>
-    const cardAction = document.getElementById('cardAction');
-    const modal = document.getElementById('reportModal');
-    const iframe = document.getElementById('reportFrame');
-    const closeModal = document.getElementById('closeModal');
-
-    cardAction.addEventListener('click', (e) => {
-      e.preventDefault();
-      iframe.src = cardAction.dataset.embed;
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    });
-
-    closeModal.addEventListener('click', () => {
-      iframe.src = '';
-      modal.style.display = 'none';
-      document.body.style
+</body>
+</html>
