@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MTM Analytics — Dashboard</title>
+  <title>MTM Analytics — Neon Lines Morph</title>
   <style>
     :root{
       --bg-very-dark:#00010a;
       --bg-deep:#00122a;
       --neon:#00d9ff;
+      --neon-2:#0af0ff;
       --card-surface: rgba(6,14,30,0.72);
       --card-border: rgba(20,40,80,0.12);
       --card-radius:14px;
       --ease:cubic-bezier(.2,.9,.3,1);
     }
-
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;-webkit-font-smoothing:antialiased}
     body{
@@ -32,10 +32,8 @@
     .container{position:relative;z-index:10;width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center;gap:28px;padding:28px}
     .intro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:40;pointer-events:none}
     .intro .logo-wrap{display:flex;align-items:center;justify-content:center;padding:6px;border-radius:10px;background:transparent}
-    /* centered intro logo (slightly smaller than previous large versions) */
     .intro img{width:34vmin;max-width:560px;max-height:56vh;display:block;filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85))}
 
-    /* top small logo restored to previous size */
     .top-logo{margin-top:6vh;display:flex;align-items:center;justify-content:center;width:100%;opacity:0;transform:translateY(-6px) scale(0.98);transition:opacity 700ms var(--ease), transform 700ms var(--ease);z-index:12}
     .top-logo.visible{opacity:1;transform:translateY(0) scale(1)}
     .top-logo img{height:48px;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
@@ -44,13 +42,11 @@
     .left-slot,.center-slot,.right-slot{display:flex;align-items:center;justify-content:center}
     .center-slot{flex:0 1 520px;flex-direction:column;gap:28px}
 
-    /* Cards: darker glass with soft neon halo */
     .card{position:relative;width:100%;max-width:520px;border-radius:var(--card-radius);padding:22px;background-color:var(--card-surface);border:1px solid var(--card-border);backdrop-filter: blur(10px) saturate(120%);box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);display:flex;flex-direction:column;gap:16px;align-items:center;opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease)}
     .card.visible{opacity:1;transform:translateY(0) scale(1.006)}
     .card::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% + 40px);height:calc(100% + 40px);border-radius:inherit;z-index:-1;box-shadow:0 30px 80px rgba(0,217,255,0.06);pointer-events:none}
 
     .preview{width:240px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(135deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))}
-    /* smaller preview logos so they fit the cards */
     .preview img{max-width:90%;max-height:64px;height:auto;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6))}
 
     .coming-link{display:inline-block;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg, rgba(0,212,255,0.12), rgba(10,180,220,0.06));color:var(--neon);font-weight:800;border:1px solid rgba(0,180,220,0.12);text-decoration:none;transition:transform 160ms var(--ease),box-shadow 160ms var(--ease)}
@@ -99,346 +95,382 @@
   </div>
 
   <script>
-  /*
-    Focused, clearer logo morph:
-    - LOGO_PARTICLES form crisp MTM shape in left slot and then morph to 8-ball in right slot.
-    - BG_PARTICLES are lightweight and kept low to reduce CPU.
-    - Increased particle counts for logo shapes and longer hold durations.
-    - DPR capped and shadow blur reduced for clarity and performance.
-  */
+  (function(){
+    /* ---------- TUNABLES ---------- */
+    const logoPath = 'assets/logo.png'; // change if needed
+    const MAX_DPR = 1.25;
+    const LOGO_NODES = 520;   // more nodes for crisp neon lines in logo/8-ball
+    const BG_NODES = 80;      // sparse background nodes
+    const BASE_SPEED = window.innerWidth < 768 ? 0.08 : 0.28;
+    const LINE_THRESHOLD = 110; // max distance to draw a line
+    const HOLD_MS = { logo: 2600, eight: 2600 }; // longer holds
 
-  // CONFIG
-  const logoPath = 'assets/logo.png';
-  const MAX_DPR = 1.25;
-  const LOGO_PARTICLES = 420;   // more particles for crisp logo and 8-ball
-  const BG_PARTICLES = 60;      // keep background light
-  const BASE_SPEED = window.innerWidth < 768 ? 0.08 : 0.28;
-  const DOT_MIN = 0.9, DOT_MAX = 2.6;
-  const LINE_DIST = 80;
-  const GRID_CELL = LINE_DIST;
-
-  // Sequence timings (longer holds)
-  const SEQ = {
-    scatterDuration: 1200,
-    gatherDuration: 1000,
-    holdLogo: 2400,        // longer hold on logo
-    morphTo8Duration: 1000,
-    hold8: 2200,           // longer hold on 8-ball
-    disperseDuration: 1000,
-    loopDelay: 900
-  };
-
-  // Canvas setup
-  const canvas = document.getElementById('stage');
-  const ctx = canvas.getContext('2d', { alpha: true });
-  function setSize(){
-    const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
-    canvas._dpr = dpr;
-    canvas.width = Math.floor(window.innerWidth * dpr);
-    canvas.height = Math.floor(window.innerHeight * dpr);
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-  setSize();
-  window.addEventListener('resize', ()=>{ clearTimeout(window._rt); window._rt = setTimeout(()=>{ setSize(); initAll(); }, 140); });
-
-  // Particles
-  let logoParticles = [];
-  let bgParticles = [];
-  function rand(a,b){ return Math.random()*(b-a)+a; }
-
-  function initAll(){
-    logoParticles = [];
-    bgParticles = [];
-    const leftRect = document.getElementById('leftSlot').getBoundingClientRect();
-    const leftCx = leftRect.left + leftRect.width/2;
-    const leftCy = leftRect.top + leftRect.height/2;
-    for (let i=0;i<LOGO_PARTICLES;i++){
-      logoParticles.push({
-        x: leftCx + (Math.random()-0.5) * leftRect.width * 1.8,
-        y: leftCy + (Math.random()-0.5) * leftRect.height * 1.8,
-        vx: (Math.random()-0.5)*BASE_SPEED,
-        vy: (Math.random()-0.5)*BASE_SPEED,
-        r: rand(DOT_MIN, DOT_MAX),
-        alpha: rand(0.28,0.95),
-        tx: null, ty: null
-      });
+    /* ---------- Canvas ---------- */
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d', { alpha: true });
+    function setSize(){
+      const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
+      canvas._dpr = dpr;
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
     }
-    for (let i=0;i<BG_PARTICLES;i++){
-      bgParticles.push({
-        x: Math.random()*innerWidth,
-        y: Math.random()*innerHeight,
-        vx: (Math.random()-0.5)*BASE_SPEED*0.6,
-        vy: (Math.random()-0.5)*BASE_SPEED*0.6,
-        r: rand(0.8,1.6),
-        alpha: rand(0.12,0.32)
-      });
-    }
-  }
+    setSize();
+    window.addEventListener('resize', ()=>{ clearTimeout(window._rt); window._rt = setTimeout(()=>{ setSize(); initAll(); }, 140); });
 
-  // Logo sampling
-  const logoImg = new Image();
-  logoImg.src = logoPath;
-  const off = document.createElement('canvas');
-  const offCtx = off.getContext('2d');
+    /* ---------- Nodes ---------- */
+    let logoNodes = [];
+    let bgNodes = [];
+    function rand(a,b){ return Math.random()*(b-a)+a; }
 
-  function sampleLogoPoints(maxPoints, box){
-    if (!logoImg.width || !logoImg.height) return sampleTextPoints(maxPoints, 'MTM', box);
-    const maxW = Math.min(box.maxW || Math.floor(innerWidth * 0.5), Math.floor(innerWidth * 0.6));
-    const scale = maxW / logoImg.width;
-    const w = Math.max(160, Math.floor(logoImg.width * scale)); // larger min width for detail
-    const h = Math.max(80, Math.floor(logoImg.height * scale));
-    off.width = w; off.height = h;
-    offCtx.clearRect(0,0,w,h);
-    try { offCtx.drawImage(logoImg, 0, 0, w, h); } catch(e){ return sampleTextPoints(maxPoints, 'MTM', box); }
-    const data = offCtx.getImageData(0,0,w,h).data;
-    const pts = [];
-    const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
-    for (let y=0;y<h;y+=step){
-      for (let x=0;x<w;x+=step){
-        const idx = (y*w + x) * 4;
-        if (data[idx+3] > 60){
-          pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
-        }
-      }
-    }
-    if (pts.length < 12) return sampleTextPoints(maxPoints, 'MTM', box);
-    shuffle(pts);
-    return pts.slice(0, Math.max(20, Math.floor(maxPoints)));
-  }
-
-  function sampleTextPoints(maxPoints, text, box){
-    const w = Math.min(box.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.6));
-    const h = Math.max(80, Math.floor(w * 0.28));
-    off.width = w; off.height = h;
-    offCtx.clearRect(0,0,w,h);
-    offCtx.fillStyle = 'white';
-    offCtx.textBaseline = 'middle';
-    offCtx.textAlign = 'center';
-    const fontSize = Math.floor(h * 0.7);
-    offCtx.font = `bold ${fontSize}px Inter, Arial, sans-serif`;
-    offCtx.fillText(text, w/2, h/2);
-    const data = offCtx.getImageData(0,0,w,h).data;
-    const pts = [];
-    const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
-    for (let y=0;y<h;y+=step){
-      for (let x=0;x<w;x+=step){
-        const idx = (y*w + x) * 4;
-        if (data[idx+3] > 60){
-          pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
-        }
-      }
-    }
-    shuffle(pts);
-    return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
-  }
-
-  // 8-ball generator
-  function generate8BallPoints(maxPoints, box){
-    const cx = box.cx, cy = box.cy;
-    const R = Math.min(box.maxW, Math.min(innerWidth, innerHeight) * 0.16);
-    const pts = [];
-    const ringCount = Math.floor(maxPoints * 0.6);
-    for (let i=0;i<ringCount;i++){
-      const t = i / ringCount * Math.PI * 2;
-      const r = R * (0.86 + 0.14 * Math.random());
-      pts.push({x: cx + Math.cos(t)*r, y: cy + Math.sin(t)*r});
-    }
-    const smallCount = Math.floor(maxPoints * 0.25);
-    const rSmall = R * 0.36;
-    const top = {x:cx, y:cy - rSmall*0.6};
-    const bot = {x:cx, y:cy + rSmall*0.6};
-    for (let i=0;i<smallCount;i++){
-      const a = Math.random()*Math.PI*2;
-      const rad = rSmall * (0.2 + Math.random()*0.8);
-      pts.push({x: top.x + Math.cos(a)*rad*0.6, y: top.y + Math.sin(a)*rad*0.6});
-      pts.push({x: bot.x + Math.cos(a)*rad*0.6, y: bot.y + Math.sin(a)*rad*0.6});
-    }
-    shuffle(pts);
-    return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
-  }
-
-  // Helpers
-  function shuffle(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
-  function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-  // Assign targets
-  function assignLogoTargets(pts){
-    for (let i=0;i<logoParticles.length;i++){
-      const p = logoParticles[i];
-      const pt = pts[i % pts.length];
-      p.tx = pt.x + (Math.random()-0.5)*0.6;
-      p.ty = pt.y + (Math.random()-0.5)*0.6;
-    }
-  }
-  function assign8BallTargets(pts){
-    for (let i=0;i<logoParticles.length;i++){
-      const p = logoParticles[i];
-      const pt = pts[i % pts.length];
-      p.tx = pt.x + (Math.random()-0.5)*0.6;
-      p.ty = pt.y + (Math.random()-0.5)*0.6;
-    }
-  }
-  function clearLogoTargets(){ for (let p of logoParticles){ p.tx = null; p.ty = null; } }
-
-  // Draw loop (lightweight)
-  let last = performance.now();
-  function draw(now){
-    const t = now || performance.now();
-    const dt = Math.min(40, t - last);
-    last = t;
-
-    ctx.fillStyle = '#00010a';
-    ctx.fillRect(0,0,innerWidth,innerHeight);
-
-    // background particles (cheap)
-    for (let p of bgParticles){
-      p.x += p.vx * (dt/16);
-      p.y += p.vy * (dt/16);
-      if (p.x < -10) p.x = innerWidth + 10;
-      if (p.x > innerWidth + 10) p.x = -10;
-      if (p.y < -10) p.y = innerHeight + 10;
-      if (p.y > innerHeight + 10) p.y = -10;
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(0,180,230,${p.alpha})`;
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fill();
-    }
-
-    // logo particles (form shapes)
-    for (let p of logoParticles){
-      if (p.tx !== null && p.ty !== null){
-        const dx = p.tx - p.x, dy = p.ty - p.y;
-        p.vx += dx * 0.12;
-        p.vy += dy * 0.12;
-        p.vx *= 0.86; p.vy *= 0.86;
-      } else {
-        const ang = Math.sin((p.x*0.0012 + t*0.0009) * 1.2);
-        p.vx += Math.cos(ang) * BASE_SPEED * 0.04;
-        p.vy += Math.sin(ang) * BASE_SPEED * 0.04;
-        p.vx *= 0.96; p.vy *= 0.96;
-      }
-      p.x += p.vx * (dt/16);
-      p.y += p.vy * (dt/16);
-      if (p.x < -10) p.x = innerWidth + 10;
-      if (p.x > innerWidth + 10) p.x = -10;
-      if (p.y < -10) p.y = innerHeight + 10;
-      if (p.y > innerHeight + 10) p.y = -10;
-
-      // crisp neon dot
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(0,210,255,${p.alpha})`;
-      ctx.shadowColor = `rgba(0,210,255,${Math.min(0.9, p.alpha * 1.2)})`;
-      ctx.shadowBlur = 4; // smaller blur for clarity
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
-    // vignette
-    const vg = ctx.createRadialGradient(innerWidth/2, innerHeight/2, Math.min(innerWidth,innerHeight)*0.2, innerWidth/2, innerHeight/2, Math.max(innerWidth,innerHeight));
-    vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, 'rgba(0,0,0,0.28)');
-    ctx.fillStyle = vg;
-    ctx.fillRect(0,0,innerWidth,innerHeight);
-  }
-
-  let raf;
-  function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
-
-  // Tween helpers
-  function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
-  function tweenToTargets(particlesArr, duration){
-    return new Promise(resolve => {
-      const start = performance.now();
-      const from = particlesArr.map(p => ({x:p.x,y:p.y}));
-      function step(now){
-        const t = Math.min(1, (now - start) / duration);
-        const e = easeOutCubic(t);
-        for (let i=0;i<particlesArr.length;i++){
-          const p = particlesArr[i];
-          if (p.tx === null || p.ty === null) continue;
-          p.x = from[i].x + (p.tx - from[i].x) * e + (Math.random()-0.5)*0.3*(1-e);
-          p.y = from[i].y + (p.ty - from[i].y) * e + (Math.random()-0.5)*0.3*(1-e);
-          p.vx *= 0.86; p.vy *= 0.86;
-        }
-        if (t < 1) requestAnimationFrame(step); else resolve();
-      }
-      requestAnimationFrame(step);
-    });
-  }
-
-  // Sequence: scatter -> logo -> 8-ball -> hold longer -> disperse -> loop
-  async function runSequence(){
-    while (true){
-      clearLogoTargets();
-      await wait(SEQ.scatterDuration);
-
+    function initAll(){
+      logoNodes = [];
+      bgNodes = [];
       const leftRect = document.getElementById('leftSlot').getBoundingClientRect();
-      const leftBox = { cx: leftRect.left + leftRect.width/2, cy: leftRect.top + leftRect.height/2, maxW: Math.min(leftRect.width, leftRect.height) * 1.0 };
-      const logoPts = sampleLogoPoints(LOGO_PARTICLES * 1.2, leftBox);
-      if (logoPts.length >= 20){
-        assignLogoTargets(logoPts);
-        await tweenToTargets(logoParticles, SEQ.gatherDuration);
-        await wait(SEQ.holdLogo);
+      const leftCx = leftRect.left + leftRect.width/2;
+      const leftCy = leftRect.top + leftRect.height/2;
+      // logo nodes start sparse across the whole canvas (not in a square)
+      for (let i=0;i<LOGO_NODES;i++){
+        logoNodes.push({
+          x: Math.random()*innerWidth,
+          y: Math.random()*innerHeight,
+          vx: (Math.random()-0.5)*BASE_SPEED,
+          vy: (Math.random()-0.5)*BASE_SPEED,
+          tx: null, ty: null
+        });
+      }
+      // background nodes sparse and cheap
+      for (let i=0;i<BG_NODES;i++){
+        bgNodes.push({
+          x: Math.random()*innerWidth,
+          y: Math.random()*innerHeight,
+          vx: (Math.random()-0.5)*BASE_SPEED*0.6,
+          vy: (Math.random()-0.5)*BASE_SPEED*0.6
+        });
+      }
+    }
+
+    /* ---------- Logo sampling and shapes ---------- */
+    const logoImg = new Image();
+    logoImg.src = logoPath;
+    const off = document.createElement('canvas');
+    const offCtx = off.getContext('2d');
+
+    function sampleLogoPoints(maxPoints, box){
+      if (!logoImg.width || !logoImg.height) return sampleTextPoints(maxPoints, 'MTM', box);
+      const maxW = Math.min(box.maxW || Math.floor(innerWidth * 0.5), Math.floor(innerWidth * 0.6));
+      const scale = maxW / logoImg.width;
+      const w = Math.max(180, Math.floor(logoImg.width * scale));
+      const h = Math.max(90, Math.floor(logoImg.height * scale));
+      off.width = w; off.height = h;
+      offCtx.clearRect(0,0,w,h);
+      try { offCtx.drawImage(logoImg, 0, 0, w, h); } catch(e){ return sampleTextPoints(maxPoints, 'MTM', box); }
+      const data = offCtx.getImageData(0,0,w,h).data;
+      const pts = [];
+      const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
+      for (let y=0;y<h;y+=step){
+        for (let x=0;x<w;x+=step){
+          const idx = (y*w + x) * 4;
+          if (data[idx+3] > 60){
+            pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
+          }
+        }
+      }
+      if (pts.length < 12) return sampleTextPoints(maxPoints, 'MTM', box);
+      shuffle(pts);
+      return pts.slice(0, Math.max(20, Math.floor(maxPoints)));
+    }
+
+    function sampleTextPoints(maxPoints, text, box){
+      const w = Math.min(box.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.6));
+      const h = Math.max(80, Math.floor(w * 0.28));
+      off.width = w; off.height = h;
+      offCtx.clearRect(0,0,w,h);
+      offCtx.fillStyle = 'white';
+      offCtx.textBaseline = 'middle';
+      offCtx.textAlign = 'center';
+      const fontSize = Math.floor(h * 0.7);
+      offCtx.font = `bold ${fontSize}px Inter, Arial, sans-serif`;
+      offCtx.fillText(text, w/2, h/2);
+      const data = offCtx.getImageData(0,0,w,h).data;
+      const pts = [];
+      const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
+      for (let y=0;y<h;y+=step){
+        for (let x=0;x<w;x+=step){
+          const idx = (y*w + x) * 4;
+          if (data[idx+3] > 60){
+            pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
+          }
+        }
+      }
+      shuffle(pts);
+      return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
+    }
+
+    function generate8BallPoints(maxPoints, box){
+      const cx = box.cx, cy = box.cy;
+      const R = Math.min(box.maxW, Math.min(innerWidth, innerHeight) * 0.16);
+      const pts = [];
+      const ringCount = Math.floor(maxPoints * 0.6);
+      for (let i=0;i<ringCount;i++){
+        const t = i / ringCount * Math.PI * 2;
+        const r = R * (0.86 + 0.14 * Math.random());
+        pts.push({x: cx + Math.cos(t)*r, y: cy + Math.sin(t)*r});
+      }
+      const smallCount = Math.floor(maxPoints * 0.25);
+      const rSmall = R * 0.36;
+      const top = {x:cx, y:cy - rSmall*0.6};
+      const bot = {x:cx, y:cy + rSmall*0.6};
+      for (let i=0;i<smallCount;i++){
+        const a = Math.random()*Math.PI*2;
+        const rad = rSmall * (0.2 + Math.random()*0.8);
+        pts.push({x: top.x + Math.cos(a)*rad*0.6, y: top.y + Math.sin(a)*rad*0.6});
+        pts.push({x: bot.x + Math.cos(a)*rad*0.6, y: bot.y + Math.sin(a)*rad*0.6});
+      }
+      shuffle(pts);
+      return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
+    }
+
+    /* ---------- Helpers ---------- */
+    function shuffle(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+    function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+    /* ---------- Assign targets ---------- */
+    function assignLogoTargets(pts){
+      for (let i=0;i<logoNodes.length;i++){
+        const n = logoNodes[i];
+        const pt = pts[i % pts.length];
+        n.tx = pt.x + (Math.random()-0.5)*0.6;
+        n.ty = pt.y + (Math.random()-0.5)*0.6;
+      }
+    }
+    function assign8BallTargets(pts){
+      for (let i=0;i<logoNodes.length;i++){
+        const n = logoNodes[i];
+        const pt = pts[i % pts.length];
+        n.tx = pt.x + (Math.random()-0.5)*0.6;
+        n.ty = pt.y + (Math.random()-0.5)*0.6;
+      }
+    }
+    function clearLogoTargets(){ for (let n of logoNodes){ n.tx = null; n.ty = null; } }
+
+    /* ---------- Draw neon lines ---------- */
+    let last = performance.now();
+    function draw(now){
+      const t = now || performance.now();
+      const dt = Math.min(40, t - last);
+      last = t;
+
+      // clear
+      ctx.fillStyle = '#00010a';
+      ctx.fillRect(0,0,innerWidth,innerHeight);
+
+      // update background nodes (cheap)
+      for (let n of bgNodes){
+        n.x += n.vx * (dt/16);
+        n.y += n.vy * (dt/16);
+        if (n.x < -10) n.x = innerWidth + 10;
+        if (n.x > innerWidth + 10) n.x = -10;
+        if (n.y < -10) n.y = innerHeight + 10;
+        if (n.y > innerHeight + 10) n.y = -10;
       }
 
-      const rightRect = document.getElementById('rightSlot').getBoundingClientRect();
-      const rightBox = { cx: rightRect.left + rightRect.width/2, cy: rightRect.top + rightRect.height/2, maxW: Math.min(rightRect.width, rightRect.height) * 1.0 };
-      const eightPts = generate8BallPoints(LOGO_PARTICLES * 1.0, rightBox);
-      assign8BallTargets(eightPts);
-      await tweenToTargets(logoParticles, SEQ.morphTo8Duration);
-      await wait(SEQ.hold8);
+      // draw subtle background lines (sparse)
+      ctx.lineWidth = 0.9;
+      for (let i=0;i<bgNodes.length;i++){
+        const a = bgNodes[i];
+        for (let j=i+1;j<bgNodes.length;j++){
+          const b = bgNodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d = Math.hypot(dx,dy);
+          if (d < LINE_THRESHOLD * 0.6){
+            const alpha = (1 - d/(LINE_THRESHOLD*0.6)) * 0.06;
+            ctx.strokeStyle = `rgba(10,160,230,${alpha})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x,a.y);
+            ctx.lineTo(b.x,b.y);
+            ctx.stroke();
+          }
+        }
+      }
 
-      clearLogoTargets();
-      await tweenToTargets(logoParticles, SEQ.disperseDuration);
-      await wait(SEQ.loopDelay);
+      // update logo nodes (move to targets when assigned)
+      for (let n of logoNodes){
+        if (n.tx !== null && n.ty !== null){
+          const dx = n.tx - n.x, dy = n.ty - n.y;
+          n.vx += dx * 0.12;
+          n.vy += dy * 0.12;
+          n.vx *= 0.86; n.vy *= 0.86;
+        } else {
+          // gentle drift
+          const ang = Math.sin((n.x*0.0012 + t*0.0009) * 1.2);
+          n.vx += Math.cos(ang) * BASE_SPEED * 0.04;
+          n.vy += Math.sin(ang) * BASE_SPEED * 0.04;
+          n.vx *= 0.96; n.vy *= 0.96;
+        }
+        n.x += n.vx * (dt/16);
+        n.y += n.vy * (dt/16);
+        if (n.x < -10) n.x = innerWidth + 10;
+        if (n.x > innerWidth + 10) n.x = -10;
+        if (n.y < -10) n.y = innerHeight + 10;
+        if (n.y > innerHeight + 10) n.y = -10;
+      }
+
+      // draw neon lines for logo nodes (connect to nearest neighbors within threshold)
+      ctx.lineWidth = 1.2;
+      ctx.shadowColor = `rgba(0,210,255,0.9)`;
+      ctx.shadowBlur = 8;
+      for (let i=0;i<logoNodes.length;i++){
+        const a = logoNodes[i];
+        // connect to a few nearest neighbors (limit to 4) for crisp lines
+        const neighbors = findNearby(logoNodes, i, 4, LINE_THRESHOLD);
+        for (const j of neighbors){
+          const b = logoNodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d = Math.hypot(dx,dy);
+          const alpha = Math.max(0, (1 - d/LINE_THRESHOLD) * 0.95);
+          ctx.strokeStyle = `rgba(0,210,255,${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x,a.y);
+          ctx.lineTo(b.x,b.y);
+          ctx.stroke();
+        }
+      }
+      ctx.shadowBlur = 0;
+
+      // draw small crisp nodes at line joints (subtle)
+      for (let n of logoNodes){
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(0,210,255,0.95)';
+        ctx.arc(n.x, n.y, 1.2, 0, Math.PI*2);
+        ctx.fill();
+      }
+
+      // vignette
+      const vg = ctx.createRadialGradient(innerWidth/2, innerHeight/2, Math.min(innerWidth,innerHeight)*0.2, innerWidth/2, innerHeight/2, Math.max(innerWidth,innerHeight));
+      vg.addColorStop(0, 'rgba(0,0,0,0)');
+      vg.addColorStop(1, 'rgba(0,0,0,0.28)');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0,0,innerWidth,innerHeight);
     }
-  }
 
-  // Start
-  function clearLogoTargets(){ for (let p of logoParticles){ p.tx = null; p.ty = null; } }
-  initAll();
-  loop();
-  let started = false;
-  function tryStart(){
-    if (started) return;
-    started = true;
-    runSequence();
-    revealUI();
-  }
-  logoImg.onload = tryStart;
-  setTimeout(tryStart, 900);
+    let raf;
+    function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
 
-  // Intro reveal: centered logo to top and reveal cards
-  async function revealUI(){
-    const introEl = document.getElementById('intro');
-    if (introEl.dataset.revealed) return;
-    introEl.dataset.revealed = '1';
-    const introLogoEl = document.getElementById('introLogo');
-    const topRect = document.getElementById('topLogo').getBoundingClientRect();
-    const introRect = introLogoEl.getBoundingClientRect();
-    await wait(700);
-    const scale = Math.max(0.28, topRect.width / introRect.width);
-    const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
-    const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
-    introLogoEl.style.transition = `transform 520ms var(--ease), opacity 520ms var(--ease)`;
-    introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-    introLogoEl.style.opacity = '0.98';
-    await wait(560);
-    introEl.style.transition = 'opacity 220ms var(--ease), visibility 220ms var(--ease)';
-    introEl.style.opacity = '0';
-    introEl.style.visibility = 'hidden';
-    document.getElementById('topLogoWrap').classList.add('visible');
-    document.getElementById('sampleCard').classList.add('visible');
-    document.getElementById('mainCard').classList.add('visible');
-    document.getElementById('site-footer').classList.add('visible');
-  }
+    // find up to 'limit' nearby node indices for node at index i
+    function findNearby(arr, i, limit, maxDist){
+      const a = arr[i];
+      // simple linear scan but limited neighbors and early exit for performance
+      const dists = [];
+      for (let j=0;j<arr.length;j++){
+        if (j === i) continue;
+        const b = arr[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d = Math.hypot(dx,dy);
+        if (d <= maxDist) dists.push({j,d});
+      }
+      dists.sort((p,q)=>p.d-q.d);
+      return dists.slice(0,limit).map(p=>p.j);
+    }
 
-  // Expose debug helpers
-  window._mtm = { initAll, sampleLogoPoints, generate8BallPoints, logoParticles, bgParticles };
+    /* ---------- Tween helpers ---------- */
+    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+    function tweenNodesToTargets(nodes, duration){
+      return new Promise(resolve => {
+        const start = performance.now();
+        const from = nodes.map(n => ({x:n.x,y:n.y}));
+        function step(now){
+          const t = Math.min(1, (now - start) / duration);
+          const e = easeOutCubic(t);
+          for (let i=0;i<nodes.length;i++){
+            const n = nodes[i];
+            if (n.tx === null || n.ty === null) continue;
+            n.x = from[i].x + (n.tx - from[i].x) * e + (Math.random()-0.5)*0.3*(1-e);
+            n.y = from[i].y + (n.ty - from[i].y) * e + (Math.random()-0.5)*0.3*(1-e);
+            n.vx *= 0.86; n.vy *= 0.86;
+          }
+          if (t < 1) requestAnimationFrame(step); else resolve();
+        }
+        requestAnimationFrame(step);
+      });
+    }
 
+    /* ---------- Sequence controller ---------- */
+    async function runSequence(){
+      while (true){
+        // start sparse across background (logoNodes already scattered)
+        clearLogoTargets();
+        await wait(900);
+
+        // gather into MTM logo on left
+        const leftRect = document.getElementById('leftSlot').getBoundingClientRect();
+        const leftBox = { cx: leftRect.left + leftRect.width/2, cy: leftRect.top + leftRect.height/2, maxW: Math.min(leftRect.width, leftRect.height) * 1.0 };
+        const logoPts = sampleLogoPoints(LOGO_NODES * 1.2, leftBox);
+        if (logoPts.length >= 20){
+          assignLogoTargets(logoPts);
+          await tweenNodesToTargets(logoNodes, 1000);
+          await wait(HOLD_MS.logo);
+        }
+
+        // morph to 8-ball on right
+        const rightRect = document.getElementById('rightSlot').getBoundingClientRect();
+        const rightBox = { cx: rightRect.left + rightRect.width/2, cy: rightRect.top + rightRect.height/2, maxW: Math.min(rightRect.width, rightRect.height) * 1.0 };
+        const eightPts = generate8BallPoints(LOGO_NODES * 1.0, rightBox);
+        assign8BallTargets(eightPts);
+        await tweenNodesToTargets(logoNodes, 1000);
+        await wait(HOLD_MS.eight);
+
+        // disperse back to sparse background
+        clearLogoTargets();
+        await tweenNodesToTargets(logoNodes, 900);
+        await wait(700);
+      }
+    }
+
+    /* ---------- Start ---------- */
+    initAll();
+    loop();
+    let started = false;
+    function tryStart(){
+      if (started) return;
+      started = true;
+      runSequence();
+      revealUI();
+    }
+    logoImg.onload = tryStart;
+    setTimeout(tryStart, 900);
+
+    /* ---------- Intro reveal ---------- */
+    async function revealUI(){
+      const introEl = document.getElementById('intro');
+      if (introEl.dataset.revealed) return;
+      introEl.dataset.revealed = '1';
+      const introLogoEl = document.getElementById('introLogo');
+      const topRect = document.getElementById('topLogo').getBoundingClientRect();
+      const introRect = introLogoEl.getBoundingClientRect();
+      await wait(700);
+      const scale = Math.max(0.28, topRect.width / introRect.width);
+      const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
+      const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
+      introLogoEl.style.transition = `transform 520ms var(--ease), opacity 520ms var(--ease)`;
+      introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+      introLogoEl.style.opacity = '0.98';
+      await wait(560);
+      introEl.style.transition = 'opacity 220ms var(--ease), visibility 220ms var(--ease)';
+      introEl.style.opacity = '0';
+      introEl.style.visibility = 'hidden';
+      document.getElementById('topLogoWrap').classList.add('visible');
+      document.getElementById('sampleCard').classList.add('visible');
+      document.getElementById('mainCard').classList.add('visible');
+      document.getElementById('site-footer').classList.add('visible');
+    }
+
+    // expose debug helpers
+    window._neon = { initAll, sampleLogoPoints, generate8BallPoints, logoNodes, bgNodes };
+
+  })();
   </script>
 </body>
 </html>
