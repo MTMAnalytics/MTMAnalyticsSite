@@ -1,476 +1,480 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MTM Analytics — Neon Lines Morph</title>
-  <style>
-    :root{
-      --bg-very-dark:#00010a;
-      --bg-deep:#00122a;
-      --neon:#00d9ff;
-      --neon-2:#0af0ff;
-      --card-surface: rgba(6,14,30,0.72);
-      --card-border: rgba(20,40,80,0.12);
-      --card-radius:14px;
-      --ease:cubic-bezier(.2,.9,.3,1);
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;-webkit-font-smoothing:antialiased}
-    body{
-      display:flex;align-items:center;justify-content:center;
-      min-height:100vh;padding:28px;
-      background:linear-gradient(180deg,var(--bg-very-dark) 0%,var(--bg-deep) 100%);
-      color:#eaf6ff;overflow:hidden;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MTM Analytics — Neon Lines Logo Morph (Clearer)</title>
+<style>
+:root{
+  --bg-very-dark:#00010a;
+  --bg-deep:#00122a;
+  --neon:#00d9ff;
+  --card-surface: rgba(6,14,30,0.72);
+  --card-border: rgba(20,40,80,0.12);
+  --card-radius:14px;
+  --ease:cubic-bezier(.2,.9,.3,1);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;-webkit-font-smoothing:antialiased}
+body{
+  display:flex;align-items:center;justify-content:center;min-height:100vh;padding:28px;
+  background:linear-gradient(180deg,var(--bg-very-dark) 0%,var(--bg-deep) 100%);color:#eaf6ff;overflow:hidden;
+}
 
-    /* Canvas stage */
-    #stage-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
-    canvas#stage{width:100%;height:100%;display:block}
+/* Canvas stage */
+#stage-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
+canvas#stage{width:100%;height:100%;display:block}
 
-    /* Layout and UI */
-    .container{position:relative;z-index:10;width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center;gap:28px;padding:28px}
-    .intro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:40;pointer-events:none}
-    .intro .logo-wrap{display:flex;align-items:center;justify-content:center;padding:6px;border-radius:10px;background:transparent}
-    .intro img{width:34vmin;max-width:560px;max-height:56vh;display:block;filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85))}
+/* UI layout */
+.container{position:relative;z-index:10;width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center;gap:28px;padding:28px}
+.intro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:40;pointer-events:none}
+.intro .logo-wrap{display:flex;align-items:center;justify-content:center;padding:6px;border-radius:10px;background:transparent}
+.intro img{width:34vmin;max-width:560px;max-height:56vh;display:block;filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85))}
 
-    .top-logo{margin-top:6vh;display:flex;align-items:center;justify-content:center;width:100%;opacity:0;transform:translateY(-6px) scale(0.98);transition:opacity 700ms var(--ease), transform 700ms var(--ease);z-index:12}
-    .top-logo.visible{opacity:1;transform:translateY(0) scale(1)}
-    .top-logo img{height:48px;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
+.top-logo{margin-top:6vh;display:flex;align-items:center;justify-content:center;width:100%;opacity:0;transform:translateY(-6px) scale(0.98);transition:opacity 700ms var(--ease), transform 700ms var(--ease);z-index:12}
+.top-logo.visible{opacity:1;transform:translateY(0) scale(1)}
+.top-logo img{height:48px;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
 
-    .layout-row{display:flex;gap:36px;align-items:center;justify-content:center;width:100%;max-width:1200px;z-index:10}
-    .left-slot,.center-slot,.right-slot{display:flex;align-items:center;justify-content:center}
-    .center-slot{flex:0 1 520px;flex-direction:column;gap:28px}
+.layout-row{display:flex;gap:36px;align-items:center;justify-content:center;width:100%;max-width:1200px;z-index:10}
+.left-slot,.center-slot,.right-slot{display:flex;align-items:center;justify-content:center}
+.center-slot{flex:0 1 520px;flex-direction:column;gap:28px}
 
-    .card{position:relative;width:100%;max-width:520px;border-radius:var(--card-radius);padding:22px;background-color:var(--card-surface);border:1px solid var(--card-border);backdrop-filter: blur(10px) saturate(120%);box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);display:flex;flex-direction:column;gap:16px;align-items:center;opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease)}
-    .card.visible{opacity:1;transform:translateY(0) scale(1.006)}
-    .card::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% + 40px);height:calc(100% + 40px);border-radius:inherit;z-index:-1;box-shadow:0 30px 80px rgba(0,217,255,0.06);pointer-events:none}
+.card{position:relative;width:100%;max-width:520px;border-radius:var(--card-radius);padding:22px;background-color:var(--card-surface);border:1px solid var(--card-border);backdrop-filter: blur(10px) saturate(120%);box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);display:flex;flex-direction:column;gap:16px;align-items:center;opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease)}
+.card.visible{opacity:1;transform:translateY(0) scale(1.006)}
+.card::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% + 40px);height:calc(100% + 40px);border-radius:inherit;z-index:-1;box-shadow:0 30px 80px rgba(0,217,255,0.06);pointer-events:none}
 
-    .preview{width:240px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(135deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))}
-    .preview img{max-width:90%;max-height:64px;height:auto;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6))}
+.preview{width:240px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(135deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))}
+.preview img{max-width:90%;max-height:64px;height:auto;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6))}
 
-    .coming-link{display:inline-block;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg, rgba(0,212,255,0.12), rgba(10,180,220,0.06));color:var(--neon);font-weight:800;border:1px solid rgba(0,180,220,0.12);text-decoration:none;transition:transform 160ms var(--ease),box-shadow 160ms var(--ease)}
-    .coming-link:hover{transform:translateY(-4px);box-shadow:0 36px 100px rgba(0,180,220,0.12)}
+.coming-link{display:inline-block;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg, rgba(0,212,255,0.12), rgba(10,180,220,0.06));color:var(--neon);font-weight:800;border:1px solid rgba(0,180,220,0.12);text-decoration:none;transition:transform 160ms var(--ease),box-shadow 160ms var(--ease)}
+.coming-link:hover{transform:translateY(-4px);box-shadow:0 36px 100px rgba(0,180,220,0.12)}
 
-    footer.site-footer{margin-top:40px;text-align:center;color:rgba(200,220,235,0.55);font-size:0.85rem;position:fixed;left:0;right:0;bottom:12px;opacity:0;transform:translateY(8px);transition:opacity 320ms var(--ease),transform 320ms var(--ease);pointer-events:none;z-index:12}
-    footer.site-footer.visible{opacity:1;transform:translateY(0);pointer-events:auto}
+footer.site-footer{margin-top:40px;text-align:center;color:rgba(200,220,235,0.55);font-size:0.85rem;position:fixed;left:0;right:0;bottom:12px;opacity:0;transform:translateY(8px);transition:opacity 320ms var(--ease),transform 320ms var(--ease);pointer-events:none;z-index:12}
+footer.site-footer.visible{opacity:1;transform:translateY(0);pointer-events:auto}
 
-    @media (max-width:1100px){.layout-row{flex-direction:column;gap:20px}}
-  </style>
+@media (max-width:1100px){.layout-row{flex-direction:column;gap:20px}}
+</style>
 </head>
 <body>
 
-  <div id="stage-wrap"><canvas id="stage"></canvas></div>
+<div id="stage-wrap"><canvas id="stage"></canvas></div>
 
-  <div class="intro" id="intro">
-    <div class="logo-wrap">
-      <img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo">
+<div class="intro" id="intro">
+  <div class="logo-wrap"><img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo"></div>
+</div>
+
+<div class="container" role="main" aria-live="polite">
+  <div class="top-logo" id="topLogoWrap"><img id="topLogo" src="assets/logo.png" alt="MTM Analytics"></div>
+
+  <div class="layout-row">
+    <div class="left-slot" id="leftSlot" style="width:360px;height:360px;"></div>
+
+    <div class="center-slot">
+      <section class="card" id="sampleCard">
+        <div class="preview"><img src="assets/logo.png" alt="MTM Analytics sample"></div>
+        <a class="coming-link" href="sample.html">Sample Report</a>
+      </section>
+
+      <section class="card" id="mainCard" style="max-width:520px;">
+        <div class="preview"><img src="assets/IPA-Blue.png" alt="IPA Dashboard"></div>
+        <a class="coming-link" href="#">IPA</a>
+      </section>
     </div>
+
+    <div class="right-slot" id="rightSlot" style="width:360px;height:360px;"></div>
   </div>
 
-  <div class="container" role="main" aria-live="polite">
-    <div class="top-logo" id="topLogoWrap">
-      <img id="topLogo" src="assets/logo.png" alt="MTM Analytics">
-    </div>
+  <footer id="site-footer" class="site-footer">© 2026 MTM Analytics. All rights reserved.</footer>
+</div>
 
-    <div class="layout-row">
-      <div class="left-slot" id="leftSlot" style="width:300px;height:300px;"></div>
+<script>
+(function(){
+  // CONFIG (tweak these)
+  const logoPath = 'assets/logo.png';
+  const MAX_DPR = 1.25;
+  const LOGO_NODES = 700;      // more nodes for crisp logo lines
+  const BG_NODES = 80;
+  const BASE_SPEED = window.innerWidth < 768 ? 0.08 : 0.28;
+  const LINE_THRESHOLD = 110;
+  const NEIGHBORS = 2;         // connect to only 2 nearest neighbors for clarity
+  const REPULSION_RADIUS = 8;  // small radius to push overlapping nodes apart
+  const REPULSION_STRENGTH = 0.28;
 
-      <div class="center-slot">
-        <section class="card" id="sampleCard">
-          <div class="preview"><img src="assets/logo.png" alt="MTM Analytics sample"></div>
-          <a class="coming-link" href="sample.html">Sample Report</a>
-        </section>
+  // Hold durations (5 seconds)
+  const HOLD_MS = { logo: 5000, eight: 5000 };
 
-        <section class="card" id="mainCard" style="max-width:520px;">
-          <div class="preview"><img src="assets/IPA-Blue.png" alt="IPA Dashboard"></div>
-          <a class="coming-link" href="#">IPA</a>
-        </section>
-      </div>
+  // Canvas setup
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  function setSize(){
+    const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
+    canvas._dpr = dpr;
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  setSize();
+  window.addEventListener('resize', ()=>{ clearTimeout(window._rt); window._rt = setTimeout(()=>{ setSize(); initAll(); }, 140); });
 
-      <div class="right-slot" id="rightSlot" style="width:300px;height:300px;"></div>
-    </div>
+  // Nodes
+  let logoNodes = [];
+  let bgNodes = [];
+  function rand(a,b){ return Math.random()*(b-a)+a; }
 
-    <footer id="site-footer" class="site-footer">© 2026 MTM Analytics. All rights reserved.</footer>
-  </div>
-
-  <script>
-  (function(){
-    /* ---------- TUNABLES ---------- */
-    const logoPath = 'assets/logo.png'; // change if needed
-    const MAX_DPR = 1.25;
-    const LOGO_NODES = 520;   // more nodes for crisp neon lines in logo/8-ball
-    const BG_NODES = 80;      // sparse background nodes
-    const BASE_SPEED = window.innerWidth < 768 ? 0.08 : 0.28;
-    const LINE_THRESHOLD = 110; // max distance to draw a line
-    const HOLD_MS = { logo: 2600, eight: 2600 }; // longer holds
-
-    /* ---------- Canvas ---------- */
-    const canvas = document.getElementById('stage');
-    const ctx = canvas.getContext('2d', { alpha: true });
-    function setSize(){
-      const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
-      canvas._dpr = dpr;
-      canvas.width = Math.floor(window.innerWidth * dpr);
-      canvas.height = Math.floor(window.innerHeight * dpr);
-      canvas.style.width = window.innerWidth + 'px';
-      canvas.style.height = window.innerHeight + 'px';
-      ctx.setTransform(dpr,0,0,dpr,0,0);
+  function initAll(){
+    logoNodes = [];
+    bgNodes = [];
+    // logo nodes start sparse across the whole canvas
+    for (let i=0;i<LOGO_NODES;i++){
+      logoNodes.push({
+        x: Math.random()*innerWidth,
+        y: Math.random()*innerHeight,
+        vx: (Math.random()-0.5)*BASE_SPEED,
+        vy: (Math.random()-0.5)*BASE_SPEED,
+        tx: null, ty: null
+      });
     }
-    setSize();
-    window.addEventListener('resize', ()=>{ clearTimeout(window._rt); window._rt = setTimeout(()=>{ setSize(); initAll(); }, 140); });
-
-    /* ---------- Nodes ---------- */
-    let logoNodes = [];
-    let bgNodes = [];
-    function rand(a,b){ return Math.random()*(b-a)+a; }
-
-    function initAll(){
-      logoNodes = [];
-      bgNodes = [];
-      const leftRect = document.getElementById('leftSlot').getBoundingClientRect();
-      const leftCx = leftRect.left + leftRect.width/2;
-      const leftCy = leftRect.top + leftRect.height/2;
-      // logo nodes start sparse across the whole canvas (not in a square)
-      for (let i=0;i<LOGO_NODES;i++){
-        logoNodes.push({
-          x: Math.random()*innerWidth,
-          y: Math.random()*innerHeight,
-          vx: (Math.random()-0.5)*BASE_SPEED,
-          vy: (Math.random()-0.5)*BASE_SPEED,
-          tx: null, ty: null
-        });
-      }
-      // background nodes sparse and cheap
-      for (let i=0;i<BG_NODES;i++){
-        bgNodes.push({
-          x: Math.random()*innerWidth,
-          y: Math.random()*innerHeight,
-          vx: (Math.random()-0.5)*BASE_SPEED*0.6,
-          vy: (Math.random()-0.5)*BASE_SPEED*0.6
-        });
-      }
+    for (let i=0;i<BG_NODES;i++){
+      bgNodes.push({
+        x: Math.random()*innerWidth,
+        y: Math.random()*innerHeight,
+        vx: (Math.random()-0.5)*BASE_SPEED*0.6,
+        vy: (Math.random()-0.5)*BASE_SPEED*0.6
+      });
     }
+  }
 
-    /* ---------- Logo sampling and shapes ---------- */
-    const logoImg = new Image();
-    logoImg.src = logoPath;
-    const off = document.createElement('canvas');
-    const offCtx = off.getContext('2d');
+  // Logo sampling
+  const logoImg = new Image();
+  logoImg.src = logoPath;
+  const off = document.createElement('canvas');
+  const offCtx = off.getContext('2d');
 
-    function sampleLogoPoints(maxPoints, box){
-      if (!logoImg.width || !logoImg.height) return sampleTextPoints(maxPoints, 'MTM', box);
-      const maxW = Math.min(box.maxW || Math.floor(innerWidth * 0.5), Math.floor(innerWidth * 0.6));
-      const scale = maxW / logoImg.width;
-      const w = Math.max(180, Math.floor(logoImg.width * scale));
-      const h = Math.max(90, Math.floor(logoImg.height * scale));
-      off.width = w; off.height = h;
-      offCtx.clearRect(0,0,w,h);
-      try { offCtx.drawImage(logoImg, 0, 0, w, h); } catch(e){ return sampleTextPoints(maxPoints, 'MTM', box); }
-      const data = offCtx.getImageData(0,0,w,h).data;
-      const pts = [];
-      const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
-      for (let y=0;y<h;y+=step){
-        for (let x=0;x<w;x+=step){
-          const idx = (y*w + x) * 4;
-          if (data[idx+3] > 60){
-            pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
-          }
+  function sampleLogoPoints(maxPoints, box){
+    if (!logoImg.width || !logoImg.height) return sampleTextPoints(maxPoints, 'MTM', box);
+    // make the left logo area larger so the morph reads bigger
+    const maxW = Math.min(box.maxW * 1.4 || Math.floor(innerWidth * 0.6), Math.floor(innerWidth * 0.8));
+    const scale = maxW / logoImg.width;
+    const w = Math.max(220, Math.floor(logoImg.width * scale));
+    const h = Math.max(110, Math.floor(logoImg.height * scale));
+    off.width = w; off.height = h;
+    offCtx.clearRect(0,0,w,h);
+    try { offCtx.drawImage(logoImg, 0, 0, w, h); } catch(e){ return sampleTextPoints(maxPoints, 'MTM', box); }
+    const data = offCtx.getImageData(0,0,w,h).data;
+    const pts = [];
+    const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
+    for (let y=0;y<h;y+=step){
+      for (let x=0;x<w;x+=step){
+        const idx = (y*w + x) * 4;
+        if (data[idx+3] > 60){
+          pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
         }
       }
-      if (pts.length < 12) return sampleTextPoints(maxPoints, 'MTM', box);
-      shuffle(pts);
-      return pts.slice(0, Math.max(20, Math.floor(maxPoints)));
     }
+    if (pts.length < 20) return sampleTextPoints(maxPoints, 'MTM', box);
+    shuffle(pts);
+    return pts.slice(0, Math.max(40, Math.floor(maxPoints)));
+  }
 
-    function sampleTextPoints(maxPoints, text, box){
-      const w = Math.min(box.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.6));
-      const h = Math.max(80, Math.floor(w * 0.28));
-      off.width = w; off.height = h;
-      offCtx.clearRect(0,0,w,h);
-      offCtx.fillStyle = 'white';
-      offCtx.textBaseline = 'middle';
-      offCtx.textAlign = 'center';
-      const fontSize = Math.floor(h * 0.7);
-      offCtx.font = `bold ${fontSize}px Inter, Arial, sans-serif`;
-      offCtx.fillText(text, w/2, h/2);
-      const data = offCtx.getImageData(0,0,w,h).data;
-      const pts = [];
-      const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
-      for (let y=0;y<h;y+=step){
-        for (let x=0;x<w;x+=step){
-          const idx = (y*w + x) * 4;
-          if (data[idx+3] > 60){
-            pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
-          }
+  function sampleTextPoints(maxPoints, text, box){
+    const w = Math.min(box.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.6));
+    const h = Math.max(100, Math.floor(w * 0.28));
+    off.width = w; off.height = h;
+    offCtx.clearRect(0,0,w,h);
+    offCtx.fillStyle = 'white';
+    offCtx.textBaseline = 'middle';
+    offCtx.textAlign = 'center';
+    const fontSize = Math.floor(h * 0.7);
+    offCtx.font = `bold ${fontSize}px Inter, Arial, sans-serif`;
+    offCtx.fillText(text, w/2, h/2);
+    const data = offCtx.getImageData(0,0,w,h).data;
+    const pts = [];
+    const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
+    for (let y=0;y<h;y+=step){
+      for (let x=0;x<w;x+=step){
+        const idx = (y*w + x) * 4;
+        if (data[idx+3] > 60){
+          pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
         }
       }
-      shuffle(pts);
-      return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
+    }
+    shuffle(pts);
+    return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
+  }
+
+  function generate8BallPoints(maxPoints, box){
+    const cx = box.cx, cy = box.cy;
+    const R = Math.min(box.maxW, Math.min(innerWidth, innerHeight) * 0.16);
+    const pts = [];
+    const ringCount = Math.floor(maxPoints * 0.6);
+    for (let i=0;i<ringCount;i++){
+      const t = i / ringCount * Math.PI * 2;
+      const r = R * (0.86 + 0.14 * Math.random());
+      pts.push({x: cx + Math.cos(t)*r, y: cy + Math.sin(t)*r});
+    }
+    const smallCount = Math.floor(maxPoints * 0.25);
+    const rSmall = R * 0.36;
+    const top = {x:cx, y:cy - rSmall*0.6};
+    const bot = {x:cx, y:cy + rSmall*0.6};
+    for (let i=0;i<smallCount;i++){
+      const a = Math.random()*Math.PI*2;
+      const rad = rSmall * (0.2 + Math.random()*0.8);
+      pts.push({x: top.x + Math.cos(a)*rad*0.6, y: top.y + Math.sin(a)*rad*0.6});
+      pts.push({x: bot.x + Math.cos(a)*rad*0.6, y: bot.y + Math.sin(a)*rad*0.6});
+    }
+    shuffle(pts);
+    return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
+  }
+
+  // Helpers
+  function shuffle(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+  function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+  // Assign targets
+  function assignLogoTargets(pts){
+    for (let i=0;i<logoNodes.length;i++){
+      const n = logoNodes[i];
+      const pt = pts[i % pts.length];
+      n.tx = pt.x + (Math.random()-0.5)*0.4;
+      n.ty = pt.y + (Math.random()-0.5)*0.4;
+    }
+  }
+  function assign8BallTargets(pts){
+    for (let i=0;i<logoNodes.length;i++){
+      const n = logoNodes[i];
+      const pt = pts[i % pts.length];
+      n.tx = pt.x + (Math.random()-0.5)*0.4;
+      n.ty = pt.y + (Math.random()-0.5)*0.4;
+    }
+  }
+  function clearLogoTargets(){ for (let n of logoNodes){ n.tx = null; n.ty = null; } }
+
+  // Draw loop with small repulsion and limited neighbors
+  let last = performance.now();
+  function draw(now){
+    const t = now || performance.now();
+    const dt = Math.min(40, t - last);
+    last = t;
+
+    ctx.fillStyle = '#00010a';
+    ctx.fillRect(0,0,innerWidth,innerHeight);
+
+    // update background nodes
+    for (let n of bgNodes){
+      n.x += n.vx * (dt/16);
+      n.y += n.vy * (dt/16);
+      if (n.x < -10) n.x = innerWidth + 10;
+      if (n.x > innerWidth + 10) n.x = -10;
+      if (n.y < -10) n.y = innerHeight + 10;
+      if (n.y > innerHeight + 10) n.y = -10;
     }
 
-    function generate8BallPoints(maxPoints, box){
-      const cx = box.cx, cy = box.cy;
-      const R = Math.min(box.maxW, Math.min(innerWidth, innerHeight) * 0.16);
-      const pts = [];
-      const ringCount = Math.floor(maxPoints * 0.6);
-      for (let i=0;i<ringCount;i++){
-        const t = i / ringCount * Math.PI * 2;
-        const r = R * (0.86 + 0.14 * Math.random());
-        pts.push({x: cx + Math.cos(t)*r, y: cy + Math.sin(t)*r});
-      }
-      const smallCount = Math.floor(maxPoints * 0.25);
-      const rSmall = R * 0.36;
-      const top = {x:cx, y:cy - rSmall*0.6};
-      const bot = {x:cx, y:cy + rSmall*0.6};
-      for (let i=0;i<smallCount;i++){
-        const a = Math.random()*Math.PI*2;
-        const rad = rSmall * (0.2 + Math.random()*0.8);
-        pts.push({x: top.x + Math.cos(a)*rad*0.6, y: top.y + Math.sin(a)*rad*0.6});
-        pts.push({x: bot.x + Math.cos(a)*rad*0.6, y: bot.y + Math.sin(a)*rad*0.6});
-      }
-      shuffle(pts);
-      return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
-    }
-
-    /* ---------- Helpers ---------- */
-    function shuffle(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
-    function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-    /* ---------- Assign targets ---------- */
-    function assignLogoTargets(pts){
-      for (let i=0;i<logoNodes.length;i++){
-        const n = logoNodes[i];
-        const pt = pts[i % pts.length];
-        n.tx = pt.x + (Math.random()-0.5)*0.6;
-        n.ty = pt.y + (Math.random()-0.5)*0.6;
-      }
-    }
-    function assign8BallTargets(pts){
-      for (let i=0;i<logoNodes.length;i++){
-        const n = logoNodes[i];
-        const pt = pts[i % pts.length];
-        n.tx = pt.x + (Math.random()-0.5)*0.6;
-        n.ty = pt.y + (Math.random()-0.5)*0.6;
-      }
-    }
-    function clearLogoTargets(){ for (let n of logoNodes){ n.tx = null; n.ty = null; } }
-
-    /* ---------- Draw neon lines ---------- */
-    let last = performance.now();
-    function draw(now){
-      const t = now || performance.now();
-      const dt = Math.min(40, t - last);
-      last = t;
-
-      // clear
-      ctx.fillStyle = '#00010a';
-      ctx.fillRect(0,0,innerWidth,innerHeight);
-
-      // update background nodes (cheap)
-      for (let n of bgNodes){
-        n.x += n.vx * (dt/16);
-        n.y += n.vy * (dt/16);
-        if (n.x < -10) n.x = innerWidth + 10;
-        if (n.x > innerWidth + 10) n.x = -10;
-        if (n.y < -10) n.y = innerHeight + 10;
-        if (n.y > innerHeight + 10) n.y = -10;
-      }
-
-      // draw subtle background lines (sparse)
-      ctx.lineWidth = 0.9;
-      for (let i=0;i<bgNodes.length;i++){
-        const a = bgNodes[i];
-        for (let j=i+1;j<bgNodes.length;j++){
-          const b = bgNodes[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const d = Math.hypot(dx,dy);
-          if (d < LINE_THRESHOLD * 0.6){
-            const alpha = (1 - d/(LINE_THRESHOLD*0.6)) * 0.06;
-            ctx.strokeStyle = `rgba(10,160,230,${alpha})`;
-            ctx.beginPath();
-            ctx.moveTo(a.x,a.y);
-            ctx.lineTo(b.x,b.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // update logo nodes (move to targets when assigned)
-      for (let n of logoNodes){
-        if (n.tx !== null && n.ty !== null){
-          const dx = n.tx - n.x, dy = n.ty - n.y;
-          n.vx += dx * 0.12;
-          n.vy += dy * 0.12;
-          n.vx *= 0.86; n.vy *= 0.86;
-        } else {
-          // gentle drift
-          const ang = Math.sin((n.x*0.0012 + t*0.0009) * 1.2);
-          n.vx += Math.cos(ang) * BASE_SPEED * 0.04;
-          n.vy += Math.sin(ang) * BASE_SPEED * 0.04;
-          n.vx *= 0.96; n.vy *= 0.96;
-        }
-        n.x += n.vx * (dt/16);
-        n.y += n.vy * (dt/16);
-        if (n.x < -10) n.x = innerWidth + 10;
-        if (n.x > innerWidth + 10) n.x = -10;
-        if (n.y < -10) n.y = innerHeight + 10;
-        if (n.y > innerHeight + 10) n.y = -10;
-      }
-
-      // draw neon lines for logo nodes (connect to nearest neighbors within threshold)
-      ctx.lineWidth = 1.2;
-      ctx.shadowColor = `rgba(0,210,255,0.9)`;
-      ctx.shadowBlur = 8;
-      for (let i=0;i<logoNodes.length;i++){
-        const a = logoNodes[i];
-        // connect to a few nearest neighbors (limit to 4) for crisp lines
-        const neighbors = findNearby(logoNodes, i, 4, LINE_THRESHOLD);
-        for (const j of neighbors){
-          const b = logoNodes[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const d = Math.hypot(dx,dy);
-          const alpha = Math.max(0, (1 - d/LINE_THRESHOLD) * 0.95);
-          ctx.strokeStyle = `rgba(0,210,255,${alpha})`;
+    // draw subtle background lines (sparse)
+    ctx.lineWidth = 0.8;
+    for (let i=0;i<bgNodes.length;i++){
+      const a = bgNodes[i];
+      for (let j=i+1;j<bgNodes.length;j++){
+        const b = bgNodes[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const d = Math.hypot(dx,dy);
+        if (d < LINE_THRESHOLD * 0.5){
+          const alpha = (1 - d/(LINE_THRESHOLD*0.5)) * 0.05;
+          ctx.strokeStyle = `rgba(10,160,230,${alpha})`;
           ctx.beginPath();
           ctx.moveTo(a.x,a.y);
           ctx.lineTo(b.x,b.y);
           ctx.stroke();
         }
       }
-      ctx.shadowBlur = 0;
-
-      // draw small crisp nodes at line joints (subtle)
-      for (let n of logoNodes){
-        ctx.beginPath();
-        ctx.fillStyle = 'rgba(0,210,255,0.95)';
-        ctx.arc(n.x, n.y, 1.2, 0, Math.PI*2);
-        ctx.fill();
-      }
-
-      // vignette
-      const vg = ctx.createRadialGradient(innerWidth/2, innerHeight/2, Math.min(innerWidth,innerHeight)*0.2, innerWidth/2, innerHeight/2, Math.max(innerWidth,innerHeight));
-      vg.addColorStop(0, 'rgba(0,0,0,0)');
-      vg.addColorStop(1, 'rgba(0,0,0,0.28)');
-      ctx.fillStyle = vg;
-      ctx.fillRect(0,0,innerWidth,innerHeight);
     }
 
-    let raf;
-    function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
-
-    // find up to 'limit' nearby node indices for node at index i
-    function findNearby(arr, i, limit, maxDist){
-      const a = arr[i];
-      // simple linear scan but limited neighbors and early exit for performance
-      const dists = [];
-      for (let j=0;j<arr.length;j++){
+    // update logo nodes with small repulsion
+    for (let i=0;i<logoNodes.length;i++){
+      const n = logoNodes[i];
+      // repulsion from very close neighbors (cheap: check small subset)
+      for (let j=Math.max(0,i-6); j<Math.min(logoNodes.length, i+6); j++){
         if (j === i) continue;
-        const b = arr[j];
+        const m = logoNodes[j];
+        const dx = n.x - m.x, dy = n.y - m.y;
+        const d = Math.hypot(dx,dy);
+        if (d > 0 && d < REPULSION_RADIUS){
+          const push = (REPULSION_RADIUS - d) / REPULSION_RADIUS * REPULSION_STRENGTH;
+          n.vx += (dx/d) * push;
+          n.vy += (dy/d) * push;
+        }
+      }
+
+      if (n.tx !== null && n.ty !== null){
+        const dx = n.tx - n.x, dy = n.ty - n.y;
+        n.vx += dx * 0.12;
+        n.vy += dy * 0.12;
+        n.vx *= 0.86; n.vy *= 0.86;
+      } else {
+        const ang = Math.sin((n.x*0.0012 + t*0.0009) * 1.2);
+        n.vx += Math.cos(ang) * BASE_SPEED * 0.04;
+        n.vy += Math.sin(ang) * BASE_SPEED * 0.04;
+        n.vx *= 0.96; n.vy *= 0.96;
+      }
+      n.x += n.vx * (dt/16);
+      n.y += n.vy * (dt/16);
+      if (n.x < -10) n.x = innerWidth + 10;
+      if (n.x > innerWidth + 10) n.x = -10;
+      if (n.y < -10) n.y = innerHeight + 10;
+      if (n.y > innerHeight + 10) n.y = -10;
+    }
+
+    // draw logo lines: connect to NEIGHBORS nearest only
+    ctx.lineWidth = 0.9;
+    ctx.shadowColor = `rgba(0,210,255,0.9)`;
+    ctx.shadowBlur = 6;
+    for (let i=0;i<logoNodes.length;i++){
+      const a = logoNodes[i];
+      const neighbors = findNearestIndices(logoNodes, i, NEIGHBORS, LINE_THRESHOLD);
+      for (const j of neighbors){
+        const b = logoNodes[j];
         const dx = a.x - b.x, dy = a.y - b.y;
         const d = Math.hypot(dx,dy);
-        if (d <= maxDist) dists.push({j,d});
+        const alpha = Math.max(0, (1 - d/LINE_THRESHOLD) * 0.95);
+        ctx.strokeStyle = `rgba(0,210,255,${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(a.x,a.y);
+        ctx.lineTo(b.x,b.y);
+        ctx.stroke();
       }
-      dists.sort((p,q)=>p.d-q.d);
-      return dists.slice(0,limit).map(p=>p.j);
+    }
+    ctx.shadowBlur = 0;
+
+    // draw small node dots
+    for (let n of logoNodes){
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(0,210,255,0.95)';
+      ctx.arc(n.x, n.y, 1.1, 0, Math.PI*2);
+      ctx.fill();
     }
 
-    /* ---------- Tween helpers ---------- */
-    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
-    function tweenNodesToTargets(nodes, duration){
-      return new Promise(resolve => {
-        const start = performance.now();
-        const from = nodes.map(n => ({x:n.x,y:n.y}));
-        function step(now){
-          const t = Math.min(1, (now - start) / duration);
-          const e = easeOutCubic(t);
-          for (let i=0;i<nodes.length;i++){
-            const n = nodes[i];
-            if (n.tx === null || n.ty === null) continue;
-            n.x = from[i].x + (n.tx - from[i].x) * e + (Math.random()-0.5)*0.3*(1-e);
-            n.y = from[i].y + (n.ty - from[i].y) * e + (Math.random()-0.5)*0.3*(1-e);
-            n.vx *= 0.86; n.vy *= 0.86;
-          }
-          if (t < 1) requestAnimationFrame(step); else resolve();
-        }
-        requestAnimationFrame(step);
-      });
+    // vignette
+    const vg = ctx.createRadialGradient(innerWidth/2, innerHeight/2, Math.min(innerWidth,innerHeight)*0.2, innerWidth/2, innerHeight/2, Math.max(innerWidth,innerHeight));
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.28)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,innerWidth,innerHeight);
+  }
+
+  let raf;
+  function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
+
+  // find nearest neighbor indices up to limit within maxDist
+  function findNearestIndices(arr, idx, limit, maxDist){
+    const a = arr[idx];
+    const dists = [];
+    // sample a window around idx for speed; fallback to full scan if array small
+    const start = Math.max(0, idx - 120);
+    const end = Math.min(arr.length, idx + 120);
+    for (let j=start;j<end;j++){
+      if (j === idx) continue;
+      const b = arr[j];
+      const dx = a.x - b.x, dy = a.y - b.y;
+      const d = Math.hypot(dx,dy);
+      if (d <= maxDist) dists.push({j,d});
     }
+    dists.sort((p,q)=>p.d-q.d);
+    return dists.slice(0,limit).map(p=>p.j);
+  }
 
-    /* ---------- Sequence controller ---------- */
-    async function runSequence(){
-      while (true){
-        // start sparse across background (logoNodes already scattered)
-        clearLogoTargets();
-        await wait(900);
-
-        // gather into MTM logo on left
-        const leftRect = document.getElementById('leftSlot').getBoundingClientRect();
-        const leftBox = { cx: leftRect.left + leftRect.width/2, cy: leftRect.top + leftRect.height/2, maxW: Math.min(leftRect.width, leftRect.height) * 1.0 };
-        const logoPts = sampleLogoPoints(LOGO_NODES * 1.2, leftBox);
-        if (logoPts.length >= 20){
-          assignLogoTargets(logoPts);
-          await tweenNodesToTargets(logoNodes, 1000);
-          await wait(HOLD_MS.logo);
+  // tween helper
+  function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+  function tweenNodesToTargets(nodes, duration){
+    return new Promise(resolve => {
+      const start = performance.now();
+      const from = nodes.map(n => ({x:n.x,y:n.y}));
+      function step(now){
+        const t = Math.min(1, (now - start) / duration);
+        const e = easeOutCubic(t);
+        for (let i=0;i<nodes.length;i++){
+          const n = nodes[i];
+          if (n.tx === null || n.ty === null) continue;
+          n.x = from[i].x + (n.tx - from[i].x) * e + (Math.random()-0.5)*0.25*(1-e);
+          n.y = from[i].y + (n.ty - from[i].y) * e + (Math.random()-0.5)*0.25*(1-e);
+          n.vx *= 0.86; n.vy *= 0.86;
         }
+        if (t < 1) requestAnimationFrame(step); else resolve();
+      }
+      requestAnimationFrame(step);
+    });
+  }
 
-        // morph to 8-ball on right
-        const rightRect = document.getElementById('rightSlot').getBoundingClientRect();
-        const rightBox = { cx: rightRect.left + rightRect.width/2, cy: rightRect.top + rightRect.height/2, maxW: Math.min(rightRect.width, rightRect.height) * 1.0 };
-        const eightPts = generate8BallPoints(LOGO_NODES * 1.0, rightBox);
-        assign8BallTargets(eightPts);
+  // Sequence: sparse -> logo -> hold 5s -> 8-ball -> hold 5s -> disperse
+  async function runSequence(){
+    while (true){
+      clearLogoTargets();
+      await wait(900);
+
+      const leftRect = document.getElementById('leftSlot').getBoundingClientRect();
+      const leftBox = { cx: leftRect.left + leftRect.width/2, cy: leftRect.top + leftRect.height/2, maxW: Math.min(leftRect.width, leftRect.height) * 1.2 };
+      const logoPts = sampleLogoPoints(LOGO_NODES * 1.2, leftBox);
+      if (logoPts.length >= 30){
+        assignLogoTargets(logoPts);
         await tweenNodesToTargets(logoNodes, 1000);
-        await wait(HOLD_MS.eight);
-
-        // disperse back to sparse background
-        clearLogoTargets();
-        await tweenNodesToTargets(logoNodes, 900);
-        await wait(700);
+        await wait(HOLD_MS.logo);
       }
+
+      const rightRect = document.getElementById('rightSlot').getBoundingClientRect();
+      const rightBox = { cx: rightRect.left + rightRect.width/2, cy: rightRect.top + rightRect.height/2, maxW: Math.min(rightRect.width, rightRect.height) * 1.2 };
+      const eightPts = generate8BallPoints(LOGO_NODES * 1.0, rightBox);
+      assign8BallTargets(eightPts);
+      await tweenNodesToTargets(logoNodes, 1000);
+      await wait(HOLD_MS.eight);
+
+      clearLogoTargets();
+      await tweenNodesToTargets(logoNodes, 900);
+      await wait(800);
     }
+  }
 
-    /* ---------- Start ---------- */
-    initAll();
-    loop();
-    let started = false;
-    function tryStart(){
-      if (started) return;
-      started = true;
-      runSequence();
-      revealUI();
-    }
-    logoImg.onload = tryStart;
-    setTimeout(tryStart, 900);
+  // Start
+  initAll();
+  loop();
+  let started = false;
+  function tryStart(){
+    if (started) return;
+    started = true;
+    runSequence();
+    revealUI();
+  }
+  logoImg.onload = tryStart;
+  setTimeout(tryStart, 900);
 
-    /* ---------- Intro reveal ---------- */
-    async function revealUI(){
-      const introEl = document.getElementById('intro');
-      if (introEl.dataset.revealed) return;
-      introEl.dataset.revealed = '1';
-      const introLogoEl = document.getElementById('introLogo');
-      const topRect = document.getElementById('topLogo').getBoundingClientRect();
-      const introRect = introLogoEl.getBoundingClientRect();
-      await wait(700);
-      const scale = Math.max(0.28, topRect.width / introRect.width);
-      const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
-      const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
-      introLogoEl.style.transition = `transform 520ms var(--ease), opacity 520ms var(--ease)`;
-      introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-      introLogoEl.style.opacity = '0.98';
-      await wait(560);
-      introEl.style.transition = 'opacity 220ms var(--ease), visibility 220ms var(--ease)';
-      introEl.style.opacity = '0';
-      introEl.style.visibility = 'hidden';
-      document.getElementById('topLogoWrap').classList.add('visible');
-      document.getElementById('sampleCard').classList.add('visible');
-      document.getElementById('mainCard').classList.add('visible');
-      document.getElementById('site-footer').classList.add('visible');
-    }
+  // Intro reveal
+  async function revealUI(){
+    const introEl = document.getElementById('intro');
+    if (introEl.dataset.revealed) return;
+    introEl.dataset.revealed = '1';
+    const introLogoEl = document.getElementById('introLogo');
+    const topRect = document.getElementById('topLogo').getBoundingClientRect();
+    const introRect = introLogoEl.getBoundingClientRect();
+    await wait(700);
+    const scale = Math.max(0.28, topRect.width / introRect.width);
+    const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
+    const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
+    introLogoEl.style.transition = `transform 520ms var(--ease), opacity 520ms var(--ease)`;
+    introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    introLogoEl.style.opacity = '0.98';
+    await wait(560);
+    introEl.style.transition = 'opacity 220ms var(--ease), visibility 220ms var(--ease)';
+    introEl.style.opacity = '0';
+    introEl.style.visibility = 'hidden';
+    document.getElementById('topLogoWrap').classList.add('visible');
+    document.getElementById('sampleCard').classList.add('visible');
+    document.getElementById('mainCard').classList.add('visible');
+    document.getElementById('site-footer').classList.add('visible');
+  }
 
-    // expose debug helpers
-    window._neon = { initAll, sampleLogoPoints, generate8BallPoints, logoNodes, bgNodes };
+  // Expose debug helpers
+  window._neon = { initAll, sampleLogoPoints, generate8BallPoints, logoNodes, bgNodes };
 
-  })();
-  </script>
+})();
+</script>
 </body>
 </html>
