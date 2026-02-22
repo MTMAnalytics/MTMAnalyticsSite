@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MTM Analytics — Dashboard</title>
-
   <style>
     :root{
       --bg-very-dark:#00010a;
@@ -15,7 +14,6 @@
       --card-radius:14px;
       --ease:cubic-bezier(.2,.9,.3,1);
     }
-
     *{box-sizing:border-box}
     html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
     body{
@@ -44,21 +42,16 @@
     .top-logo.visible{opacity:1;transform:translateY(0) scale(1)}
     .top-logo img{height:44px;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
 
-    .card-row{display:flex;gap:36px;justify-content:center;align-items:center;flex-wrap:wrap;width:100%}
-    .card{
-      position:relative;width:100%;max-width:520px;border-radius:var(--card-radius);padding:22px;
-      background-color:var(--card-surface);
-      border:1px solid var(--card-border);
-      backdrop-filter: blur(10px) saturate(120%);
-      box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);
-      display:flex;flex-direction:column;gap:16px;align-items:center;
-      opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease);
-    }
+    .layout-row{display:flex;gap:36px;align-items:center;justify-content:center;width:100%;max-width:1200px;z-index:10}
+    .left-slot,.center-slot,.right-slot{display:flex;align-items:center;justify-content:center}
+    .center-slot{flex:0 1 520px;flex-direction:column;gap:28px}
+
+    .card{position:relative;width:100%;border-radius:var(--card-radius);padding:22px;margin:0 auto;
+      background-color:var(--card-surface);border:1px solid var(--card-border);backdrop-filter: blur(10px) saturate(120%);
+      box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);display:flex;flex-direction:column;gap:16px;align-items:center;
+      opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease)}
     .card.visible{opacity:1;transform:translateY(0) scale(1.006)}
-    .card::before{
-      content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% + 40px);height:calc(100% + 40px);border-radius:inherit;z-index:-1;
-      box-shadow:0 30px 80px rgba(0,217,255,0.06);pointer-events:none;
-    }
+    .card::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% + 40px);height:calc(100% + 40px);border-radius:inherit;z-index:-1;box-shadow:0 30px 80px rgba(0,217,255,0.06);pointer-events:none}
 
     .preview{width:240px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(135deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))}
     .preview img{max-width:90%;max-height:90%;height:auto;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6))}
@@ -69,7 +62,11 @@
     footer.site-footer{margin-top:40px;text-align:center;color:rgba(200,220,235,0.55);font-size:0.85rem;position:fixed;left:0;right:0;bottom:12px;opacity:0;transform:translateY(8px);transition:opacity 320ms var(--ease),transform 320ms var(--ease);pointer-events:none;z-index:12}
     footer.site-footer.visible{opacity:1;transform:translateY(0);pointer-events:auto}
 
-    @media (max-width:720px){.card-row{flex-direction:column;gap:18px}.intro img{width:72vmin}}
+    @media (max-width:1100px){
+      .layout-row{flex-direction:column;gap:20px}
+      .left-slot,.right-slot{order:0}
+      .center-slot{order:1}
+    }
   </style>
 </head>
 <body>
@@ -79,24 +76,28 @@
   <div class="grain" aria-hidden="true"></div>
 
   <div class="intro" id="intro">
-    <div class="logo-wrap">
-      <img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo">
-    </div>
+    <div class="logo-wrap"><img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo"></div>
   </div>
 
   <div class="container" role="main" aria-live="polite">
     <div class="top-logo" id="topLogoWrap"><img id="topLogo" src="assets/logo.png" alt="MTM Analytics"></div>
 
-    <div class="card-row" role="navigation" aria-label="Reports">
-      <section class="card" id="sampleCard">
-        <div class="preview"><img src="assets/logo.png" alt="MTM Analytics sample"></div>
-        <a class="coming-link" href="sample.html">Sample Report</a>
-      </section>
+    <div class="layout-row">
+      <div class="left-slot" id="leftSlot" style="width:260px;height:260px;"></div>
 
-      <section class="card" id="mainCard">
-        <div class="preview"><img src="assets/IPA-Blue.png" alt="IPA Dashboard"></div>
-        <a class="coming-link" href="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58&navContentPaneEnabled=false&filterPaneEnabled=false">IPA</a>
-      </section>
+      <div class="center-slot">
+        <section class="card" id="sampleCard">
+          <div class="preview"><img src="assets/logo.png" alt="MTM Analytics sample"></div>
+          <a class="coming-link" href="sample.html">Sample Report</a>
+        </section>
+
+        <section class="card" id="mainCard" style="max-width:520px;">
+          <div class="preview"><img src="assets/IPA-Blue.png" alt="IPA Dashboard"></div>
+          <a class="coming-link" href="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58&navContentPaneEnabled=false&filterPaneEnabled=false">IPA</a>
+        </section>
+      </div>
+
+      <div class="right-slot" id="rightSlot" style="width:260px;height:260px;"></div>
     </div>
 
     <footer id="site-footer" class="site-footer">© 2026 MTM Analytics. All rights reserved.<br><a href="/legal.html" style="color:inherit;text-decoration:none;">Legal & Image Attribution</a> | <a href="/privacy.html" style="color:inherit;text-decoration:none;">Privacy Policy</a></footer>
@@ -104,11 +105,29 @@
 
   <script>
   (function(){
+    /* CONFIG */
+    const logoPath = 'assets/logo.png'; // change if your logo is elsewhere
+    const COUNT = Math.max(120, Math.floor((window.innerWidth * window.innerHeight) / 1200)); // density scaled to viewport
+    const LEFT_RATIO = 0.45; // proportion of particles assigned to left (logo); rest go to right (8-ball)
+    const BASE_SPEED = window.innerWidth < 768 ? 0.12 : 0.42;
+    const DOT_MIN = 0.9, DOT_MAX = 3.0;
+    const LINE_DIST = window.innerWidth < 768 ? 60 : 110;
+
+    const SEQ = {
+      scatterDuration: 1800,
+      gatherDuration: 1200,
+      holdLogo: 1000,
+      morphTo8Duration: 1000,
+      hold8: 900,
+      disperseDuration: 1000,
+      loopDelay: 700
+    };
+
+    /* Canvas setup */
     const canvas = document.getElementById('stage');
     const ctx = canvas.getContext('2d', { alpha: true });
     let DPR = Math.max(1, window.devicePixelRatio || 1);
-
-    function resize() {
+    function resizeCanvas(){
       DPR = Math.max(1, window.devicePixelRatio || 1);
       canvas.width = Math.floor(window.innerWidth * DPR);
       canvas.height = Math.floor(window.innerHeight * DPR);
@@ -116,36 +135,12 @@
       canvas.style.height = window.innerHeight + 'px';
       ctx.setTransform(DPR,0,0,DPR,0,0);
     }
-    resize();
-    window.addEventListener('resize', () => { clearTimeout(window._resizeT); window._resizeT = setTimeout(resize, 120); });
+    resizeCanvas();
+    window.addEventListener('resize', () => { clearTimeout(window._rT); window._rT = setTimeout(() => { resizeCanvas(); initParticles(); }, 140); });
 
-    const isMobile = /Mobi|Android/i.test(navigator.userAgent) || innerWidth < 768;
-    const COUNT = isMobile ? 140 : 420;
-    const BASE_SPEED = isMobile ? 0.12 : 0.42;
-    const DOT_MIN = 0.9, DOT_MAX = 3.0;
-    const LINE_DIST = isMobile ? 70 : 110;
-
-    const SEQ = {
-      scatterDuration: 2000,
-      gatherDuration: 1400,
-      holdLogo: 1100,
-      morphTo8Duration: 1100,
-      hold8: 900,
-      disperseDuration: 1100,
-      loopDelay: 700
-    };
-
+    /* Particles */
     let particles = [];
-    function rand(min,max){ return Math.random()*(max-min)+min; }
-
-    // load logo (local path recommended)
-    const logoImg = new Image();
-    // DO NOT set crossOrigin unless your logo is served with CORS headers
-    logoImg.src = 'assets/logo.png';
-
-    // offscreen canvas for sampling
-    const off = document.createElement('canvas');
-    const offCtx = off.getContext('2d');
+    function rand(a,b){ return Math.random()*(b-a)+a; }
 
     function initParticles(){
       particles = [];
@@ -159,29 +154,28 @@
           alpha: rand(0.22,0.6),
           hue: Math.random(),
           tx: null, ty: null,
-          easing: 0.08 + Math.random()*0.06
+          easing: 0.08 + Math.random()*0.06,
+          group: i < Math.floor(COUNT * LEFT_RATIO) ? 'left' : 'right'
         });
       }
     }
 
-    function fieldAngle(x,y,t){
-      const a = Math.sin((x * 0.0012 + t * 0.0009) * 1.2) + Math.cos((y * 0.0016 - t * 0.0007) * 1.1);
-      const b = Math.sin((x * 0.0009 - y * 0.0011 + t * 0.0013) * 0.9);
-      return (a + b) * Math.PI * 1.6;
-    }
+    /* Logo sampling (left shape) */
+    const logoImg = new Image();
+    logoImg.src = logoPath; // local path recommended
+    const off = document.createElement('canvas');
+    const offCtx = off.getContext('2d');
 
-    // sample logo pixels; fallback to text shape if logo sampling fails
-    function sampleLogoPoints(maxPoints){
-      // if logo not loaded or too small, fallback to text
-      if (!logoImg.width || !logoImg.height) return sampleTextPoints(maxPoints, 'MTM');
-
-      const maxW = Math.min(700, Math.floor(innerWidth * 0.6));
+    function sampleLogoPoints(maxPoints, targetBox){
+      // targetBox: {cx, cy, maxW} where cx/cy is center where logo should sit
+      if (!logoImg.width || !logoImg.height) return sampleTextPoints(maxPoints, 'MTM', targetBox);
+      const maxW = Math.min(targetBox.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.5));
       const scale = maxW / logoImg.width;
       const w = Math.max(80, Math.floor(logoImg.width * scale));
       const h = Math.max(40, Math.floor(logoImg.height * scale));
       off.width = w; off.height = h;
       offCtx.clearRect(0,0,w,h);
-      try { offCtx.drawImage(logoImg, 0, 0, w, h); } catch(e){ return sampleTextPoints(maxPoints, 'MTM'); }
+      try { offCtx.drawImage(logoImg, 0, 0, w, h); } catch(e){ return sampleTextPoints(maxPoints, 'MTM', targetBox); }
       const data = offCtx.getImageData(0,0,w,h).data;
       const pts = [];
       const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
@@ -190,27 +184,25 @@
           const idx = (y*w + x) * 4;
           const a = data[idx+3];
           if (a > 60){
-            const cx = (innerWidth/2 - w/2) + x;
-            const cy = (innerHeight/2 - h/2) + y;
+            const cx = (targetBox.cx - w/2) + x;
+            const cy = (targetBox.cy - h/2) + y;
             pts.push({x:cx,y:cy});
           }
         }
       }
-      if (pts.length < 8) return sampleTextPoints(maxPoints, 'MTM'); // fallback if logo too sparse
+      if (pts.length < 8) return sampleTextPoints(maxPoints, 'MTM', targetBox);
       for (let i=pts.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pts[i],pts[j]]=[pts[j],pts[i]]; }
       return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
     }
 
-    // fallback: render text to offscreen canvas and sample pixels
-    function sampleTextPoints(maxPoints, text){
-      const w = Math.min(700, Math.floor(innerWidth * 0.6));
+    function sampleTextPoints(maxPoints, text, targetBox){
+      const w = Math.min(targetBox.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.5));
       const h = Math.max(80, Math.floor(w * 0.28));
       off.width = w; off.height = h;
       offCtx.clearRect(0,0,w,h);
       offCtx.fillStyle = 'white';
       offCtx.textBaseline = 'middle';
       offCtx.textAlign = 'center';
-      // choose a bold font that will produce a solid silhouette
       const fontSize = Math.floor(h * 0.7);
       offCtx.font = `bold ${fontSize}px Inter, Arial, sans-serif`;
       offCtx.fillText(text, w/2, h/2);
@@ -220,10 +212,9 @@
       for (let y=0;y<h;y+=step){
         for (let x=0;x<w;x+=step){
           const idx = (y*w + x) * 4;
-          const a = data[idx+3];
-          if (a > 60){
-            const cx = (innerWidth/2 - w/2) + x;
-            const cy = (innerHeight/2 - h/2) + y;
+          if (data[idx+3] > 60){
+            const cx = (targetBox.cx - w/2) + x;
+            const cy = (targetBox.cy - h/2) + y;
             pts.push({x:cx,y:cy});
           }
         }
@@ -232,10 +223,11 @@
       return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
     }
 
-    function generate8BallPoints(maxPoints){
-      const cx = innerWidth/2;
-      const cy = innerHeight/2;
-      const R = Math.min(innerWidth, innerHeight) * 0.16;
+    /* 8-ball points generator positioned to the right slot */
+    function generate8BallPoints(maxPoints, targetBox){
+      const cx = targetBox.cx;
+      const cy = targetBox.cy;
+      const R = Math.min(targetBox.maxW, Math.min(innerWidth, innerHeight) * 0.14);
       const pts = [];
       const ringCount = Math.floor(maxPoints * 0.6);
       for (let i=0;i<ringCount;i++){
@@ -257,18 +249,35 @@
       return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
     }
 
-    function assignTargets(points){
-      if (!points || points.length === 0) return;
-      for (let i=0;i<particles.length;i++){
-        const p = particles[i];
-        const pt = points[i % points.length];
-        p.tx = pt.x + (Math.random()-0.5)*2;
-        p.ty = pt.y + (Math.random()-0.5)*2;
+    /* Assign targets to left/right groups */
+    function assignGroupTargets(leftPts, rightPts){
+      // left group
+      const leftParticles = particles.filter(p => p.group === 'left');
+      for (let i=0;i<leftParticles.length;i++){
+        const p = leftParticles[i];
+        const pt = leftPts[i % leftPts.length];
+        p.tx = pt.x + (Math.random()-0.5)*1.5;
+        p.ty = pt.y + (Math.random()-0.5)*1.5;
+      }
+      // right group
+      const rightParticles = particles.filter(p => p.group === 'right');
+      for (let i=0;i<rightParticles.length;i++){
+        const p = rightParticles[i];
+        const pt = rightPts[i % rightPts.length];
+        p.tx = pt.x + (Math.random()-0.5)*1.5;
+        p.ty = pt.y + (Math.random()-0.5)*1.5;
       }
     }
     function clearTargets(){ for (let p of particles){ p.tx = null; p.ty = null; } }
 
-    // draw loop
+    /* Flow field */
+    function fieldAngle(x,y,t){
+      const a = Math.sin((x * 0.0012 + t * 0.0009) * 1.2) + Math.cos((y * 0.0016 - t * 0.0007) * 1.1);
+      const b = Math.sin((x * 0.0009 - y * 0.0011 + t * 0.0013) * 0.9);
+      return (a + b) * Math.PI * 1.6;
+    }
+
+    /* Draw loop */
     let last = performance.now();
     function draw(now){
       const t = now || performance.now();
@@ -342,7 +351,7 @@
     let raf;
     function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
 
-    // tween helpers
+    /* Tween helpers */
     function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
     function tweenToTargets(duration){
       return new Promise(resolve => {
@@ -384,27 +393,34 @@
       });
     }
 
-    // sequence controller
-    let sequenceRunning = false;
+    /* Sequence controller: scatter -> gather both shapes simultaneously -> hold -> morph right shape -> hold -> disperse -> loop */
     async function runSequenceLoop(){
-      if (sequenceRunning) return;
-      sequenceRunning = true;
       while (true){
         clearTargets();
         await wait(SEQ.scatterDuration);
 
-        const logoPts = sampleLogoPoints(Math.floor(COUNT * 0.9));
-        if (logoPts.length > 8){
-          assignTargets(logoPts);
-          await tweenToTargets(SEQ.gatherDuration);
-          await wait(SEQ.holdLogo);
-        }
+        // compute left and right target boxes (left slot and right slot centers)
+        const leftEl = document.getElementById('leftSlot');
+        const rightEl = document.getElementById('rightSlot');
+        const leftRect = leftEl.getBoundingClientRect();
+        const rightRect = rightEl.getBoundingClientRect();
+        const leftBox = { cx: leftRect.left + leftRect.width/2, cy: leftRect.top + leftRect.height/2, maxW: Math.min(leftRect.width, leftRect.height) * 0.9 };
+        const rightBox = { cx: rightRect.left + rightRect.width/2, cy: rightRect.top + rightRect.height/2, maxW: Math.min(rightRect.width, rightRect.height) * 0.9 };
 
-        const eightPts = generate8BallPoints(Math.floor(COUNT * 0.9));
-        assignTargets(eightPts);
-        await tweenToTargets(SEQ.morphTo8Duration);
+        // sample logo points for left and 8-ball for right
+        const leftPts = sampleLogoPoints(Math.floor(COUNT * LEFT_RATIO * 0.9), leftBox);
+        const rightPts = generate8BallPoints(Math.floor(COUNT * (1 - LEFT_RATIO) * 0.9), rightBox);
+
+        // assign and tween
+        assignGroupTargets(leftPts, rightPts);
+        await tweenToTargets(SEQ.gatherDuration);
+        await wait(SEQ.holdLogo);
+
+        // morph right into 8-ball (right already is 8-ball in this flow; if you want a second morph, you can change here)
+        // hold
         await wait(SEQ.hold8);
 
+        // disperse
         clearTargets();
         await tweenToFlow(SEQ.disperseDuration);
         await wait(SEQ.loopDelay);
@@ -413,63 +429,49 @@
 
     function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-    // start
+    /* Start everything */
     initParticles();
     loop();
-
-    // start sequence when logo loaded or after fallback timeout
-    let startedSequence = false;
-    function tryStartSequence(){
-      if (startedSequence) return;
-      if (logoImg.complete && logoImg.naturalWidth && logoImg.naturalHeight){
-        runSequenceLoop();
-        startedSequence = true;
-      }
+    // start sequence after logo loads or fallback
+    let started = false;
+    function tryStart(){
+      if (started) return;
+      // start immediately; sampling function will fallback to text if logo not ready
+      runSequenceLoop();
+      started = true;
     }
-    logoImg.onload = () => { tryStartSequence(); revealUI(); };
-    // fallback start after 1.4s even if logo didn't load
-    setTimeout(() => { tryStartSequence(); revealUI(); }, 1400);
+    logoImg.onload = tryStart;
+    setTimeout(tryStart, 900);
 
-    // reveal UI: animate centered logo to top and show cards
+    /* Intro reveal: keep centered logo, then animate to top and reveal cards */
+    logoImg.onload = () => { revealUI(); tryStart(); };
+    setTimeout(() => { revealUI(); tryStart(); }, 1400);
+
     async function revealUI(){
       const introEl = document.getElementById('intro');
-      const introLogoEl = document.getElementById('introLogo');
-      const topLogoWrap = document.getElementById('topLogoWrap');
-      const sampleCard = document.getElementById('sampleCard');
-      const mainCard = document.getElementById('mainCard');
-      const footer = document.getElementById('site-footer');
-
-      // only run once
       if (introEl.dataset.revealed) return;
       introEl.dataset.revealed = '1';
-
-      await wait(900);
-      const introRect = introLogoEl.getBoundingClientRect();
+      const introLogoEl = document.getElementById('introLogo');
       const topRect = document.getElementById('topLogo').getBoundingClientRect();
+      const introRect = introLogoEl.getBoundingClientRect();
+      await wait(900);
       const scale = Math.max(0.28, topRect.width / introRect.width);
       const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
       const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
-
       introLogoEl.style.transition = `transform 600ms var(--ease), opacity 600ms var(--ease)`;
       introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
       introLogoEl.style.opacity = '0.98';
-
       await wait(620);
       introEl.style.transition = 'opacity 260ms var(--ease), visibility 260ms var(--ease)';
       introEl.style.opacity = '0';
       introEl.style.visibility = 'hidden';
-      topLogoWrap.classList.add('visible');
-      sampleCard.classList.add('visible');
-      mainCard.classList.add('visible');
-      footer.classList.add('visible');
+      document.getElementById('topLogoWrap').classList.add('visible');
+      document.getElementById('sampleCard').classList.add('visible');
+      document.getElementById('mainCard').classList.add('visible');
+      document.getElementById('site-footer').classList.add('visible');
     }
 
-    // pause when tab hidden
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) cancelAnimationFrame(raf); else loop();
-    });
-
-    // expose for debugging
+    // helpers exposed for debugging
     window._mtm = { initParticles, sampleLogoPoints, generate8BallPoints, particles };
 
   })();
