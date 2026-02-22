@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MTM Analytics — Dashboard</title>
+  <title>MTM Analytics — Dashboard (Optimized)</title>
   <style>
     :root{
       --bg-very-dark:#00010a;
@@ -15,69 +15,39 @@
       --ease:cubic-bezier(.2,.9,.3,1);
     }
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;-webkit-font-smoothing:antialiased}
     body{
-      display:flex;align-items:center;justify-content:center;
-      min-height:100vh;padding:28px;
-      background:linear-gradient(180deg,var(--bg-very-dark) 0%,var(--bg-deep) 100%);
-      color:#eaf6ff;overflow:hidden;
+      display:flex;align-items:center;justify-content:center;min-height:100vh;padding:28px;
+      background:linear-gradient(180deg,var(--bg-very-dark) 0%,var(--bg-deep) 100%);color:#eaf6ff;overflow:hidden;
     }
 
-    /* Stage */
+    /* Canvas stage */
     #stage-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
     canvas#stage{width:100%;height:100%;display:block}
 
-    .hex-overlay{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.03;background-image:
-      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='104' viewBox='0 0 120 104'><defs><pattern id='p' width='120' height='104' patternUnits='userSpaceOnUse'><g fill='none' stroke='%2300d9ff' stroke-opacity='0.06' stroke-width='1'><path d='M30 0 L90 0 L120 52 L90 104 L30 104 L0 52 Z'/></g></pattern></defs><rect width='100%' height='100%' fill='url(%23p)'/></svg>");mix-blend-mode:overlay}
-
-    .grain{position:fixed;inset:0;z-index:2;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);background-size:3px 3px;mix-blend-mode:overlay;opacity:0.04}
-
+    /* UI layout */
     .container{position:relative;z-index:10;width:100%;max-width:1100px;display:flex;flex-direction:column;align-items:center;gap:28px;padding:28px}
-
     .intro{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:30;pointer-events:none}
-    .intro .logo-wrap{display:flex;align-items:center;justify-content:center;padding:6px;border-radius:10px;background:transparent}
-    .intro img{width:36vmin;max-width:560px;max-height:56vh;display:block;filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85));}
-
+    .intro img{width:36vmin;max-width:560px;filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85))}
     .top-logo{display:flex;align-items:center;justify-content:center;width:100%;opacity:0;transform:translateY(-6px) scale(0.98);transition:opacity 420ms var(--ease),transform 420ms var(--ease);z-index:12}
     .top-logo.visible{opacity:1;transform:translateY(0) scale(1)}
-    .top-logo img{height:44px;filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6))}
-
     .layout-row{display:flex;gap:36px;align-items:center;justify-content:center;width:100%;max-width:1200px;z-index:10}
     .left-slot,.center-slot,.right-slot{display:flex;align-items:center;justify-content:center}
     .center-slot{flex:0 1 520px;flex-direction:column;gap:28px}
-
-    .card{position:relative;width:100%;border-radius:var(--card-radius);padding:22px;margin:0 auto;
-      background-color:var(--card-surface);border:1px solid var(--card-border);backdrop-filter: blur(10px) saturate(120%);
-      box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);display:flex;flex-direction:column;gap:16px;align-items:center;
-      opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease)}
+    .card{position:relative;width:100%;max-width:520px;border-radius:var(--card-radius);padding:22px;background-color:var(--card-surface);border:1px solid var(--card-border);backdrop-filter: blur(10px) saturate(120%);box-shadow:0 40px 90px rgba(0,6,18,0.72), 0 0 40px rgba(0,217,255,0.04);display:flex;flex-direction:column;gap:16px;align-items:center;opacity:0;transform:translateY(14px) scale(0.995);transition:transform 420ms var(--ease),opacity 420ms var(--ease)}
     .card.visible{opacity:1;transform:translateY(0) scale(1.006)}
-    .card::before{content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% + 40px);height:calc(100% + 40px);border-radius:inherit;z-index:-1;box-shadow:0 30px 80px rgba(0,217,255,0.06);pointer-events:none}
-
     .preview{width:240px;height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(135deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005))}
-    .preview img{max-width:90%;max-height:90%;height:auto;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6))}
-
     .coming-link{display:inline-block;padding:12px 22px;border-radius:999px;background:linear-gradient(90deg, rgba(0,212,255,0.12), rgba(10,180,220,0.06));color:var(--neon);font-weight:800;border:1px solid rgba(0,180,220,0.12);text-decoration:none;transition:transform 160ms var(--ease),box-shadow 160ms var(--ease)}
-    .coming-link:hover{transform:translateY(-4px);box-shadow:0 36px 100px rgba(0,180,220,0.12)}
-
     footer.site-footer{margin-top:40px;text-align:center;color:rgba(200,220,235,0.55);font-size:0.85rem;position:fixed;left:0;right:0;bottom:12px;opacity:0;transform:translateY(8px);transition:opacity 320ms var(--ease),transform 320ms var(--ease);pointer-events:none;z-index:12}
     footer.site-footer.visible{opacity:1;transform:translateY(0);pointer-events:auto}
-
-    @media (max-width:1100px){
-      .layout-row{flex-direction:column;gap:20px}
-      .left-slot,.right-slot{order:0}
-      .center-slot{order:1}
-    }
+    @media (max-width:1100px){.layout-row{flex-direction:column;gap:20px}}
   </style>
 </head>
 <body>
 
   <div id="stage-wrap"><canvas id="stage"></canvas></div>
-  <div class="hex-overlay" aria-hidden="true"></div>
-  <div class="grain" aria-hidden="true"></div>
 
-  <div class="intro" id="intro">
-    <div class="logo-wrap"><img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo"></div>
-  </div>
+  <div class="intro" id="intro"><img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo"></div>
 
   <div class="container" role="main" aria-live="polite">
     <div class="top-logo" id="topLogoWrap"><img id="topLogo" src="assets/logo.png" alt="MTM Analytics"></div>
@@ -86,64 +56,50 @@
       <div class="left-slot" id="leftSlot" style="width:260px;height:260px;"></div>
 
       <div class="center-slot">
-        <section class="card" id="sampleCard">
-          <div class="preview"><img src="assets/logo.png" alt="MTM Analytics sample"></div>
-          <a class="coming-link" href="sample.html">Sample Report</a>
-        </section>
-
-        <section class="card" id="mainCard" style="max-width:520px;">
-          <div class="preview"><img src="assets/IPA-Blue.png" alt="IPA Dashboard"></div>
-          <a class="coming-link" href="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58&navContentPaneEnabled=false&filterPaneEnabled=false">IPA</a>
-        </section>
+        <section class="card" id="sampleCard"><div class="preview"><img src="assets/logo.png" alt="sample"></div><a class="coming-link" href="sample.html">Sample Report</a></section>
+        <section class="card" id="mainCard" style="max-width:520px;"><div class="preview"><img src="assets/IPA-Blue.png" alt="IPA"></div><a class="coming-link" href="#">IPA</a></section>
       </div>
 
       <div class="right-slot" id="rightSlot" style="width:260px;height:260px;"></div>
     </div>
 
-    <footer id="site-footer" class="site-footer">© 2026 MTM Analytics. All rights reserved.<br><a href="/legal.html" style="color:inherit;text-decoration:none;">Legal & Image Attribution</a> | <a href="/privacy.html" style="color:inherit;text-decoration:none;">Privacy Policy</a></footer>
+    <footer id="site-footer" class="site-footer">© 2026 MTM Analytics. All rights reserved.</footer>
   </div>
 
   <script>
   (function(){
-    /* CONFIG */
-    const logoPath = 'assets/logo.png'; // change if your logo is elsewhere
-    const COUNT = Math.max(120, Math.floor((window.innerWidth * window.innerHeight) / 1200)); // density scaled to viewport
-    const LEFT_RATIO = 0.45; // proportion of particles assigned to left (logo); rest go to right (8-ball)
-    const BASE_SPEED = window.innerWidth < 768 ? 0.12 : 0.42;
-    const DOT_MIN = 0.9, DOT_MAX = 3.0;
-    const LINE_DIST = window.innerWidth < 768 ? 60 : 110;
+    /* ---------- TUNABLES (lower COUNT for less CPU) ---------- */
+    const logoPath = 'assets/logo.png';
+    const MAX_DPR = 1.5;                 // cap DPR for performance
+    const COUNT = Math.max(100, Math.floor((window.innerWidth * window.innerHeight) / 7000)); // lower density
+    const LEFT_RATIO = 0.45;             // left group proportion
+    const BASE_SPEED = window.innerWidth < 768 ? 0.10 : 0.32;
+    const DOT_MIN = 0.9, DOT_MAX = 2.6;
+    const LINE_DIST = window.innerWidth < 768 ? 60 : 90; // shorter lines
+    const GRID_CELL = LINE_DIST;         // spatial hash cell size
 
-    const SEQ = {
-      scatterDuration: 1800,
-      gatherDuration: 1200,
-      holdLogo: 1000,
-      morphTo8Duration: 1000,
-      hold8: 900,
-      disperseDuration: 1000,
-      loopDelay: 700
-    };
-
-    /* Canvas setup */
+    /* ---------- Canvas setup (cap DPR) ---------- */
     const canvas = document.getElementById('stage');
     const ctx = canvas.getContext('2d', { alpha: true });
-    let DPR = Math.max(1, window.devicePixelRatio || 1);
-    function resizeCanvas(){
-      DPR = Math.max(1, window.devicePixelRatio || 1);
-      canvas.width = Math.floor(window.innerWidth * DPR);
-      canvas.height = Math.floor(window.innerHeight * DPR);
+    function setSize(){
+      const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
+      canvas._dpr = dpr;
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
       canvas.style.width = window.innerWidth + 'px';
       canvas.style.height = window.innerHeight + 'px';
-      ctx.setTransform(DPR,0,0,DPR,0,0);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
     }
-    resizeCanvas();
-    window.addEventListener('resize', () => { clearTimeout(window._rT); window._rT = setTimeout(() => { resizeCanvas(); initParticles(); }, 140); });
+    setSize();
+    window.addEventListener('resize', () => { clearTimeout(window._rt); window._rt = setTimeout(()=>{ setSize(); initParticles(); }, 140); });
 
-    /* Particles */
+    /* ---------- Particles and spatial hash ---------- */
     let particles = [];
     function rand(a,b){ return Math.random()*(b-a)+a; }
 
     function initParticles(){
       particles = [];
+      const leftCount = Math.floor(COUNT * LEFT_RATIO);
       for (let i=0;i<COUNT;i++){
         particles.push({
           x: Math.random()*innerWidth,
@@ -151,52 +107,63 @@
           vx: (Math.random()-0.5)*BASE_SPEED,
           vy: (Math.random()-0.5)*BASE_SPEED,
           r: rand(DOT_MIN, DOT_MAX),
-          alpha: rand(0.22,0.6),
+          alpha: rand(0.28,0.6),
           hue: Math.random(),
           tx: null, ty: null,
-          easing: 0.08 + Math.random()*0.06,
-          group: i < Math.floor(COUNT * LEFT_RATIO) ? 'left' : 'right'
+          group: i < leftCount ? 'left' : 'right'
         });
       }
     }
 
-    /* Logo sampling (left shape) */
+    /* spatial hash for neighbor queries */
+    function buildGrid(){
+      const cols = Math.ceil(innerWidth / GRID_CELL);
+      const rows = Math.ceil(innerHeight / GRID_CELL);
+      const grid = new Array(cols * rows);
+      for (let i=0;i<grid.length;i++) grid[i] = [];
+      for (let i=0;i<particles.length;i++){
+        const p = particles[i];
+        const cx = Math.floor(p.x / GRID_CELL);
+        const cy = Math.floor(p.y / GRID_CELL);
+        const idx = cx + cy * cols;
+        if (grid[idx]) grid[idx].push(i);
+      }
+      return {grid, cols, rows};
+    }
+
+    /* ---------- Logo sampling and shape generation ---------- */
     const logoImg = new Image();
-    logoImg.src = logoPath; // local path recommended
+    logoImg.src = logoPath;
     const off = document.createElement('canvas');
     const offCtx = off.getContext('2d');
 
-    function sampleLogoPoints(maxPoints, targetBox){
-      // targetBox: {cx, cy, maxW} where cx/cy is center where logo should sit
-      if (!logoImg.width || !logoImg.height) return sampleTextPoints(maxPoints, 'MTM', targetBox);
-      const maxW = Math.min(targetBox.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.5));
+    function sampleLogoPoints(maxPoints, box){
+      if (!logoImg.width || !logoImg.height) return sampleTextPoints(maxPoints, 'MTM', box);
+      const maxW = Math.min(box.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.5));
       const scale = maxW / logoImg.width;
       const w = Math.max(80, Math.floor(logoImg.width * scale));
       const h = Math.max(40, Math.floor(logoImg.height * scale));
       off.width = w; off.height = h;
       offCtx.clearRect(0,0,w,h);
-      try { offCtx.drawImage(logoImg, 0, 0, w, h); } catch(e){ return sampleTextPoints(maxPoints, 'MTM', targetBox); }
+      try { offCtx.drawImage(logoImg, 0, 0, w, h); } catch(e){ return sampleTextPoints(maxPoints, 'MTM', box); }
       const data = offCtx.getImageData(0,0,w,h).data;
       const pts = [];
       const step = Math.max(1, Math.floor(Math.sqrt((w*h)/maxPoints)));
       for (let y=0;y<h;y+=step){
         for (let x=0;x<w;x+=step){
           const idx = (y*w + x) * 4;
-          const a = data[idx+3];
-          if (a > 60){
-            const cx = (targetBox.cx - w/2) + x;
-            const cy = (targetBox.cy - h/2) + y;
-            pts.push({x:cx,y:cy});
+          if (data[idx+3] > 60){
+            pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
           }
         }
       }
-      if (pts.length < 8) return sampleTextPoints(maxPoints, 'MTM', targetBox);
-      for (let i=pts.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pts[i],pts[j]]=[pts[j],pts[i]]; }
+      if (pts.length < 8) return sampleTextPoints(maxPoints, 'MTM', box);
+      shuffle(pts);
       return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
     }
 
-    function sampleTextPoints(maxPoints, text, targetBox){
-      const w = Math.min(targetBox.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.5));
+    function sampleTextPoints(maxPoints, text, box){
+      const w = Math.min(box.maxW || Math.floor(innerWidth * 0.36), Math.floor(innerWidth * 0.5));
       const h = Math.max(80, Math.floor(w * 0.28));
       off.width = w; off.height = h;
       offCtx.clearRect(0,0,w,h);
@@ -213,21 +180,17 @@
         for (let x=0;x<w;x+=step){
           const idx = (y*w + x) * 4;
           if (data[idx+3] > 60){
-            const cx = (targetBox.cx - w/2) + x;
-            const cy = (targetBox.cy - h/2) + y;
-            pts.push({x:cx,y:cy});
+            pts.push({ x: (box.cx - w/2) + x, y: (box.cy - h/2) + y });
           }
         }
       }
-      for (let i=pts.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pts[i],pts[j]]=[pts[j],pts[i]]; }
+      shuffle(pts);
       return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
     }
 
-    /* 8-ball points generator positioned to the right slot */
-    function generate8BallPoints(maxPoints, targetBox){
-      const cx = targetBox.cx;
-      const cy = targetBox.cy;
-      const R = Math.min(targetBox.maxW, Math.min(innerWidth, innerHeight) * 0.14);
+    function generate8BallPoints(maxPoints, box){
+      const cx = box.cx, cy = box.cy;
+      const R = Math.min(box.maxW, Math.min(innerWidth, innerHeight) * 0.14);
       const pts = [];
       const ringCount = Math.floor(maxPoints * 0.6);
       for (let i=0;i<ringCount;i++){
@@ -245,102 +208,114 @@
         pts.push({x: top.x + Math.cos(a)*rad*0.6, y: top.y + Math.sin(a)*rad*0.6});
         pts.push({x: bot.x + Math.cos(a)*rad*0.6, y: bot.y + Math.sin(a)*rad*0.6});
       }
-      for (let i=pts.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pts[i],pts[j]]=[pts[j],pts[i]]; }
+      shuffle(pts);
       return pts.slice(0, Math.max(10, Math.floor(maxPoints)));
     }
 
-    /* Assign targets to left/right groups */
+    /* ---------- Utility ---------- */
+    function shuffle(a){ for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
+    function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+    /* ---------- Assign targets for left/right groups ---------- */
     function assignGroupTargets(leftPts, rightPts){
-      // left group
       const leftParticles = particles.filter(p => p.group === 'left');
       for (let i=0;i<leftParticles.length;i++){
         const p = leftParticles[i];
         const pt = leftPts[i % leftPts.length];
-        p.tx = pt.x + (Math.random()-0.5)*1.5;
-        p.ty = pt.y + (Math.random()-0.5)*1.5;
+        p.tx = pt.x + (Math.random()-0.5)*1.2;
+        p.ty = pt.y + (Math.random()-0.5)*1.2;
       }
-      // right group
       const rightParticles = particles.filter(p => p.group === 'right');
       for (let i=0;i<rightParticles.length;i++){
         const p = rightParticles[i];
         const pt = rightPts[i % rightPts.length];
-        p.tx = pt.x + (Math.random()-0.5)*1.5;
-        p.ty = pt.y + (Math.random()-0.5)*1.5;
+        p.tx = pt.x + (Math.random()-0.5)*1.2;
+        p.ty = pt.y + (Math.random()-0.5)*1.2;
       }
     }
-    function clearTargets(){ for (let p of particles){ p.tx = null; p.ty = null; } }
 
-    /* Flow field */
-    function fieldAngle(x,y,t){
-      const a = Math.sin((x * 0.0012 + t * 0.0009) * 1.2) + Math.cos((y * 0.0016 - t * 0.0007) * 1.1);
-      const b = Math.sin((x * 0.0009 - y * 0.0011 + t * 0.0013) * 0.9);
-      return (a + b) * Math.PI * 1.6;
-    }
-
-    /* Draw loop */
+    /* ---------- Draw loop with spatial hash for lines ---------- */
     let last = performance.now();
     function draw(now){
       const t = now || performance.now();
       const dt = Math.min(40, t - last);
       last = t;
 
+      // clear
       ctx.fillStyle = '#00010a';
       ctx.fillRect(0,0,innerWidth,innerHeight);
 
+      // update positions
       for (let p of particles){
         if (p.tx !== null && p.ty !== null){
           const dx = p.tx - p.x, dy = p.ty - p.y;
-          p.vx += dx * (p.easing * 0.12);
-          p.vy += dy * (p.easing * 0.12);
+          p.vx += dx * 0.12;
+          p.vy += dy * 0.12;
           p.vx *= 0.86; p.vy *= 0.86;
         } else {
-          const ang = fieldAngle(p.x, p.y, t * 0.0009);
-          p.vx += Math.cos(ang) * BASE_SPEED * 0.08;
-          p.vy += Math.sin(ang) * BASE_SPEED * 0.08;
+          const ang = Math.sin((p.x*0.0012 + t*0.0009) * 1.2) + Math.cos((p.y*0.0016 - t*0.0007) * 1.1);
+          p.vx += Math.cos(ang) * BASE_SPEED * 0.06;
+          p.vy += Math.sin(ang) * BASE_SPEED * 0.06;
           p.vx *= 0.96; p.vy *= 0.96;
         }
-
         p.x += p.vx * (dt/16);
         p.y += p.vy * (dt/16);
-
         if (p.x < -10) p.x = innerWidth + 10;
         if (p.x > innerWidth + 10) p.x = -10;
         if (p.y < -10) p.y = innerHeight + 10;
         if (p.y > innerHeight + 10) p.y = -10;
+      }
 
+      // build grid
+      const {grid, cols} = buildGrid();
+
+      // draw lines using grid neighbors (only local cells)
+      ctx.lineWidth = 1;
+      for (let i=0;i<particles.length;i++){
+        const a = particles[i];
+        const cx = Math.floor(a.x / GRID_CELL);
+        const cy = Math.floor(a.y / GRID_CELL);
+        for (let oy=-1; oy<=1; oy++){
+          for (let ox=-1; ox<=1; ox++){
+            const nx = cx + ox, ny = cy + oy;
+            const idx = nx + ny * cols;
+            const cell = grid[idx];
+            if (!cell) continue;
+            for (const j of cell){
+              if (j <= i) continue; // avoid double-draw
+              const b = particles[j];
+              const dx = a.x - b.x, dy = a.y - b.y;
+              const dist = Math.sqrt(dx*dx + dy*dy);
+              if (dist < LINE_DIST){
+                const alpha = (1 - dist/LINE_DIST) * 0.06;
+                ctx.strokeStyle = `rgba(10,160,230,${alpha})`;
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(b.x, b.y);
+                ctx.stroke();
+              }
+            }
+          }
+        }
+      }
+
+      // draw particles (crisp, small glow)
+      for (let p of particles){
         const baseR = 0, baseG = 210, baseB = 255;
         const r = baseR + Math.floor(12 * p.hue);
         const g = baseG + Math.floor(36 * p.hue);
         const b = baseB + Math.floor(12 * p.hue);
-
         ctx.beginPath();
         ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
-        ctx.shadowColor = `rgba(${r},${g},${b},${Math.min(0.95, p.alpha * 1.6)})`;
-        ctx.shadowBlur = 10;
+        // smaller shadow for performance and clarity
+        ctx.shadowColor = `rgba(${r},${g},${b},${Math.min(0.9, p.alpha * 1.2)})`;
+        ctx.shadowBlur = 6;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
         ctx.fill();
         ctx.shadowBlur = 0;
       }
 
-      // connecting lines (subtle)
-      for (let i=0;i<particles.length;i++){
-        for (let j=i+1;j<particles.length;j++){
-          const a = particles[i], b = particles[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const dist = Math.sqrt(dx*dx + dy*dy);
-          if (dist < LINE_DIST){
-            const alpha = (1 - dist/LINE_DIST) * 0.06;
-            ctx.strokeStyle = `rgba(10,160,230,${alpha})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // vignette
+      // subtle vignette
       const vg = ctx.createRadialGradient(innerWidth/2, innerHeight/2, Math.min(innerWidth,innerHeight)*0.2, innerWidth/2, innerHeight/2, Math.max(innerWidth,innerHeight));
       vg.addColorStop(0, 'rgba(0,0,0,0)');
       vg.addColorStop(1, 'rgba(0,0,0,0.28)');
@@ -351,7 +326,7 @@
     let raf;
     function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
 
-    /* Tween helpers */
+    /* ---------- Tween helpers (same as before but kept simple) ---------- */
     function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
     function tweenToTargets(duration){
       return new Promise(resolve => {
@@ -363,8 +338,8 @@
           for (let i=0;i<particles.length;i++){
             const p = particles[i];
             if (p.tx === null || p.ty === null) continue;
-            p.x = from[i].x + (p.tx - from[i].x) * e + (Math.random()-0.5)*0.6*(1-e);
-            p.y = from[i].y + (p.ty - from[i].y) * e + (Math.random()-0.5)*0.6*(1-e);
+            p.x = from[i].x + (p.tx - from[i].x) * e + (Math.random()-0.5)*0.4*(1-e);
+            p.y = from[i].y + (p.ty - from[i].y) * e + (Math.random()-0.5)*0.4*(1-e);
             p.vx *= 0.86; p.vy *= 0.86;
           }
           if (t < 1) requestAnimationFrame(step); else resolve();
@@ -382,8 +357,8 @@
           for (let i=0;i<particles.length;i++){
             const p = particles[i];
             if (p.tx !== null && p.ty !== null){
-              p.x = from[i].x + (p.x - from[i].x) * (1 - e) + (Math.random()-0.5)*0.6*e;
-              p.y = from[i].y + (p.y - from[i].y) * (1 - e) + (Math.random()-0.5)*0.6*e;
+              p.x = from[i].x + (p.x - from[i].x) * (1 - e) + (Math.random()-0.5)*0.4*e;
+              p.y = from[i].y + (p.y - from[i].y) * (1 - e) + (Math.random()-0.5)*0.4*e;
             }
             if (t === 1){ p.tx = null; p.ty = null; }
           }
@@ -393,60 +368,49 @@
       });
     }
 
-    /* Sequence controller: scatter -> gather both shapes simultaneously -> hold -> morph right shape -> hold -> disperse -> loop */
+    /* ---------- Sequence controller (left logo + right 8-ball) ---------- */
+    const leftSlot = document.getElementById('leftSlot');
+    const rightSlot = document.getElementById('rightSlot');
+
     async function runSequenceLoop(){
       while (true){
         clearTargets();
-        await wait(SEQ.scatterDuration);
+        await wait(1200);
 
-        // compute left and right target boxes (left slot and right slot centers)
-        const leftEl = document.getElementById('leftSlot');
-        const rightEl = document.getElementById('rightSlot');
-        const leftRect = leftEl.getBoundingClientRect();
-        const rightRect = rightEl.getBoundingClientRect();
+        const leftRect = leftSlot.getBoundingClientRect();
+        const rightRect = rightSlot.getBoundingClientRect();
         const leftBox = { cx: leftRect.left + leftRect.width/2, cy: leftRect.top + leftRect.height/2, maxW: Math.min(leftRect.width, leftRect.height) * 0.9 };
         const rightBox = { cx: rightRect.left + rightRect.width/2, cy: rightRect.top + rightRect.height/2, maxW: Math.min(rightRect.width, rightRect.height) * 0.9 };
 
-        // sample logo points for left and 8-ball for right
         const leftPts = sampleLogoPoints(Math.floor(COUNT * LEFT_RATIO * 0.9), leftBox);
         const rightPts = generate8BallPoints(Math.floor(COUNT * (1 - LEFT_RATIO) * 0.9), rightBox);
 
-        // assign and tween
         assignGroupTargets(leftPts, rightPts);
-        await tweenToTargets(SEQ.gatherDuration);
-        await wait(SEQ.holdLogo);
+        await tweenToTargets(900);
+        await wait(900);
 
-        // morph right into 8-ball (right already is 8-ball in this flow; if you want a second morph, you can change here)
-        // hold
-        await wait(SEQ.hold8);
-
-        // disperse
+        // hold then disperse
         clearTargets();
-        await tweenToFlow(SEQ.disperseDuration);
-        await wait(SEQ.loopDelay);
+        await tweenToFlow(900);
+        await wait(700);
       }
     }
 
-    function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-    /* Start everything */
+    /* ---------- Start up ---------- */
     initParticles();
     loop();
     // start sequence after logo loads or fallback
     let started = false;
     function tryStart(){
       if (started) return;
-      // start immediately; sampling function will fallback to text if logo not ready
-      runSequenceLoop();
       started = true;
+      runSequenceLoop();
+      revealUI();
     }
     logoImg.onload = tryStart;
     setTimeout(tryStart, 900);
 
-    /* Intro reveal: keep centered logo, then animate to top and reveal cards */
-    logoImg.onload = () => { revealUI(); tryStart(); };
-    setTimeout(() => { revealUI(); tryStart(); }, 1400);
-
+    /* ---------- Reveal UI (intro -> top logo -> cards) ---------- */
     async function revealUI(){
       const introEl = document.getElementById('intro');
       if (introEl.dataset.revealed) return;
@@ -454,15 +418,15 @@
       const introLogoEl = document.getElementById('introLogo');
       const topRect = document.getElementById('topLogo').getBoundingClientRect();
       const introRect = introLogoEl.getBoundingClientRect();
-      await wait(900);
+      await wait(700);
       const scale = Math.max(0.28, topRect.width / introRect.width);
       const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
       const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
-      introLogoEl.style.transition = `transform 600ms var(--ease), opacity 600ms var(--ease)`;
+      introLogoEl.style.transition = `transform 520ms var(--ease), opacity 520ms var(--ease)`;
       introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
       introLogoEl.style.opacity = '0.98';
-      await wait(620);
-      introEl.style.transition = 'opacity 260ms var(--ease), visibility 260ms var(--ease)';
+      await wait(560);
+      introEl.style.transition = 'opacity 220ms var(--ease), visibility 220ms var(--ease)';
       introEl.style.opacity = '0';
       introEl.style.visibility = 'hidden';
       document.getElementById('topLogoWrap').classList.add('visible');
@@ -471,7 +435,12 @@
       document.getElementById('site-footer').classList.add('visible');
     }
 
-    // helpers exposed for debugging
+    // pause when tab hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) cancelAnimationFrame(raf); else loop();
+    });
+
+    // expose for debugging
     window._mtm = { initParticles, sampleLogoPoints, generate8BallPoints, particles };
 
   })();
