@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>Sample Report — MTM Analytics (Mobile)</title>
+
+  <style>
+    :root{
+      --bg-dark:#02102a;
+      --bg-mid:#042a66;
+      --neon: rgba(64,200,255,0.98);
+      --radius: 16px;
+      --ease: cubic-bezier(.2,.9,.3,1);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      padding:0;
+      height:100%;
+      background:
+        url('assets/bg-texture.jpg'),
+        radial-gradient(1200px 600px at 10% 10%, rgba(64,200,255,0.03), transparent 8%),
+        linear-gradient(180deg, rgba(0,8,24,0.72), rgba(2,12,36,0.6));
+      background-size:cover;
+      background-position:center;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      color:#eaf6ff;
+      overflow:hidden;
+    }
+
+    .grain {
+      position:fixed;
+      inset:0;
+      background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+      background-size: 3px 3px;
+      mix-blend-mode: overlay;
+      opacity:0.25;
+      pointer-events:none;
+      z-index:1;
+    }
+
+    /* MOBILE BACK BUTTON */
+    .back-btn{
+      position:fixed;
+      bottom:16px;
+      left:16px;
+      padding:12px 20px;
+      background: linear-gradient(90deg, rgba(64,200,255,0.22), rgba(64,200,255,0.12));
+      color:var(--neon);
+      border-radius:999px;
+      font-weight:700;
+      text-decoration:none;
+      border:1px solid rgba(64,200,255,0.22);
+      backdrop-filter: blur(12px) saturate(160%);
+      box-shadow:0 8px 30px rgba(0,0,0,0.45);
+      z-index:20;
+      font-size:1rem;
+    }
+
+    /* REPORT WRAPPER */
+    .report-wrapper{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      z-index:5;
+    }
+
+    iframe{
+      width:100%;
+      height:100%;
+      border:0;
+
+      /* MOBILE ZOOM FOR READABILITY */
+      transform: scale(1.25);
+      transform-origin: top center;
+      height: 125%;
+    }
+
+    /* MASK bottom footer */
+    .mask-bottom{
+      position:absolute;
+      bottom:0;
+      left:0;
+      width:100%;
+      height:120px;
+      background:linear-gradient(to bottom, rgba(2,12,36,0) 0%, rgba(2,12,36,1) 100%);
+      pointer-events:none;
+      z-index:10;
+    }
+
+    /* MASK top-right (remove blue tint) */
+    .mask-top-right{
+      position:absolute;
+      top:0;
+      right:0;
+      width:160px;
+      height:120px;
+      background:transparent;
+      pointer-events:none;
+      z-index:10;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="grain"></div>
+
+  <!-- BACK BUTTON -->
+  <a href="https://mtmanalytics.co.uk" class="back-btn">← Back</a>
+
+  <!-- REPORT + MASKS -->
+  <div class="report-wrapper">
+    <iframe
+      title="Sample Report"
+      src="https://app.powerbi.com/view?r=eyJrIjoiZDNjMmE2NGMtYTNlNy00NGFiLTgxZWItNzA3YWY5ZjJhZjM1IiwidCI6ImY5ZTg2ZWIyLTFhODQtNGNlZC05YjI0LTIzMzVhNmI0M2Y1OCJ9"
+      allowfullscreen="true">
+    </iframe>
+
+    <div class="mask-bottom"></div>
+    <div class="mask-top-right"></div>
+  </div>
+
+</body>
+</html>
