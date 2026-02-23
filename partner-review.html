@@ -505,6 +505,171 @@ backdrop-filter: blur(6px);
   outline-offset: 3px;
 }
 
+@media (min-width: 900px) { .about { margin-top: 28px; } }
+
+@media (max-width: 420px) { .about { margin-top: 12px; } }
+
+.about.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1.006);
+}
+
+.about h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.28rem;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+  text-align: center;               /* redundant but explicit */
+}
+
+.about p {
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  color: rgba(234,246,255,0.88);
+  font-size: 0.98rem;
+  text-align: center;               /* ensure paragraphs are centered */
+}
+
+/* Inline link style for About text (if using .about-link) */
+.about-link {
+  color: var(--neon);
+  text-decoration: underline;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  padding: 0;
+  line-height: 1.3;
+}
+
+.about-link:hover { color: #00f0ff; }
+
+.about-link:focus {
+  outline: 2px solid rgba(0,217,255,0.18);
+  outline-offset: 3px;
+}
+
+
+
+@media (max-width: 768px) {
+
+
+  .container,
+  .content,
+  .page-wrap,
+  .main,
+  .wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    box-sizing: border-box !important;
+  }
+
+
+  .site-header {
+    height: 68px !important;
+    padding: 0 12px !important;
+  }
+
+  .top-logo img {
+    height: 34px !important;
+    width: auto !important;
+  }
+
+
+  .site-nav {
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  .site-nav a {
+    font-size: 0.82rem !important;
+    padding: 0 6px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+  }
+
+  .site-nav a:not(:last-child)::after {
+    right: -6px !important;
+    height: 12px !important;
+  }
+
+
+  .about {
+    display: block !important;
+    width: calc(100% - 16px) !important; /* 8px gutters each side */
+    max-width: none !important;
+    padding: 10px 8px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .about h2 {
+    font-size: clamp(1rem, 4.2vw, 1.2rem) !important;
+    margin-bottom: 8px !important;
+  }
+
+  .about p {
+    font-size: clamp(0.78rem, 3.4vw, 0.96rem) !important;
+    line-height: 1.55 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    hyphens: auto !important;
+    margin: 0 0 12px 0 !important;
+  }
+
+
+  .about * {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin: 0 0 12px 0 !important;
+  }
+
+  .about img,
+  .about svg {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+
+  .decorative,
+  .vertical-line,
+  .dotted-line,
+  .side-graphic {
+    position: absolute !important;
+    pointer-events: none !important;
+  }
+
+
+  .note,
+  .about p,
+  .contact-note,
+  .cuescore-note,
+  .cuescore-note p {
+    font-size: clamp(0.78rem, 3.4vw, 0.96rem) !important;
+    line-height: 1.55 !important;
+    color: inherit !important;
+    margin: 0 0 12px 0 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    hyphens: auto !important;
+  }
+
+  .contact-note,
+  .cuescore-note {
+    width: calc(100% - 16px) !important;
+    max-width: none !important;
+    padding: 8px !important;
+    box-sizing: border-box !important;
+  }
+}
+
+    
   </style>
 </head>
 
@@ -723,5 +888,6 @@ If you are having any trouble please contact us directly.</p>
   </script>
 </body>
 </html>
+
 
 
