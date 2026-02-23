@@ -19,9 +19,11 @@
 <meta name="twitter:description" content="MTM Analytics" />
 <meta name="twitter:image" content="https://mtmanalytics.co.uk/assets/logo.png" />
 
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <title>MTM Analytics — Dashboard (Classic Background)</title>
+
+
 
   <style>
     :root{
@@ -78,18 +80,20 @@
 
     .grain{position:fixed;inset:0;z-index:2;pointer-events:none;background-image:radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);background-size:3px 3px;mix-blend-mode:overlay;opacity:0.04}
 
-   .container{
+.container{
   position:relative;
   z-index:10;
   width:100%;
   max-width:1100px;
-  margin: 0 auto;              /* centres container */
+  margin: 0 auto;
   display:flex;
   flex-direction:column;
-  align-items:center;          /* centres children */
-  justify-content:flex-start;  /* stops vertical squashing */
+  align-items:center;
+  justify-content:flex-start;
   gap:28px;
   padding:28px;
+  text-align:center;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; /* ⭐ FIX */
 }
 
 
