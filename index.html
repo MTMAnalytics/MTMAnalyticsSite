@@ -244,7 +244,7 @@
       transform: translateY(14px) scale(0.995);
       transition: transform 420ms var(--ease), opacity 420ms var(--ease);
       overflow: hidden;
-      z-index: 0; /* ensure pseudo elements sit behind content */
+      z-index: 0;
     }
 
     .card.visible {
@@ -503,49 +503,6 @@
   outline-offset: 3px;
 }
 
-    @media (min-width: 900px) { .about { margin-top: 28px; } }
-
-@media (max-width: 420px) { .about { margin-top: 12px; } }
-
-.about.visible {
-  opacity: 1;
-  transform: translateY(0) scale(1.006);
-}
-
-.about h2 {
-  margin: 0 0 8px 0;
-  font-size: 1.28rem;
-  color: #ffffff;
-  letter-spacing: -0.2px;
-  text-align: center;               /* redundant but explicit */
-}
-
-.about p {
-  margin: 0 0 12px 0;
-  line-height: 1.5;
-  color: rgba(234,246,255,0.88);
-  font-size: 0.98rem;
-  text-align: center;               /* ensure paragraphs are centered */
-}
-
-/* Inline link style for About text (if using .about-link) */
-.about-link {
-  color: var(--neon);
-  text-decoration: underline;
-  font-weight: 600;
-  background: transparent;
-  border: none;
-  padding: 0;
-  line-height: 1.3;
-}
-
-.about-link:hover { color: #00f0ff; }
-
-.about-link:focus {
-  outline: 2px solid rgba(0,217,255,0.18);
-  outline-offset: 3px;
-}
-
 
 
 @media (max-width: 768px) {
@@ -667,9 +624,31 @@
   }
 }
 
-    
+
+
+
   </style>
 </head>
+
+<script>
+/* Deferred GA4 loader — replace nothing, your ID is already set below */
+function loadAnalytics() {
+  if (window._ga_loaded) return;
+  window._ga_loaded = true;
+
+  var s = document.createElement('script');
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-1X27VGBP0F';
+  s.async = true;
+  document.head.appendChild(s);
+
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  window.gtag = gtag;
+  gtag('js', new Date());
+  gtag('config', 'G-1X27VGBP0F', { 'anonymize_ip': true });
+}
+</script>
+
 
 <body>
 
@@ -885,5 +864,43 @@ From player performance to event summaries, we provide the insights players, fan
     window._classic = { initParticles, particles };
   })();
   </script>
+
+<!-- Simple Cookie Banner -->
+<div id="cookie-banner" style="position:fixed;left:0;right:0;bottom:0;background:#111;color:#fff;padding:12px 16px;z-index:9999;display:flex;gap:12px;align-items:center;">
+  <div style="flex:1;max-width:75%;">We use cookies to improve the site and for analytics. By clicking Accept you consent to non‑essential cookies. <a href="/cookie-policy.html" style="color:#9cf;text-decoration:underline;">Cookie policy</a></div>
+  <div style="display:flex;gap:8px;">
+    <button id="cookie-decline" style="padding:8px 10px;background:#444;color:#fff;border:none;">Decline</button>
+    <button id="cookie-accept" style="padding:8px 10px;background:#0a84ff;color:#fff;border:none;">Accept</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var banner = document.getElementById('cookie-banner');
+  var consent = localStorage.getItem('cookie_consent');
+
+  if (consent) {
+    banner.style.display = 'none';
+    if (consent === 'accepted') {
+      if (typeof loadAnalytics === 'function') loadAnalytics();
+    }
+    return;
+  }
+
+  document.getElementById('cookie-accept').addEventListener('click', function(){
+    localStorage.setItem('cookie_consent','accepted');
+    banner.style.display = 'none';
+    if (typeof loadAnalytics === 'function') loadAnalytics();
+  });
+
+  document.getElementById('cookie-decline').addEventListener('click', function(){
+    localStorage.setItem('cookie_consent','declined');
+    banner.style.display = 'none';
+  });
+})();
+</script>
+
+
+
 </body>
 </html>
