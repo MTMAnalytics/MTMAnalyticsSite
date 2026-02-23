@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="MTM Analytics" />
+  <meta property="og:description" content="MTM Analytics" />
+  <meta property="og:url" content="https://mtmanalytics.co.uk/" />
+  <meta property="og:image" content="https://mtmanalytics.co.uk/assets/logo.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="MTM Analytics logo" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MTM Analytics" />
+  <meta name="twitter:description" content="MTM Analytics" />
+  <meta name="twitter:image" content="https://mtmanalytics.co.uk/assets/logo.png" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <title>MTM Analytics</title>
+
+  <style>
+    :root{
+      --bg-very-dark:#00010a;
+      --bg-deep:#00122a;
+      --neon:#00d9ff;
+      --card-surface: rgba(6,14,30,0.72);
+      --card-border: rgba(20,40,80,0.12);
+      --card-radius:14px;
+      --ease:cubic-bezier(.2,.9,.3,1);
+      --content-max:1100px;
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      display:block;
+      min-height:100vh;
+      padding:28px;
+      background:linear-gradient(180deg,var(--bg-very-dark) 0%,var(--bg-deep) 100%);
+      color:#eaf6ff;
+      overflow-x:hidden;
+      overflow-y:auto;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    #stage-wrap{position:fixed;inset:0;z-index:0;pointer-events:none}
+    canvas#stage{width:100%;height:100%;display:block}
+
+    .hex-overlay{
+      position:fixed;inset:0;z-index:1;pointer-events:none;opacity:0.03;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='104' viewBox='0 0 120 104'><defs><pattern id='p' width='120' height='104' patternUnits='userSpaceOnUse'><g fill='none' stroke='%2300d9ff' stroke-opacity='0.06' stroke-width='1'><path d='M30 0 L90 0 L120 52 L90 104 L30 104 L0 52 Z'/></g></pattern></defs><rect width='100%' height='100%' fill='url(%23p)'/></svg>");
+      mix-blend-mode:overlay;
+    }
+
+    .grain{
+      position:fixed;inset:0;z-index:2;pointer-events:none;
+      background-image:radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
+      background-size:3px 3px;
+      mix-blend-mode:overlay;
+      opacity:0.04;
+    }
+
+    /* MAIN CONTENT WRAPPER */
+    .container{
+      padding-top: 160px; /* pushes content below fixed header */
+      padding-bottom: 100px;
+      position:relative;
+      z-index:10;
+      width:100%;
+      max-width:var(--content-max);
+      margin:0 auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:28px;
+      padding:28px;
+      text-align:center;
+    }
+
+    .intro{
+      position:fixed;inset:0;
+      display:flex;align-items:center;justify-content:center;
+      z-index:30;pointer-events:none;
+    }
+
+    .intro img{
+      width:36vmin;max-width:560px;max-height:56vh;
+      display:block;
+      filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85));
+    }
+
+    /* FIXED HEADER */
+    .site-header {
+      backdrop-filter: blur(12px) saturate(160%);
+      background: rgba(0, 10, 20, 0.45);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .top-logo {
+      pointer-events: auto;
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+    }
+
+    .top-logo.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .top-logo img{
+      height:52px;
+      filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6));
+    }
+
+    /* PARTNER REVIEW TITLE */
+    .partner-title {
+      margin-top: 60;
+      margin-bottom: 10px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--neon);
+      opacity: 0;
+      transform: translateY(14px) scale(0.995);
+      transition: transform 420ms var(--ease), opacity 420ms var(--ease);
+    }
+
+    .partner-title.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1.006);
+    }
+
+    /* CARD LAYOUT */
+    .card-row{
+      display:flex;
+      gap:36px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+      width:100%;
+    }
+
+    @media (min-width:900px){
+      .card-row{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:36px;
+        justify-items:center;
+      }
+    }
+
+    .card {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      border-radius: var(--card-radius);
+      padding: 22px;
+      background-color: var(--card-surface);
+      border: 1px solid rgba(0,217,255,0.25);
+      backdrop-filter: blur(10px) saturate(120%);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(14px) scale(0.995);
+      transition: transform 420ms var(--ease), opacity 420ms var(--ease);
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .card.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1.006);
+    }
+
+    .preview{
+      width:240px;height:160px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.02);
+      background:linear-gradient(135deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+    }
+
+    .preview img{
+      max-width:90%;max-height:90%;
+      object-fit:contain;
+      filter:drop-shadow(0 6px 18px rgba(0,0,0,0.6));
+    }
+
+    .coming-link{
+      display:inline-block;
+      padding:12px 22px;
+      border-radius:999px;
+      background:linear-gradient(90deg, rgba(0,212,255,0.12), rgba(10,180,220,0.06));
+      color:var(--neon);
+      font-weight:800;
+      border:1px solid rgba(0,180,220,0.12);
+      text-decoration:none;
+      transition:transform 160ms var(--ease), box-shadow 160ms var(--ease);
+    }
+
+    .coming-link:hover{
+      transform:translateY(-4px);
+      box-shadow:0 36px 100px rgba(0,180,220,0.12);
+    }
+
+    .contact-note {
+      opacity: 0;
+      transform: translateY(14px) scale(0.995);
+      transition: transform 420ms var(--ease), opacity 420ms var(--ease);
+      text-align: center;
+      color: #ffffff;
+      font-size: 0.95rem;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      z-index: 12;
+    }
+
+    .contact-note.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1.006);
+    }
+
+    .contact-note a {
+      color: var(--neon);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer.site-footer{
+      margin-top:60px;
+      text-align:center;
+      color:rgba(200,220,235,0.55);
+      font-size:0.85rem;
+      position:static;
+      left:0;right:0;bottom:12px;
+      opacity:0;
+      transform:translateY(8px);
+      transition:opacity 320ms var(--ease), transform 320ms var(--ease);
+      pointer-events:none;
+      z-index:12;
+    }
+
+    footer.site-footer.visible{
+      opacity:1;
+      transform:translateY(0);
+      pointer-events:auto;
+    }
+
+    @media (max-width:720px){
+      .card-row{flex-direction:column;gap:18px}
+      .intro img{width:72vmin}
+      footer.site-footer{
+        position:static;
+        margin-top:40px;
+        transform:none;
+        opacity:1;
+        pointer-events:auto;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="stage-wrap"><canvas id="stage"></canvas></div>
+  <div class="hex-overlay" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="intro" id="intro">
+    <div class="logo-wrap">
+      <img id="introLogo" src="assets/logo.png" alt="MTM Analytics logo">
+    </div>
+  </div>
+
+  <header class="site-header"> 
+    <div class="top-logo" id="topLogoWrap">
+      <img id="topLogo" src="assets/logo.png" alt="MTM Analytics">
+    </div> 
+  </header>
+
+  <div class="container" role="main" aria-live="polite">
+
+    <h1 class="partner-title">Partner Review</h1>
+
+    <div class="card-row" role="navigation" aria-label="Reports">
+      <section class="card" id="mainCard">
+        <div class="preview">
+          <img src="assets/IPA-Blue.png" alt="IPA Dashboard">
+        </div>
+        <a class="coming-link" href="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58&navContentPaneEnabled=false&filterPaneEnabled=false">
+          IPA
+        </a>
+      </section>
+    </div>
+
+    <p id="contactNote" class="contact-note">
+      For enquiries contact <a href="mailto:matt@mtmanalytics.co.uk">matt@mtmanalytics.co.uk</a>
+    </p>
+
+    <footer id="site-footer" class="site-footer">
+      © 2026 MTM Analytics. All rights reserved.<br>
+      <a href="/legal.html" style="color:inherit;text-decoration:none;">Legal & Image Attribution</a> |
+      <a href="/privacy.html" style="color:inherit;text-decoration:none;">Privacy Policy</a>
+    </footer>
+
+  </div>
+<script>
+(function(){
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  let DPR = Math.max(1, window.devicePixelRatio || 1);
+
+  function resize() {
+    DPR = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.floor(window.innerWidth * DPR);
+    canvas.height = Math.floor(window.innerHeight * DPR);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  resize();
+  window.addEventListener('resize', () => { 
+    clearTimeout(window._resizeT); 
+    window._resizeT = setTimeout(resize, 120); 
+  });
+
+  // Config
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent) || innerWidth < 768;
+  const COUNT = isMobile ? 140 : 420;
+  const BASE_SPEED = isMobile ? 0.12 : 0.42;
+  const DOT_MIN = 0.9, DOT_MAX = 3.0;
+  const LINE_DIST = isMobile ? 70 : 110;
+
+  // Particles
+  let particles = [];
+  function rand(min,max){ return Math.random()*(max-min)+min; }
+
+  function initParticles(){
+    particles = [];
+    for (let i=0;i<COUNT;i++){
+      particles.push({
+        x: Math.random()*innerWidth,
+        y: Math.random()*innerHeight,
+        vx: (Math.random()-0.5)*BASE_SPEED,
+        vy: (Math.random()-0.5)*BASE_SPEED,
+        r: rand(DOT_MIN, DOT_MAX),
+        alpha: rand(0.22,0.6),
+        hue: Math.random()
+      });
+    }
+  }
+
+  function fieldAngle(x,y,t){
+    const a = Math.sin((x * 0.0012 + t * 0.0009) * 1.2) + Math.cos((y * 0.0016 - t * 0.0007) * 1.1);
+    const b = Math.sin((x * 0.0009 - y * 0.0011 + t * 0.0013) * 0.9);
+    return (a + b) * Math.PI * 1.6;
+  }
+
+  // draw loop
+  let last = performance.now();
+  function draw(now){
+    const t = now || performance.now();
+    const dt = Math.min(40, t - last);
+    last = t;
+
+    ctx.fillStyle = '#00010a';
+    ctx.fillRect(0,0,innerWidth,innerHeight);
+
+    for (let p of particles){
+      const ang = fieldAngle(p.x, p.y, t * 0.0009);
+      p.vx += Math.cos(ang) * BASE_SPEED * 0.08;
+      p.vy += Math.sin(ang) * BASE_SPEED * 0.08;
+      p.vx *= 0.96; 
+      p.vy *= 0.96;
+
+      p.x += p.vx * (dt/16);
+      p.y += p.vy * (dt/16);
+
+      if (p.x < -10) p.x = innerWidth + 10;
+      if (p.x > innerWidth + 10) p.x = -10;
+      if (p.y < -10) p.y = innerHeight + 10;
+      if (p.y > innerHeight + 10) p.y = -10;
+
+      const baseR = 0, baseG = 210, baseB = 255;
+      const r = baseR + Math.floor(12 * p.hue);
+      const g = baseG + Math.floor(36 * p.hue);
+      const b = baseB + Math.floor(12 * p.hue);
+
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
+      ctx.shadowColor = `rgba(${r},${g},${b},${Math.min(0.95, p.alpha * 1.6)})`;
+      ctx.shadowBlur = 10;
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // connecting lines
+    for (let i=0;i<particles.length;i++){
+      for (let j=i+1;j<particles.length;j++){
+        const a = particles[i], b = particles[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < LINE_DIST){
+          const alpha = (1 - dist/LINE_DIST) * 0.06;
+          ctx.strokeStyle = `rgba(10,160,230,${alpha})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // vignette
+    const vg = ctx.createRadialGradient(
+      innerWidth/2, innerHeight/2,
+      Math.min(innerWidth,innerHeight)*0.2,
+      innerWidth/2, innerHeight/2,
+      Math.max(innerWidth,innerHeight)
+    );
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.28)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0,0,innerWidth,innerHeight);
+  }
+
+  let raf;
+  function loop(now){ draw(now); raf = requestAnimationFrame(loop); }
+
+  // Start
+  initParticles();
+  loop();
+
+  // Intro reveal
+  const logoImg = document.getElementById('introLogo');
+  logoImg.onload = () => { revealUI(); };
+  setTimeout(revealUI, 1200);
+
+  async function revealUI(){
+    const introEl = document.getElementById('intro');
+    if (!introEl || introEl.dataset.revealed) return;
+    introEl.dataset.revealed = '1';
+
+    const introLogoEl = document.getElementById('introLogo');
+    const topRect = document.getElementById('topLogo').getBoundingClientRect();
+    const introRect = introLogoEl.getBoundingClientRect();
+
+    await new Promise(r => setTimeout(r, 700));
+
+    const scale = Math.max(0.28, topRect.width / introRect.width);
+    const translateX = (topRect.left + topRect.width/2) - (introRect.left + introRect.width/2);
+    const translateY = (topRect.top + topRect.height/2) - (introRect.top + introRect.height/2);
+
+    introLogoEl.style.transition = `transform 520ms var(--ease), opacity 520ms var(--ease)`;
+    introLogoEl.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+    introLogoEl.style.opacity = '0.98';
+
+    await new Promise(r => setTimeout(r, 620));
+
+    introEl.style.transition = 'opacity 260ms var(--ease), visibility 260ms var(--ease)';
+    introEl.style.opacity = '0';
+    introEl.style.visibility = 'hidden';
+
+    document.getElementById('topLogoWrap').classList.add('visible');
+    document.getElementById('mainCard').classList.add('visible');
+    document.querySelector('.partner-title')?.classList.add('visible');
+    document.getElementById('contactNote').classList.add('visible');
+    document.getElementById('site-footer').classList.add('visible');
+    document.querySelector('.about')?.classList.add('visible');
+  }
+
+  window._classic = { initParticles, particles };
+})();
+</script>
+
+
