@@ -41,7 +41,7 @@
       min-height:100vh;
       padding:28px;
       background:linear-gradient(180deg,var(--bg-very-dark) 0%,var(--bg-deep) 100%);
-      color:#eaf6ff;
+      color:#ffffff;
       overflow-x:hidden;
       overflow-y:auto;
       font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
@@ -93,23 +93,33 @@
       filter:drop-shadow(0 30px 80px rgba(0,0,0,0.85));
     }
 
+
 .site-header {
-  backdrop-filter: blur(12px) saturate(160%);
-background: rgba(0, 10, 20, 0.45);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 100px;                 /* adjust if needed */
+
+  height: 100px;
+  padding: 0 40px;
+
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  z-index: 100;                 /* above everything */
-  pointer-events: none;         /* so it doesn’t block clicks */
+
+  backdrop-filter: blur(12px) saturate(160%);
+  background: rgba(0, 0, 0, 0.45);
+
+  z-index: 100;
+  pointer-events: none;
+}
+
+.top-logo,
+.site-nav {
+  pointer-events: auto;
 }
 
 .top-logo {
-  pointer-events: auto;         /* logo itself still clickable */
   opacity: 0;
   transform: scale(0.98);
   transition: opacity 420ms var(--ease), transform 420ms var(--ease);
@@ -120,39 +130,72 @@ background: rgba(0, 10, 20, 0.45);
   transform: scale(1);
 }
 
+.top-logo img {
+  height: 52px;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.6));
+}
 
-    .top-logo img{
-      height:52px;
-      filter:drop-shadow(0 8px 30px rgba(0,0,0,0.6));
-    }
+.site-nav {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  opacity: 0;
+  transform: translateY(6px) scale(0.98);
+  transition: opacity 420ms var(--ease), transform 420ms var(--ease);
+}
 
-    /* ===== About section (new) ===== */
-    .about {
-      width:100%;
-      max-width:var(--content-max);
-      background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
-      border-radius: 12px;
-      padding: 22px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
-      border: 1px solid rgba(255,255,255,0.02);
-      text-align:left;
-      color: rgba(234,246,255,0.95);
-      z-index: 8;
-    }
+.site-nav.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.site-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  font-family: inherit
+  position: relative;
+  padding: 0 6px;
+  transition: color 220ms var(--ease);
+}
+
+.site-nav a:hover {
+  color: var(--neon);
+}
+
+.site-nav a:visited {
+  color: #ffffff;
+}
+
+   .about {
+  width:100%;
+  max-width:var(--content-max);
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.02);
+  text-align:left;
+  color: #ffffff; /* ← PURE WHITE */
+  z-index: 8;
+}
+
 
     .about h2{
       margin:0 0 8px 0;
       font-size:1.28rem;
-      color: #eaf6ff;
+      color: #ffffff;
       letter-spacing: -0.2px;
     }
 
-    .about p{
-      margin:0 0 12px 0;
-      line-height:1.5;
-      color: rgba(234,246,255,0.88);
-      font-size:0.98rem;
-    }
+    .about p {
+  margin:0 0 12px 0;
+  line-height:1.5;
+  color: #ffffff;
+  font-size:0.98rem;
+}
+
 
     .about .cta {
       display:inline-block;
@@ -178,7 +221,7 @@ background: rgba(0, 10, 20, 0.45);
     @media (min-width:900px){
       .card-row{
         display:grid;
-        grid-template-columns:1fr 1fr;
+        grid-template-columns:1fr;
         gap:36px;
         justify-items:center;
       }
@@ -343,6 +386,29 @@ background: rgba(0, 10, 20, 0.45);
       font-weight: 600;
     }
 
+.cuescore-note {
+      opacity: 0;
+      transform: translateY(14px) scale(0.995);
+      transition: transform 420ms var(--ease), opacity 420ms var(--ease);
+      text-align: center;
+      color: #ffffff;
+      font-size: 0.95rem;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      z-index: 12;
+    }
+
+    .cuescore-note.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1.006);
+    }
+
+    .cuescore-note a {
+      color: var(--neon);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
     footer.site-footer{
       margin-top:60px;
       text-align:center;
@@ -406,7 +472,7 @@ background: rgba(0, 10, 20, 0.45);
 .about h2 {
   margin: 0 0 8px 0;
   font-size: 1.28rem;
-  color: #eaf6ff;
+  color: #ffffff;
   letter-spacing: -0.2px;
   text-align: center;               /* redundant but explicit */
 }
@@ -452,12 +518,24 @@ background: rgba(0, 10, 20, 0.45);
     </div>
   </div>
 
-  <div class="container" role="main" aria-live="polite">
+
 
 <header class="site-header"> 
-<div class="top-logo" id="topLogoWrap"> <img id="topLogo" src="assets/logo.png" alt="MTM Analytics"> 
-</div> 
+
+  <div class="top-logo" id="topLogoWrap">
+    <img id="topLogo" src="assets/logo.png" alt="MTM Analytics">
+  </div>
+
+  <nav class="site-nav" id="siteNav">
+    <a href="index.html">Home</a>
+    <a href="partners.html">Our Partners</a>
+    <a href="partner-review.html">Partner Review</a>
+  </nav>
+
 </header>
+
+
+  <div class="container" role="main" aria-live="polite">
  
     <!-- About section inserted here -->
     <div class="about" role="region" aria-label="About MTM Analytics">
@@ -472,15 +550,14 @@ From player performance to event summaries, we provide the insights players, fan
         <div class="preview"><img src="assets/logo.png" alt="MTM Analytics sample"></div>
         <a class="coming-link" href="sample.html">Sample Dashboard</a>
       </section>
-
-      <section class="card" id="mainCard">
-        <div class="preview"><img src="assets/IPA-Blue.png" alt="IPA Dashboard"></div>
-        <a class="coming-link" href="https://app.powerbi.com/reportEmbed?reportId=1b619ae0-38bd-4651-8ced-75658aeb6250&appId=4f926796-f89a-47c1-948e-6391ca4b6cb3&autoAuth=true&ctid=f9e86eb2-1a84-4ced-9b24-2335a6b43f58&navContentPaneEnabled=false&filterPaneEnabled=false">IPA</a>
-      </section>
-    </div>
+        </div>
 
     <p id="contactNote" class="contact-note">
       For enquiries contact <a href="mailto:matt@mtmanalytics.co.uk">matt@mtmanalytics.co.uk</a>
+    </p>
+
+<p id="cuescoreNote" class="cuescore-note">
+      MTM Analytics is able to distribute these reports using data held by <a href="https://cuescore.com">Cuescore</a>, and is published with their approval and our thanks.
     </p>
 
     <footer id="site-footer" class="site-footer">© 2026 MTM Analytics. All rights reserved.<br><a href="/legal.html" style="color:inherit;text-decoration:none;">Legal & Image Attribution</a> | <a href="/privacy.html" style="color:inherit;text-decoration:none;">Privacy Policy</a></footer>
@@ -631,9 +708,10 @@ From player performance to event summaries, we provide the insights players, fan
       introEl.style.opacity = '0';
       introEl.style.visibility = 'hidden';
       document.getElementById('topLogoWrap').classList.add('visible');
+      document.getElementById('siteNav').classList.add('visible');
       document.getElementById('sampleCard').classList.add('visible');
-      document.getElementById('mainCard').classList.add('visible');
       document.getElementById('contactNote').classList.add('visible');
+      document.getElementById('cuescoreNote').classList.add('visible');
       document.getElementById('site-footer').classList.add('visible');
       document.querySelector('.about')?.classList.add('visible');
     }
